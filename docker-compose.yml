@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  messenger-db:
+    container_name: messenger-db
+    build: ./db
+    volumes:
+      - ./db/pg-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: exit 0
+
+  messenger-server:
+    container_name: messenger-server
+    build: .
+    volumes:
+      - '.:/usr/src/app'
+      - './package.json:/usr/src/package.json'
+    ports:
+      - '4000:4000'
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@messenger:5432/
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - messenger-db
+    links:
+      - messenger-db
