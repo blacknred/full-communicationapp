@@ -1,0 +1,28 @@
+{
+  "name": "corporate-messenger-web-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "PORT=4001 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "apollo-boost": "^0.1.15",
+    "graphql": "^14.0.2",
+    "graphql-tag": "^2.9.2",
+    "react": "^16.5.0",
+    "react-apollo": "^2.1.11",
+    "react-dom": "^16.5.0",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "1.1.5"
+  },
+  "devDependencies": {
+    "eslint": "^5.5.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.11.1"
+  }
+}

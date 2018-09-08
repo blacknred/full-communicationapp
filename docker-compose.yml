@@ -2,11 +2,11 @@ version: '3'
 
 services:
 
-  messenger-db:
+  db:
     container_name: messenger-db
-    build: ./db
+    build: ./backend/db
     volumes:
-      - ./db/pg-data:/var/lib/postgresql/data
+      - ./backend/db/pg-data:/var/lib/postgresql/data
     ports:
       - '5438:5432'
     environment:
@@ -15,18 +15,30 @@ services:
     healthcheck:
       test: exit 0
 
-  messenger-server:
+  server:
     container_name: messenger-server
-    build: .
+    build: ./backend
     volumes:
-      - '.:/usr/src/app'
-      - './package.json:/usr/src/package.json'
+      - './backend:/usr/src/app'
+      - './backend/package.json:/usr/src/package.json'
     ports:
       - '4000:4000'
     environment:
       - DATABASE_URL=postgres://postgres:postgres@messenger-db:5432/messenger_dev
       - NODE_ENV=${NODE_ENV}
     depends_on:
-      - messenger-db
+      - db
     links:
-      - messenger-db
+      - db
+
+  web-client:
+    container_name: messenger-web-client
+    build: ./client
+    volumes:
+      - './client:/usr/src/app'
+      - './client/package.json:/usr/src/package.json'
+    ports:
+      - '4001:4001'
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - CHOKIDAR_USEPOLLING=true

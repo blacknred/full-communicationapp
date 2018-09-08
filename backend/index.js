@@ -16,25 +16,22 @@ const resolvers = mergeResolvers(fileLoader(path.join(__dirname, "./graphql/reso
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: { 
-        models, 
+    context: {
+        models,
         user: { id: 1 }
     }
 });
 
 const app = express();
-// app.use();
-// app.use();
-server.applyMiddleware({
-    app,
-    //cors,
-    //bodyParserConfig: bodyParser.json()
-});
+app.use(cors());
+app.use(bodyParser.json());
+server.applyMiddleware({ app });
 
 const greetings = () => console.log(`
 🚀 Server ready at http://localhost:4000${server.graphqlPath}
 `)
 models.sequelize.sync({ /* force: true */ }).then(() => {
     app.listen({ port: 4000 }, greetings);
-})
+});
+
 
