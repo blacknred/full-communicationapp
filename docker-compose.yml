@@ -4,9 +4,9 @@ services:
 
   db:
     container_name: messenger-db
-    build: ./backend/db
+    build: ./db
     volumes:
-      - ./backend/db/pg-data:/var/lib/postgresql/data
+      - ./db/pg-data:/var/lib/postgresql/data
     ports:
       - '5438:5432'
     environment:
@@ -17,10 +17,10 @@ services:
 
   server:
     container_name: messenger-server
-    build: ./backend
+    build: ./server
     volumes:
-      - './backend:/usr/src/app'
-      - './backend/package.json:/usr/src/package.json'
+      - './server:/usr/src/app'
+      - './server/package.json:/usr/src/package.json'
     ports:
       - '4000:4000'
     environment:
