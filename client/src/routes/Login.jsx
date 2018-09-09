@@ -1,6 +1,8 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
+import { observer } from 'mobx-react';
+import { extendObservable } from 'mobx';
 import { graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
 
@@ -46,10 +48,12 @@ const styles = theme => ({
     },
 });
 
-const REGISTER_MUTATION = gql`
-    mutation Register($username: String!, $email: String!, $password: String!) {
-        register(username: $username, email: $email, password: $password) {
+const LOGIN_MUTATION = gql`
+    mutation Login($email: String!, $password: String!) {
+        login(email: $email, password: $password) {
             ok
+            token
+            refreshToken
             errors {
                 path
                 message
@@ -58,51 +62,50 @@ const REGISTER_MUTATION = gql`
     }
 `;
 
-class Register extends React.Component {
+class Login extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            username: '',
-            usernameErr: '',
+
+        extendObservable(this, {
             email: '',
             emailErr: '',
             password: '',
             passwordErr: '',
-        };
+        });
     }
 
     onChangeHandler = (e) => {
         const { name, value } = e.target;
-        this.setState({ [name]: value });
+        this[name] = value;
     }
 
-    onSubmitHandler = async (e) => {
-        e.preventDefault();
+    onSubmitHandler = async () => {
         const { history, mutate } = this.props;
-        const { username, email, password } = this.state;
+        const { email, password } = this;
         const res = await mutate({
-            variables: { username, email, password },
+            variables: { email, password },
         });
-        const { ok, errors } = res.data.register;
+        const {
+            ok, token, refreshToken, errors,
+        } = res.data.login;
         if (ok) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken);
             history.push('/home');
         } else {
-            const err = {
-                usernameErr: '',
-                emailErr: '',
-                passwordErr: '',
-            };
+            this.emailErr = '';
+            this.passwordErr = '';
             errors.forEach(({ path, message }) => {
-                err[`${path}Err`] = message;
+                this[`${path}Err`] = message;
             });
-            this.setState(err);
+            this.setState({});
         }
     }
 
     render() {
         const {
-            username, usernameErr, email, emailErr, password, passwordErr,
-        } = this.state;
+            email, emailErr, password, passwordErr,
+        } = this;
         const { classes } = this.props;
         return (
             <main className={classes.layout}>
@@ -110,22 +113,10 @@ class Register extends React.Component {
                     <Avatar className={classes.avatar}>
                         <AccountCircle />
                     </Avatar>
-                    <Typography variant="headline">Sign up</Typography>
+                    <Typography variant="headline">Sign in</Typography>
                     <form className={classes.form}>
                         <TextField
-                            required
-                            fullWidth
-                            id="username"
-                            name="username"
-                            label="Username"
-                            autoComplete="username"
                             autoFocus
-                            defaultValue={username}
-                            error={usernameErr.length > 0}
-                            helperText={usernameErr}
-                            onChange={this.onChangeHandler}
-                        />
-                        <TextField
                             required
                             fullWidth
                             id="email"
@@ -157,13 +148,13 @@ class Register extends React.Component {
                             color="primary"
                             className={classes.submit}
                             onClick={this.onSubmitHandler}
-                            children="Sign up"
+                            children="Sign in"
                         />
                         <Button
                             component={Link}
-                            to="/login"
+                            to="/register"
                             fullWidth
-                            children="Already have account?"
+                            children="Don`t have account yet?"
                         />
                     </form>
                 </Paper>
@@ -172,8 +163,8 @@ class Register extends React.Component {
     }
 }
 
-Register.propTypes = {
+Login.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
 };
 
-export default graphql(REGISTER_MUTATION)(withStyles(styles)(Register));
+export default graphql(LOGIN_MUTATION)(observer(withStyles(styles)(Login)));
