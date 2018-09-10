@@ -6,7 +6,7 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 unique: true,
             },
-        }
+        },
     );
 
     Team.associate = (models) => {
@@ -14,12 +14,12 @@ export default (sequelize, DataTypes) => {
             through: 'member',
             foreignKey: {
                 name: 'teamId',
-                field: 'team_id'
-            }
+                field: 'team_id',
+            },
         });
         Team.belongsTo(models.User, {
             foreignKey: 'owner',
-        })
+        });
     };
 
     return Team;

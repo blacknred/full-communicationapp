@@ -26,6 +26,8 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@messenger-db:5432/messenger_dev
       - NODE_ENV=${NODE_ENV}
+      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
     depends_on:
       - db
     links:

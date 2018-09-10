@@ -68,9 +68,8 @@ class Login extends React.Component {
 
         extendObservable(this, {
             email: '',
-            emailErr: '',
             password: '',
-            passwordErr: '',
+            errors: {},
         });
     }
 
@@ -79,7 +78,8 @@ class Login extends React.Component {
         this[name] = value;
     }
 
-    onSubmitHandler = async () => {
+    onSubmitHandler = async (e) => {
+        e.preventDefault();
         const { history, mutate } = this.props;
         const { email, password } = this;
         const res = await mutate({
@@ -91,20 +91,20 @@ class Login extends React.Component {
         if (ok) {
             localStorage.setItem('token', token);
             localStorage.setItem('refreshToken', refreshToken);
-            history.push('/home');
+            history.push('/');
         } else {
-            this.emailErr = '';
-            this.passwordErr = '';
+            const err = {};
             errors.forEach(({ path, message }) => {
-                this[`${path}Err`] = message;
+                err[`${path}Error`] = message;
             });
+            this.errors = err;
             this.setState({});
         }
     }
 
     render() {
         const {
-            email, emailErr, password, passwordErr,
+            email, password, errors: { passwordError, emailError },
         } = this;
         const { classes } = this.props;
         return (
@@ -124,8 +124,8 @@ class Login extends React.Component {
                             label="Email Address"
                             autoComplete="email"
                             defaultValue={email}
-                            error={emailErr.length > 0}
-                            helperText={emailErr}
+                            error={!!emailError}
+                            helperText={emailError}
                             onChange={this.onChangeHandler}
                         />
                         <TextField
@@ -137,8 +137,8 @@ class Login extends React.Component {
                             type="password"
                             autoComplete="current-password"
                             defaultValue={password}
-                            error={passwordErr.length > 0}
-                            helperText={passwordErr}
+                            error={!!passwordError}
+                            helperText={passwordError}
                             onChange={this.onChangeHandler}
                         />
                         <Button

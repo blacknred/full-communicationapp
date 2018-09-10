@@ -1,3 +1,5 @@
+import formateErrors from '../../formateErrors';
+
 export default {
     Mutation: {
         createTeam: async (parent, args, { models, user }) => {
@@ -6,9 +8,14 @@ export default {
                     ...args,
                     owner: user.id,
                 });
-                return true;
+                return {
+                    ok: true,
+                };
             } catch (err) {
-                return false;
+                return {
+                    ok: false,
+                    errors: formateErrors(err, models),
+                };
             }
         },
     },

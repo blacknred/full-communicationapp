@@ -3,7 +3,7 @@ export default (sequelize, DataTypes) => {
         'message',
         {
             text: DataTypes.STRING,
-        }
+        },
     );
 
     Message.associate = (models) => {
@@ -11,15 +11,15 @@ export default (sequelize, DataTypes) => {
         Message.belongsTo(models.Channel, {
             foreignKey: {
                 name: 'channelId',
-                field: 'channel_id'
-            }
+                field: 'channel_id',
+            },
         });
         Message.belongsTo(models.User, {
             foreignKey: {
                 name: 'userId',
-                field: 'user_id'
-            }
-        })
+                field: 'user_id',
+            },
+        });
     };
 
     return Message;

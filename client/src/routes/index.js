@@ -8,14 +8,16 @@ import React from 'react';
 import Home from './Home';
 import Login from './Login';
 import Register from './Register';
+import CreateTeam from './CreateTeam';
 import StyleRoot from '../styleRoot';
 
 const Index = () => (
     <BrowserRouter>
         <Switch>
-            <Route path="/home" exact component={Home} />
-            <Route path="/login" exact component={Login} />
-            <Route path="/register" exact component={Register} />
+            <Route path="/" exact component={Home} />
+            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
+            <Route path="/create-team" component={CreateTeam} />
         </Switch>
     </BrowserRouter>
 );

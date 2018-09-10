@@ -4,9 +4,9 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     operatorsAliases: false,
     define: {
-        underscored: true
-    }
-})
+        underscored: true,
+    },
+});
 
 const models = {
     User: sequelize.import('./user'),
@@ -15,7 +15,7 @@ const models = {
     Message: sequelize.import('./message'),
 };
 
-Object.keys(models).forEach(modelName => {
+Object.keys(models).forEach((modelName) => {
     if (models[modelName].associate) {
         models[modelName].associate(models);
     }

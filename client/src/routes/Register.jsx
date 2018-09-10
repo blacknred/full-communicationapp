@@ -63,11 +63,9 @@ class Register extends React.Component {
         super(props);
         this.state = {
             username: '',
-            usernameErr: '',
             email: '',
-            emailErr: '',
             password: '',
-            passwordErr: '',
+            errors: {},
         };
     }
 
@@ -85,23 +83,20 @@ class Register extends React.Component {
         });
         const { ok, errors } = res.data.register;
         if (ok) {
-            history.push('/home');
+            history.push('/');
         } else {
-            const err = {
-                usernameErr: '',
-                emailErr: '',
-                passwordErr: '',
-            };
+            const err = {};
             errors.forEach(({ path, message }) => {
-                err[`${path}Err`] = message;
+                err[`${path}Error`] = message;
             });
-            this.setState(err);
+            this.setState({ errors: err });
         }
     }
 
     render() {
         const {
-            username, usernameErr, email, emailErr, password, passwordErr,
+            username, email, password,
+            errors: { usernameError, emailError, passwordError },
         } = this.state;
         const { classes } = this.props;
         return (
@@ -121,8 +116,8 @@ class Register extends React.Component {
                             autoComplete="username"
                             autoFocus
                             defaultValue={username}
-                            error={usernameErr.length > 0}
-                            helperText={usernameErr}
+                            error={!!usernameError}
+                            helperText={usernameError}
                             onChange={this.onChangeHandler}
                         />
                         <TextField
@@ -133,8 +128,8 @@ class Register extends React.Component {
                             label="Email Address"
                             autoComplete="email"
                             defaultValue={email}
-                            error={emailErr.length > 0}
-                            helperText={emailErr}
+                            error={!!emailError}
+                            helperText={emailError}
                             onChange={this.onChangeHandler}
                         />
                         <TextField
@@ -146,8 +141,8 @@ class Register extends React.Component {
                             type="password"
                             autoComplete="current-password"
                             defaultValue={password}
-                            error={passwordErr.length > 0}
-                            helperText={passwordErr}
+                            error={!!passwordError}
+                            helperText={passwordError}
                             onChange={this.onChangeHandler}
                         />
                         <Button
