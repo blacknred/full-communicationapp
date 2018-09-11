@@ -4,22 +4,31 @@ import {
     createMuiTheme,
 } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import grey from '@material-ui/core/colors/grey';
-import blue from '@material-ui/core/colors/blue';
-import teal from '@material-ui/core/colors/teal';
+import { grey, red } from '@material-ui/core/colors';
 import CssBaseline from '@material-ui/core/CssBaseline';
+
+const styles = {
+    appFrame: {
+        height: '100vh',
+        zIndex: 1,
+        overflow: 'hidden',
+        position: 'relative',
+        display: 'flex',
+        width: '100%',
+    },
+};
 
 const lightTheme = createMuiTheme({
     palette: {
         background: {
-            default: grey[200],
+            default: grey[50],
         },
         type: 'light',
         primary: {
-            main: teal[500],
+            main: '#473544',
         },
         secondary: {
-            main: blue[500],
+            main: red[500],
         },
     },
 });
@@ -31,10 +40,10 @@ const darkTheme = createMuiTheme({
         },
         type: 'dark',
         primary: {
-            main: blue[500],
+            main: '#473544',
         },
         secondary: {
-            main: teal[500],
+            main: red[500],
         },
     },
 });
@@ -46,7 +55,9 @@ const StyleRoot = (Component) => {
         return (
             <MuiThemeProvider theme={IS_NIGHT_MODE ? darkTheme : lightTheme}>
                 <CssBaseline />
-                <Component {...props} />
+                <div style={styles.appFrame}>
+                    <Component {...props} />
+                </div>
             </MuiThemeProvider>
         );
     }
@@ -54,7 +65,7 @@ const StyleRoot = (Component) => {
 };
 
 StyleRoot.propTypes = {
-    Component: PropTypes.element.isRequired,
+    Component: PropTypes.element.isRequibrown,
 };
 
 export default StyleRoot;

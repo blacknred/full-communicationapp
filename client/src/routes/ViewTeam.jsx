@@ -5,13 +5,13 @@ import { observer } from 'mobx-react';
 import { extendObservable } from 'mobx';
 import { graphql } from 'react-apollo';
 
-import Paper from '@material-ui/core/Paper';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import People from '@material-ui/icons/People';
-import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
+
+import Teams from '../components/Teams';
+import Header from '../components/Header';
+import Messages from '../components/Messages';
+import Channels from '../components/Channels';
+import SendMessage from '../components/SendMessage';
 
 const styles = theme => ({
     layout: {
@@ -48,8 +48,8 @@ const styles = theme => ({
 });
 
 const CREATE_TEAM_MUTATION = gql`
-    mutation CreateTeam($name: String!) {
-        createTeam(name: $name) {
+    mutation ViewTeam($name: String!) {
+        ViewTeam(name: $name) {
             ok
             errors {
                 path
@@ -59,7 +59,7 @@ const CREATE_TEAM_MUTATION = gql`
     }
 `;
 
-class CreateTeam extends React.Component {
+class ViewTeam extends React.Component {
     constructor(props) {
         super(props);
 
@@ -87,7 +87,7 @@ class CreateTeam extends React.Component {
             history.push('/login');
             return;
         }
-        const { ok, errors } = res.data.createTeam;
+        const { ok, errors } = res.data.ViewTeam;
         if (ok) {
             history.push('/');
         } else {
@@ -101,47 +101,36 @@ class CreateTeam extends React.Component {
     }
 
     render() {
-        const { name, errors: { nameError } } = this;
-        const { classes } = this.props;
         return (
-            <main className={classes.layout}>
-                <Paper className={classes.paper}>
-                    <Avatar className={classes.avatar}>
-                        <People />
-                    </Avatar>
-                    <Typography variant="headline">Create a Team</Typography>
-                    <form className={classes.form}>
-                        <TextField
-                            autoFocus
-                            required
-                            fullWidth
-                            id="name"
-                            name="name"
-                            label="Team name"
-                            autoComplete="name"
-                            defaultValue={name}
-                            error={!!nameError}
-                            helperText={nameError}
-                            onChange={this.onChangeHandler}
-                        />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="raised"
-                            color="primary"
-                            className={classes.submit}
-                            onClick={this.onSubmitHandler}
-                            children="Create Team"
-                        />
-                    </form>
-                </Paper>
-            </main>
+            <React.Fragment>
+                <Teams
+                    teams={[
+                        { id: 1, letter: 'B' },
+                        { id: 2, letter: 'Q' },
+                    ]}
+                />
+                <Channels
+                    teamName="Team name"
+                    username="Username"
+                    channels={[
+                        { id: 1, name: 'General' },
+                        { id: 2, name: 'Random' },
+                    ]}
+                    users={[
+                        { id: 1, name: 'Slackbot' },
+                        { id: 2, name: 'Mike' },
+                    ]}
+                />
+                <Header channelName="General" />
+                <Messages />
+                <SendMessage channelName="General" />
+            </React.Fragment>
         );
     }
 }
 
-CreateTeam.propTypes = {
-    classes: PropTypes.objectOf(PropTypes.string).isRequired,
+ViewTeam.propTypes = {
+    // classes: PropTypes.objectOf(PropTypes.string).isRequired,
 };
 
-export default graphql(CREATE_TEAM_MUTATION)(observer(withStyles(styles)(CreateTeam)));
+export default graphql(CREATE_TEAM_MUTATION)(observer(withStyles(styles)(ViewTeam)));
