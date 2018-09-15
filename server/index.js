@@ -33,7 +33,7 @@ const checkUser = async (req, res, next) => {
                 token, refreshToken, models, SECRET, SECRET2,
             });
             if (newTokens.token && newTokens.refreshToken) {
-                req.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
+                res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
                 res.set('x-token', newTokens.token);
                 res.set('x-refresh-token', newTokens.refreshToken);
             }

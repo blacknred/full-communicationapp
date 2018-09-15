@@ -1,23 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import {
     List,
     Drawer,
     Divider,
     ListItem,
-    Toolbar,
-    withStyles,
-    Typography,
+    IconButton,
     ListItemText,
     ListItemIcon,
     ListSubheader,
 } from '@material-ui/core';
 import {
-    // RadioButtonChecked,
-    // RadioButtonUnchecked,
     FiberManualRecord,
+    AddCircle,
 } from '@material-ui/icons';
+import { withStyles } from '@material-ui/core/styles';
 
 const drawerWidth = 240;
 
@@ -35,25 +34,28 @@ const styles = theme => ({
 });
 
 const Channels = ({
-    classes, teamName, users, username, channels,
+    classes, teamName, teamId, users, username, channels, onAddChannel,
 }) => {
-    const channelsList = channels.map(channel => (
+    const channelsList = channels.map(({ id, name }) => (
         <ListItem
-            key={`channel-${channel.id}`}
+            key={`channel-${id}`}
             button
+            component={Link}
+            to={`/view-team/${teamId}/${id}`}
         >
             <ListItemText
-                primary={`# ${channel.name}`}
+                primary={`# ${name}`}
                 primaryTypographyProps={{
-                    color: 'inherit', variant: 'body2',
+                    color: 'inherit',
+                    variant: 'body2',
                 }}
             />
         </ListItem>
     ));
 
-    const usersList = users.map(user => (
+    const usersList = users.map(({ id, name }) => (
         <ListItem
-            key={`channel-user-${user.id}`}
+            key={`channel-user-${id}`}
             button
             color="secondary"
         >
@@ -62,9 +64,10 @@ const Channels = ({
             </ListItemIcon>
             <ListItemText
                 inset
-                primary={user.name}
+                primary={name}
                 primaryTypographyProps={{
-                    color: 'inherit', variant: 'body2',
+                    color: 'inherit',
+                    variant: 'body2',
                 }}
             />
         </ListItem>
@@ -94,7 +97,10 @@ const Channels = ({
                 dense
                 subheader={(
                     <ListSubheader color="inherit">
-                        Channels
+                        <span>Channels</span>
+                        <IconButton onClick={onAddChannel}>
+                            <AddCircle />
+                        </IconButton>
                     </ListSubheader>
                 )}
             >
@@ -119,6 +125,7 @@ Channels.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     teamName: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
+    teamId: PropTypes.number.isRequired,
     channels: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
@@ -127,6 +134,7 @@ Channels.propTypes = {
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
     })).isRequired,
+    onAddChannel: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(Channels);

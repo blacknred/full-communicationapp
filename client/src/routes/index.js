@@ -52,7 +52,7 @@ const Index = () => (
             <Route path="/" exact component={Home} />
             <Route path="/login" exact component={Login} />
             <Route path="/register" exact component={Register} />
-            <Route path="/view-team" exact component={ViewTeam} />
+            <PrivateRoute path="/view-team/:teamId?/:channelId?" exact component={ViewTeam} />
             <PrivateRoute path="/create-team" exact component={CreateTeam} />
         </Switch>
     </BrowserRouter>

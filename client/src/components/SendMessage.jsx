@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Input from '@material-ui/core/Input';
-import Toolbar from '@material-ui/core/Toolbar';
+import {
+    Input,
+    Toolbar,
+} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 const drawersWidth = 90 + 240;

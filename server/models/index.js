@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
-    operatorsAliases: false,
+    operatorsAliases: Sequelize.Op,
     define: {
         underscored: true,
     },

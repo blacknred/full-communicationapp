@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 const createTokens = async ({ user, SECRET, refreshTokenSecret }) => {
     const createToken = jwt.sign(
         {
-            user: _.pick(user, ['id']),
+            user: _.pick(user, ['id', 'username']),
         },
         SECRET,
         {
@@ -15,7 +15,7 @@ const createTokens = async ({ user, SECRET, refreshTokenSecret }) => {
 
     const createRefreshToken = jwt.sign(
         {
-            user: _.pick(user, 'id'),
+            user: _.pick(user, 'id', 'username'),
         },
         refreshTokenSecret,
         {

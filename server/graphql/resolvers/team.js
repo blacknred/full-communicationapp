@@ -2,20 +2,43 @@ import formateErrors from '../../formateErrors';
 import { requiresAuth } from '../../permissions';
 
 export default {
+    Query: {
+        allTeams: requiresAuth.createResolver(
+            async (parent, args, { models, user }) => models
+                .Team.findAll(
+                    { where: { owner: user.id } },
+                    { raw: true },
+                ),
+        ),
+    },
     Mutation: {
-        createTeam: requiresAuth.createResolver(async (parent, args, { models, user }) => {
-            try {
-                await models.Team.create({
-                    ...args,
-                    owner: user.id,
-                });
-                return { ok: true };
-            } catch (err) {
-                return {
-                    ok: false,
-                    errors: formateErrors(err, models),
-                };
-            }
-        }),
+        createTeam: requiresAuth.createResolver(
+            async (parent, args, { models, user }) => {
+                try {
+                    const team = await models.Team.create({
+                        ...args,
+                        owner: user.id,
+                    });
+                    await models.Channel.create({
+                        name: 'general',
+                        public: true,
+                        teamId: team.id,
+                    });
+                    return {
+                        ok: true,
+                        team,
+                    };
+                } catch (err) {
+                    return {
+                        ok: false,
+                        errors: formateErrors(err, models),
+                    };
+                }
+            },
+        ),
+    },
+    Team: {
+        channels: ({ id }, args, { models }) => models
+            .Channel.findAll({ where: { teamId: id } }),
     },
 };

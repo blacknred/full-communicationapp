@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 import {
     List,
     Avatar,
     Drawer,
     ListItem,
-    withStyles,
 } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 
 const drawerWidth = 90;
 
@@ -29,6 +30,8 @@ const Teams = ({ classes, teams }) => {
         <ListItem
             key={`team-${team.id}`}
             button
+            component={Link}
+            to={`/view-team/${team.id}`}
         >
             <Avatar className={classes.avatar}>
                 {team.letter}

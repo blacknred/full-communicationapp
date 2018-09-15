@@ -12,10 +12,6 @@ module.exports = {
         "implicit-arrow-linebreak": [0, "as-beside"],
         "react/prefer-stateless-function": [0, { "ignorePureComponents": true }]
     },
-    // "env": {
-    //     "browser": true,
-    //     "node": true
-    // },
     "globals": {
         "document": 1,
         "localStorage": 1,

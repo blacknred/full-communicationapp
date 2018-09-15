@@ -13,7 +13,7 @@ const styles = theme => ({
     },
 });
 
-const Messages = ({ classes }) => (
+const Messages = ({ classes, channelId }) => (
     <main className={classes.content}>
         <div className={classes.toolbar} />
         <p>Lorem, ipsum.</p>
@@ -71,6 +71,7 @@ const Messages = ({ classes }) => (
 
 Messages.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
+    channelId: PropTypes.number.isRequired,
 };
 
 export default withStyles(styles)(Messages);
