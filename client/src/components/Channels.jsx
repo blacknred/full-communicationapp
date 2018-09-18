@@ -11,10 +11,13 @@ import {
     ListItemText,
     ListItemIcon,
     ListSubheader,
+    ListItemSecondaryAction,
 } from '@material-ui/core';
 import {
     FiberManualRecord,
-    AddCircle,
+    Add,
+    Lock,
+    LockOpen,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -30,21 +33,27 @@ const styles = theme => ({
     toolbar: theme.mixins.toolbar,
     iconRoot: {
         color: theme.palette.secondary.main,
+        width: '0.8em',
+        margin: 0,
     },
 });
 
 const Channels = ({
-    classes, teamName, teamId, users, username, channels, onAddChannel,
+    classes, teamName, teamId, users, username, channels,
+    onAddChannel, onInvitePeople, isOwner,
 }) => {
-    const channelsList = channels.map(({ id, name }) => (
+    const channelsList = channels.map(ch => (
         <ListItem
-            key={`channel-${id}`}
+            key={`channel-${ch.id}`}
             button
             component={Link}
-            to={`/view-team/${teamId}/${id}`}
+            to={`/view-team/${teamId}/${ch.id}`}
         >
+            <ListItemIcon className={classes.iconRoot}>
+                {ch.public ? <LockOpen /> : <Lock />}
+            </ListItemIcon>
             <ListItemText
-                primary={`# ${name}`}
+                primary={`# ${ch.name}`}
                 primaryTypographyProps={{
                     color: 'inherit',
                     variant: 'body2',
@@ -98,14 +107,21 @@ const Channels = ({
                 subheader={(
                     <ListSubheader color="inherit">
                         <span>Channels</span>
-                        <IconButton onClick={onAddChannel}>
-                            <AddCircle />
-                        </IconButton>
+                        {
+                            isOwner && (
+                                <ListItemSecondaryAction>
+                                    <IconButton color="secondary" onClick={onAddChannel}>
+                                        <Add />
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            )
+                        }
                     </ListSubheader>
                 )}
             >
                 {channelsList}
             </List>
+            <Divider />
             <List
                 dense
                 subheader={(
@@ -115,8 +131,25 @@ const Channels = ({
                 )}
             >
                 {usersList}
+                {
+                    isOwner && (
+                        <ListItem
+                            key="invite-people"
+                            button
+                            color="secondary"
+                            onClick={onInvitePeople}
+                        >
+                            <ListItemText
+                                primary="+ Invite People"
+                                primaryTypographyProps={{
+                                    color: 'secondary',
+                                    variant: 'button',
+                                }}
+                            />
+                        </ListItem>
+                    )
+                }
             </List>
-            <Divider />
         </Drawer>
     );
 };
@@ -129,12 +162,15 @@ Channels.propTypes = {
     channels: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
+        public: PropTypes.bool.isRequired,
     })).isRequired,
+    isOwner: PropTypes.bool.isRequired,
     users: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
     })).isRequired,
     onAddChannel: PropTypes.func.isRequired,
+    onInvitePeople: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(Channels);

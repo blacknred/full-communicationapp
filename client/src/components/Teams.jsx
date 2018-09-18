@@ -8,6 +8,7 @@ import {
     Drawer,
     ListItem,
 } from '@material-ui/core';
+import { Add } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const drawerWidth = 90;
@@ -49,6 +50,16 @@ const Teams = ({ classes, teams }) => {
         >
             <List className={classes.toolbar}>
                 {teamsList}
+                <ListItem
+                    key="new-team"
+                    button
+                    component={Link}
+                    to="/create-team"
+                >
+                    <Avatar className={classes.avatar}>
+                        <Add color="secondary" />
+                    </Avatar>
+                </ListItem>
             </List>
         </Drawer>
     );

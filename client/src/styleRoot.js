@@ -5,7 +5,10 @@ import {
 } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { grey, red } from '@material-ui/core/colors';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import {
+    Fade,
+    CssBaseline,
+} from '@material-ui/core';
 
 const styles = {
     appFrame: {
@@ -55,9 +58,11 @@ const StyleRoot = (Component) => {
         return (
             <MuiThemeProvider theme={IS_NIGHT_MODE ? darkTheme : lightTheme}>
                 <CssBaseline />
-                <div style={styles.appFrame}>
-                    <Component {...props} />
-                </div>
+                <Fade in timeout={600}>
+                    <div style={styles.appFrame}>
+                        <Component {...props} />
+                    </div>
+                </Fade>
             </MuiThemeProvider>
         );
     }

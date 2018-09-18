@@ -2,58 +2,46 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-    Switch,
     Dialog,
     Button,
     TextField,
     DialogTitle,
     DialogContent,
     DialogActions,
-    FormControlLabel,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     form: {
         marginTop: theme.spacing.unit * 2,
+        minWidth: 300,
         width: '100%', // Fix IE11 issue.
     },
 });
 
-const AddChannelForm = ({
-    classes, open, name, nameError, isPublic, onChange, onSubmit, onClose,
+const InvitePeopleForm = ({
+    classes, open, email, emailError, onClose, onChange, onSubmit,
 }) => (
     <Dialog
         open={open}
         onClose={onClose}
         aria-labelledby="form-dialog-title"
     >
-        <DialogTitle>Add new channel</DialogTitle>
+        <DialogTitle>Add people to your team</DialogTitle>
         <DialogContent>
             <TextField
                 autoFocus
                 required
                 fullWidth
-                id="name"
-                name="name"
-                label="Channel name"
-                autoComplete="name"
+                id="email"
+                name="email"
+                label="User's email"
+                autoComplete="email"
                 className={classes.form}
-                defaultValue={name}
-                error={!!nameError}
-                helperText={nameError}
+                defaultValue={email}
+                error={!!emailError}
+                helperText={emailError}
                 onChange={onChange}
-            />
-            <FormControlLabel
-                control={(
-                    <Switch
-                        checked={isPublic}
-                        name="isPublic"
-                        onChange={onChange}
-                        value={(!isPublic).toString()}//
-                    />
-                )}
-                label="Make channel public"
             />
         </DialogContent>
         <DialogActions>
@@ -67,22 +55,21 @@ const AddChannelForm = ({
                 color="primary"
                 className={classes.submit}
                 onClick={onSubmit}
-                children="Create Team"
-                disabled={name.length === 0}
+                children="Invite"
+                disabled={email.length === 0}
             />
         </DialogActions>
     </Dialog>
 );
 
-AddChannelForm.propTypes = {
+InvitePeopleForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     open: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
-    nameError: PropTypes.string.isRequired,
-    isPublic: PropTypes.bool.isRequired,
+    email: PropTypes.string.isRequired,
+    emailError: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(AddChannelForm);
+export default withStyles(styles)(InvitePeopleForm);

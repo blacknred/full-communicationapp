@@ -21,12 +21,12 @@ const SECRET = process.env.TOKEN_SECRET;
 const SECRET2 = process.env.TOKEN_SECRET_2;
 
 const checkUser = async (req, res, next) => {
-    console.log(req.headers);
     const token = req.headers['x-token'];
     if (token) {
         try {
             const { user } = jwt.verify(token, SECRET);
             req.user = user;
+            console.log('user', req.user);
         } catch (err) {
             const refreshToken = req.headers['x-refresh-token'];
             const newTokens = await refreshTokens({
@@ -50,15 +50,12 @@ app.use(checkUser);
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: async ({ req }) => {
-        console.log('user', req.user);
-        return {
-            models,
-            user: req.user,
-            SECRET,
-            SECRET2,
-        };
-    },
+    context: async ({ req }) => ({
+        models,
+        user: req.user,
+        SECRET,
+        SECRET2,
+    }),
 });
 
 server.applyMiddleware({ app });

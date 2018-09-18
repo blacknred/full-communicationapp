@@ -7,8 +7,12 @@ export const CREATE_CHANNEL_MUTATION = gql`
             channel {
                 id
                 name
+                public
             }
-            errors
+            errors {
+                path
+                message
+            }
         }
     }
 `;

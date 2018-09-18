@@ -10,7 +10,7 @@ export default (sequelize, DataTypes) => {
                 validate: {
                     isAlphanumeric: {
                         args: true,
-                        mgs: 'The username can only contain letters and numbers',
+                        msg: 'The username can only contain letters and numbers',
                     },
                     len: {
                         args: [3, 25],
@@ -50,7 +50,7 @@ export default (sequelize, DataTypes) => {
 
     User.associate = (models) => {
         User.belongsToMany(models.Team, {
-            through: 'member',
+            through: models.Member,
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',

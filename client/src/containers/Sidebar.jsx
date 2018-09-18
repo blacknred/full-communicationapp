@@ -1,43 +1,60 @@
 import React from 'react';
 import decode from 'jwt-decode';
 import PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
+import { Mutation } from 'react-apollo';
 
-import { ALL_TEAMS_QUERY } from '../graphql/team';
+import {
+    ALL_TEAMS_QUERY,
+    ADD_TEAM_MEMBER_MUTATION,
+} from '../graphql/team';
 import { CREATE_CHANNEL_MUTATION } from '../graphql/channel';
 
 import Teams from '../components/Teams';
 import Channels from '../components/Channels';
 import AddChannelForm from '../components/AddChannelForm';
+import InvitePeopleForm from '../components/InvitePeopleForm';
 
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             openAddChannelModal: false,
+            openInvitePeopleModal: false,
             name: '',
             isPublic: false,
             errors: {},
+            email: '',
         };
     }
 
-    onAddChannelToggleHandler = () => {
-        // this.setState(prevState => ({
-        //     openAddChannelModal: !prevState.openAddChannelModal,
-        // }));
-    }
-
-    onChangeHandler = (target, value) => {
-        // this.setState({ [target]: value });
-    }
-
-    onSubmitHandler = async (e) => {
+    onAddChannelToggleHandler = (e) => {
         e.preventDefault();
-        const { mutate, team, teamIndex } = this.props;
+        this.setState(prevState => ({
+            openAddChannelModal: !prevState.openAddChannelModal,
+        }));
+    }
+
+    onInvitePeopleToggleHandler = (e) => {
+        e.preventDefault();
+        this.setState(prevState => ({
+            openInvitePeopleModal: !prevState.openInvitePeopleModal,
+        }));
+    }
+
+    onChangeHandler = (e) => {
+        e.preventDefault();
+        const { name } = e.target;
+        let { value } = e.target;
+        if (name === 'isPublic') value = value === 'true';
+        this.setState({ [name]: value });
+    }
+
+    onCreateChannelSubmitHandler = async (handler) => {
+        const { team, teamIndex } = this.props;
         const { name, isPublic } = this.state;
         let res = null;
         try {
-            res = await mutate({
+            res = await handler({
                 variables: {
                     teamId: team.id,
                     name,
@@ -51,6 +68,12 @@ class Sidebar extends React.Component {
                             __typename: 'Channel',
                             id: -1,
                             name,
+                            public: isPublic,
+                        },
+                        errors: {
+                            __typename: 'Error',
+                            path: null,
+                            message: null,
                         },
                     },
                 },
@@ -65,9 +88,35 @@ class Sidebar extends React.Component {
         } catch (err) {
             return;
         }
-        const { ok, errors } = res.data.createTeam;
+        const { ok, errors } = res.data.createChannel;
         if (ok) {
             this.setState({ openAddChannelModal: false });
+        } else {
+            const err = {};
+            errors.forEach(({ path, message }) => {
+                err[`${path}Error`] = message;
+            });
+            this.setState({ errors: err });
+        }
+    }
+
+    onAddTeamMemberSubmitHandler = async (handler) => {
+        const { team } = this.props;
+        const { email } = this.state;
+        let res = null;
+        try {
+            res = await handler({
+                variables: {
+                    email,
+                    teamId: team.id,
+                },
+            });
+        } catch (err) {
+            return;
+        }
+        const { ok, errors } = res.data.addTeamMember;
+        if (ok) {
+            this.setState({ openInvitePeopleModal: false });
         } else {
             const err = {};
             errors.forEach(({ path, message }) => {
@@ -80,11 +129,12 @@ class Sidebar extends React.Component {
     render() {
         const { teams, team } = this.props;
         const {
-            openAddChannelModal, name, isPublic, errors: { nameError },
+            openAddChannelModal, openInvitePeopleModal, name, email,
+            errors: { nameError, emailError }, isPublic,
         } = this.state;
 
         const token = localStorage.getItem('token');
-        const { user: { username } } = decode(token);
+        const { user: { id, username } } = decode(token);
 
         return (
             <React.Fragment>
@@ -94,18 +144,45 @@ class Sidebar extends React.Component {
                     teamId={team.id}
                     username={username || ''}
                     channels={team.channels}
-                    users={[]}// team.users
+                    isOwner={team.owner === id}
+                    users={[
+                        { id: 1, name: 'Eden Hazard' },
+                        { id: 2, name: 'Sadio Mane' },
+                    ]}// team.users
                     onAddChannel={this.onAddChannelToggleHandler}
+                    onInvitePeople={this.onInvitePeopleToggleHandler}
                 />
-                <AddChannelForm
-                    open={openAddChannelModal}
-                    name={name}
-                    nameError={nameError || ''}
-                    isPublic={isPublic}
-                    onChange={this.onChangeHandler}
-                    onSubmit={this.onSubmitHandler}
-                    onClose={this.onAddChannelToggleHandler}
-                />
+                <Mutation
+                    mutation={CREATE_CHANNEL_MUTATION}
+                    ignoreResults
+                >
+                    {createChannel => (
+                        <AddChannelForm
+                            open={openAddChannelModal}
+                            name={name}
+                            nameError={nameError || ''}
+                            isPublic={isPublic}
+                            onChange={this.onChangeHandler}
+                            onSubmit={() => this.onCreateChannelSubmitHandler(createChannel)}
+                            onClose={this.onAddChannelToggleHandler}
+                        />
+                    )}
+                </Mutation>
+                <Mutation
+                    mutation={ADD_TEAM_MEMBER_MUTATION}
+                    ignoreResults
+                >
+                    {addTeamMember => (
+                        <InvitePeopleForm
+                            open={openInvitePeopleModal}
+                            email={email}
+                            emailError={emailError || ''}
+                            onChange={this.onChangeHandler}
+                            onSubmit={() => this.onAddTeamMemberSubmitHandler(addTeamMember)}
+                            onClose={this.onInvitePeopleToggleHandler}
+                        />
+                    )}
+                </Mutation>
             </React.Fragment>
         );
     }
@@ -121,4 +198,4 @@ Sidebar.propTypes = {
     teamIndex: PropTypes.number.isRequired,
 };
 
-export default graphql(CREATE_CHANNEL_MUTATION)(Sidebar);
+export default Sidebar;
