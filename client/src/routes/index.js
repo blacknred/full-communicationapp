@@ -11,7 +11,8 @@ import Home from './Home';
 import Login from './Login';
 import Register from './Register';
 import CreateTeam from './CreateTeam';
-import ViewTeam from './ViewTeam';
+import Teams from './Teams';
+import DirectMessages from './DirectMessages';
 import StyleRoot from '../styleRoot';
 
 const isAuthenticated = () => {
@@ -31,9 +32,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
         {...rest}
         render={props => (
             isAuthenticated()
-                ? (
-                    <Component {...props} />
-                )
+                ? <Component {...props} />
                 : (
                     <Redirect
                         to={{
@@ -52,8 +51,10 @@ const Index = () => (
             <Route path="/" exact component={Home} />
             <Route path="/login" exact component={Login} />
             <Route path="/register" exact component={Register} />
-            <PrivateRoute path="/view-team/:teamId?/:channelId?" exact component={ViewTeam} />
-            <PrivateRoute path="/create-team" exact component={CreateTeam} />
+            <Route path="/settings" exact component={Home} />
+            <PrivateRoute path="/new-team" exact component={CreateTeam} />
+            <PrivateRoute path="/teams/:teamId/user/:userId" exact component={DirectMessages} />
+            <PrivateRoute path="/teams/:teamId?/:channelId?" exact component={Teams} />
         </Switch>
     </BrowserRouter>
 );

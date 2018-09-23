@@ -7,12 +7,12 @@ export default `
         created_at: String!
     }
 
-    type Query {
-        messages(channelId: Int!): [Message!]!
-    }
-
     type Subscription {
         newChannelMessage(channelId: Int!): Message!
+    }
+
+    type Query {
+        messages(channelId: Int!): [Message!]!
     }
 
     type Mutation {

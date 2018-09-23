@@ -1,76 +1,42 @@
-/* eslint-disable camelcase */
-
 import React from 'react';
-import moment from 'moment';
 import PropTypes from 'prop-types';
+import { TransitionGroup } from 'react-transition-group';
 
-import {
-    List,
-    Avatar,
-    ListItem,
-    ListItemText,
-    ListItemSecondaryAction,
-} from '@material-ui/core';
+import { List } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
+import Message from './Message';
+
 const styles = theme => ({
-    toolbar: theme.mixins.toolbar,
     content: {
         flexGrow: 1,
         backgroundColor: theme.palette.background.default,
-        padding: `${theme.spacing.unit * 12}px ${theme.spacing.unit * 3}px`,
-        paddingBottom: 100,
+        padding: `${theme.spacing.unit * 14}px ${theme.spacing.unit * 3}px`,
         overflowX: 'auto',
         height: '100%',
+        display: 'flex',
+        flexDirection: 'column-reverse',
     },
 });
 
-const MessagesList = ({ classes, messages }) => {
-    const messagesList = messages.map(({
-        id, text, created_at, user: { username, avatar },
-    }) => (
-        <ListItem key={`msg-${id}`}>
+const MessagesList = ({ classes, messages }) => (
+    <List className={classes.content}>
+        <TransitionGroup>
             {
-                avatar
-                    ? <Avatar src={avatar} />
-                    : (
-                        <Avatar>
-                            {username.charAt(0).toUpperCase()}
-                        </Avatar>
-                    )
+                messages.map(message => (
+                    <Message
+                        key={`msq-${message.id}`}
+                        {...message}
+                    />
+                ))
             }
-            <ListItemText
-                primary={text}
-                secondary={username}
-            // primaryTypographyProps={{
-            //     color: 'inherit',
-            //     variant: 'body2',
-            // }}
-            />
-            <ListItemSecondaryAction>
-                {moment.unix(created_at / 1000).fromNow(true)}
-            </ListItemSecondaryAction>
-        </ListItem>
-    ));
-
-    return (
-        <List className={classes.content}>
-            {/* <div className={classes.toolbar} /> */}
-            {messagesList}
-        </List>
-    );
-};
+        </TransitionGroup>
+    </List>
+);
 
 MessagesList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    messages: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        text: PropTypes.string.isRequired,
-        created_at: PropTypes.string.isRequired,
-        user: PropTypes.shape({
-            username: PropTypes.string.isRequired,
-        }).isRequired,
-    })).isRequired,
+    messages: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 };
 
 export default withStyles(styles)(MessagesList);

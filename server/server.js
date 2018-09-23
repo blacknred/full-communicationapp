@@ -29,11 +29,11 @@ const schema = makeExecutableSchema({
 });
 const apollo = new ApolloServer({
     schema,
-    context: async ({ req, connection }) => {
-        if (connection) {
-            console.log('ws');
-            return {};
-        }
+    context: async ({ req }) => {
+        // if (connection) {
+        //     console.log('ws');
+        //     return {};
+        // }
         return {
             models,
             user: req.user,
@@ -41,60 +41,75 @@ const apollo = new ApolloServer({
             SECRET2,
         };
     },
-    subscriptions: {
-        path: '/graphql',
-        onConnect: async ({ token, refreshToken }) => {
-            // let curUser = null;
-            // if (token && refreshToken) {
-            //     try {
-            //         const { user } = jwt.verify(token, SECRET);
-            //         curUser = user;
-            //     } catch (err) {
-            //         const { user } = await refreshTokens({
-            //             token, refreshToken, models, SECRET, SECRET2,
-            //         });
-            //         curUser = user;
-            //     }
-            //     console.log(curUser);
-            debug('ws client connected using Apollo server built-in SubscriptionServer.');
-            //     return { models, user: curUser };
-            // }
-            // return { models };
-        },
-        onDisconnect: async () => {
-            debug('Subscription client disconnected.');
-        },
-    },
+    // tracing: true,
+    // subscriptions: {
+    //     path: '/graphql',
+    //     onConnect: async ({ token, refreshToken }, webSocket) => {
+    //         let curUser = null;
+    //         if (token && refreshToken) {
+    //             try {
+    //                 const { user } = jwt.verify(token, SECRET);
+    //                 curUser = user;
+    //             } catch (err) {
+    //                 const { user } = await refreshTokens({
+    //                     token, refreshToken, models, SECRET, SECRET2,
+    //                 });
+    //                 curUser = user;
+    //             }
+    //             debug('ws client connected using Apollo server built-in SubscriptionServer.');
+    //             console.log(curUser);
+    //             return { models, user: curUser };
+    //         }
+    //         return { models };
+    //     },
+    //     onDisconnect: async (webSocket, context) => {
+    //         debug('Subscription client disconnected.');
+    //     },
+    // },
 });
 apollo.applyMiddleware({ app });
 
 const server = http.createServer(app);
-apollo.installSubscriptionHandlers(server);
+// apollo.installSubscriptionHandlers(server);
 // run
 models.sequelize.sync({}).then(() => server
     .listen({ port: PORT }, () => {
         // eslint-disable-next-line no-new
-        // new SubscriptionServer(
-        //     {
-        //         execute,
-        //         subscribe,
-        //         schema,
-        //         onConnect: async (connectionParams, webSocket) => {
-        //             console.log('Subscription client connected using new SubscriptionServer.');
-        //         },
-        //         onDisconnect: async (webSocket, context) => {
-        //             console.log('Subscription client disconnected.');
-        //         },
-        //         onOperation: () => {
-        //             console.log('ws');
-        //             return {};
-        //         },
-        //     },
-        //     {
-        //         server,
-        //         path: '/graphql',
-        //     },
-        // );
+        new SubscriptionServer(
+            {
+                execute,
+                subscribe,
+                schema,
+                onConnect: async ({ token, refreshToken }, webSocket) => {
+                    let curUser = null;
+                    if (token && refreshToken) {
+                        try {
+                            const { user } = jwt.verify(token, SECRET);
+                            curUser = user;
+                        } catch (err) {
+                            const { user } = await refreshTokens({
+                                token, refreshToken, models, SECRET, SECRET2,
+                            });
+                            curUser = user;
+                        }
+                        debug(`Subscription client ${curUser.id} connected via new SubscriptionServer.`);
+                        return { models, user: curUser };
+                    }
+                    return { models };
+                },
+                onDisconnect: async (webSocket, context) => {
+                    debug('Subscription client disconnected.');
+                },
+                // onOperation: () => {
+                //     console.log('ws');
+                //     return {};
+                // },
+            },
+            {
+                server,
+                path: '/graphql',
+            },
+        );
         debug(`🚀 at http://localhost:${PORT}${apollo.graphqlPath}`);
         debug(`Subscriptions 🚀 at ws://localhost:${PORT}${apollo.subscriptionsPath}`);
     }));

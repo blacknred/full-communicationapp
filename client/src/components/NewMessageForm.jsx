@@ -31,7 +31,7 @@ const styles = theme => ({
 });
 
 const NewMessageForm = ({
-    classes, channelName, message, onChange, onSubmit,
+    classes, placeholder, message, onChange, onSubmit,
 }) => (
     <Toolbar className={classes.toolbar}>
         <TextField
@@ -44,7 +44,7 @@ const NewMessageForm = ({
             className={classes.form}
             autoComplete="off"
             value={message}
-            placeholder={`Message #${channelName}`}
+            placeholder={`Message #${placeholder}`}
             onChange={onChange}
             onKeyDown={(e) => {
                 if (e.keyCode === ENTER_KEY) onSubmit();
@@ -55,7 +55,7 @@ const NewMessageForm = ({
 
 NewMessageForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    channelName: PropTypes.string.isRequired,
+    placeholder: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,

@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { findIndex } from 'lodash';
-import { graphql } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
+import { graphql, compose } from 'react-apollo';
 
 import { ME_QUERY } from '../graphql/team';
+import { CREATE_MESSAGE_MUTATION } from '../graphql/message';
 
 import Header from '../containers/Header';
 import Sidebar from '../containers/Sidebar';
@@ -12,7 +13,8 @@ import Loading from '../components/Loading';
 import Messages from '../containers/Messages';
 import SendMessage from '../containers/SendMessage';
 
-const ViewTeam = ({
+const Teams = ({
+    mutate,
     data: { loading, me },
     match: { params: { teamId, channelId } },
 }) => {
@@ -44,8 +46,15 @@ const ViewTeam = ({
                         <Header channelName={channel.name} />
                         <Messages channelId={channel.id} />
                         <SendMessage
-                            channelId={channel.id}
-                            channelName={channel.name}
+                            onSubmit={async (text) => {
+                                await mutate({
+                                    variables: {
+                                        channelId: channel.id,
+                                        text,
+                                    },
+                                });
+                            }}
+                            placeholder={channel.name}
                         />
                     </React.Fragment>
                 )
@@ -54,7 +63,8 @@ const ViewTeam = ({
     );
 };
 
-ViewTeam.propTypes = {
+Teams.propTypes = {
+    mutate: PropTypes.func.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
         me: PropTypes.shape({
@@ -70,11 +80,14 @@ ViewTeam.propTypes = {
     }).isRequired,
 };
 
-export default graphql(
-    ME_QUERY,
-    {
-        options: {
-            fetchPolicy: 'network-only',
+export default compose(
+    graphql(
+        ME_QUERY,
+        {
+            options: {
+                fetchPolicy: 'network-only',
+            },
         },
-    },
-)(ViewTeam);
+    ),
+    graphql(CREATE_MESSAGE_MUTATION),
+)(Teams);

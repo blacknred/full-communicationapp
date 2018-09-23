@@ -29,6 +29,7 @@ class Messages extends React.Component {
 
     subscribe = (channelId) => {
         const { data } = this.props;
+        console.log(`subscribed to channel ${channelId} messages`);
         data.subscribeToMore({
             document: NEW_CHANNEL_MESSAGE_SUBSCRIPTION,
             variables: { channelId },
@@ -36,9 +37,9 @@ class Messages extends React.Component {
                 if (!subscriptionData) return prev;
                 return {
                     ...prev,
-                    message: [
+                    messages: [
                         ...prev.messages,
-                        subscriptionData.newChannelMessage,
+                        subscriptionData.data.newChannelMessage,
                     ],
                 };
             },

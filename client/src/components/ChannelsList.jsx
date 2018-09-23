@@ -47,7 +47,7 @@ const ChannelsList = ({
             key={`channel-${ch.id}`}
             button
             component={Link}
-            to={`/view-team/${teamId}/${ch.id}`}
+            to={`/teams/${teamId}/${ch.id}`}
         >
             <ListItemIcon className={classes.iconRoot}>
                 {ch.public ? <LockOpen /> : <Lock />}
@@ -56,7 +56,7 @@ const ChannelsList = ({
                 primary={`# ${ch.name}`}
                 primaryTypographyProps={{
                     color: 'inherit',
-                    variant: 'body2',
+                    // variant: 'body2',
                 }}
             />
         </ListItem>
@@ -66,7 +66,8 @@ const ChannelsList = ({
         <ListItem
             key={`channel-user-${id}`}
             button
-            color="secondary"
+            component={Link}
+            to={`/teams/${teamId}/user/${id}`}
         >
             <ListItemIcon className={classes.iconRoot}>
                 <FiberManualRecord />
@@ -85,9 +86,7 @@ const ChannelsList = ({
     return (
         <Drawer
             variant="permanent"
-            classes={{
-                paper: classes.drawerPaper,
-            }}
+            classes={{ paper: classes.drawerPaper }}
             anchor="right"
         >
             <List>
@@ -111,7 +110,6 @@ const ChannelsList = ({
             </List>
             <Divider />
             <List
-                dense
                 subheader={(
                     <ListSubheader color="inherit">
                         <span>Channels</span>

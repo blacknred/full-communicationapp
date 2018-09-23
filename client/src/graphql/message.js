@@ -31,3 +31,9 @@ export const CREATE_MESSAGE_MUTATION = gql`
         createMessage(channelId: $channelId, text: $text)
     }
 `;
+
+export const CREATE_DIRECT_MESSAGE_MUTATION = gql`
+    mutation($channelId: Int!, $text: String!) {
+        createMessage(channelId: $channelId, text: $text)
+    }
+`;

@@ -8,7 +8,7 @@ import {
     Drawer,
     ListItem,
 } from '@material-ui/core';
-import { Add } from '@material-ui/icons';
+import { Add, Settings } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const DRAWER_WIDTH = 90;
@@ -19,8 +19,8 @@ const styles = theme => ({
         width: DRAWER_WIDTH,
         backgroundColor: theme.palette.primary.dark,
         color: theme.palette.primary.dark,
+        justifyContent: 'space-between',
     },
-    toolbar: theme.mixins.toolbar,
     avatar: {
         backgroundColor: theme.palette.primary.main,
     },
@@ -32,7 +32,7 @@ const TeamsList = ({ classes, teams }) => {
             key={`team-${id}`}
             button
             component={Link}
-            to={`/view-team/${id}`}
+            to={`/teams/${id}`}
         >
             <Avatar className={classes.avatar}>
                 {name.charAt(0).toUpperCase()}
@@ -43,21 +43,31 @@ const TeamsList = ({ classes, teams }) => {
     return (
         <Drawer
             variant="permanent"
-            classes={{
-                paper: classes.drawerPaper,
-            }}
+            classes={{ paper: classes.drawerPaper }}
             anchor="right"
         >
-            <List className={classes.toolbar}>
+            <List>
                 {teamsList}
                 <ListItem
-                    key="new-team"
+                    key="link-newteam"
                     button
                     component={Link}
-                    to="/create-team"
+                    to="/new-team"
                 >
                     <Avatar className={classes.avatar}>
                         <Add color="secondary" />
+                    </Avatar>
+                </ListItem>
+            </List>
+            <List>
+                <ListItem
+                    key="link-settings"
+                    button
+                    component={Link}
+                    to="/settings"
+                >
+                    <Avatar className={classes.avatar}>
+                        <Settings />
                     </Avatar>
                 </ListItem>
             </List>

@@ -1,6 +1,6 @@
 import { PubSub, withFilter } from 'graphql-subscriptions';
 
-import { requiresAuth } from '../../permissions';
+import { requiresAuth, requiresTeamAccess } from '../../permissions';
 
 const pubsub = new PubSub();
 
@@ -9,23 +9,17 @@ const NEW_CHANNEL_MESSAGE = 'NEW_CHANNEL_MESSAGE';
 export default {
     Subscription: {
         newChannelMessage: {
-            subscribe: withFilter(
-                (parent, { channelId }, { models, user }) => {
-                    // const channel = await models.Channel.findOne(
-                    //     { where: { id: channelId } },
-                    //     { raw: true },
-                    // );
-                    // const member = await models.Member.findOne(
-                    //     { where: { teamId: channel.teamId, userId: user.id } },
-                    //     { raw: true },
-                    // );
-                    // if (!member) {
-                    //     throw new Error(`You have to be a member of the
-                    //     team to subscribe to messages`);
-                    // }
-                    pubsub.asyncIterator(NEW_CHANNEL_MESSAGE);
-                },
-                (payload, args) => payload.channelId === args.channelId,
+            // resolve: (payload, args, context, info) => {
+            //     // Manipulate and return the new value
+            //     console.log('new payload', payload);
+            //     return payload.newChannelMessage;
+            // },
+            subscribe: requiresTeamAccess.createResolver(
+                withFilter(
+                    () => pubsub.asyncIterator(NEW_CHANNEL_MESSAGE),
+                    // (payload, args) => payload.newChannelMessage.channelId === args.channelId,
+                    (payload, args) => payload.channelId === args.channelId,
+                ),
             ),
         },
     },
@@ -63,15 +57,13 @@ export default {
                         const currentUser = await models.User.findOne({
                             where: { id: user.id },
                         });
-
                         pubsub.publish(NEW_CHANNEL_MESSAGE, {
-                            channeId: args.channeId,
+                            channelId: args.channelId,
                             newChannelMessage: {
                                 ...message.dataValues,
                                 user: currentUser.dataValues,
                             },
                         });
-                        console.log(pubsub);
                     };
 
                     asyncFunc();
