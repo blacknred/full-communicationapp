@@ -1,26 +1,19 @@
-import path from 'path';
 import cors from 'cors';
 import express from 'express';
-import {
-    fileLoader,
-    mergeTypes,
-    mergeResolvers,
-} from 'merge-graphql-schemas';
-import bodyParser from 'body-parser';
-import { ApolloServer } from 'apollo-server-express';
-
 import jwt from 'jsonwebtoken';
+import bodyParser from 'body-parser';
 
 import models from './models';
 import { refreshTokens } from './auth';
 
-const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './graphql/schema')));
-const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './graphql/resolvers')));
-
 const SECRET = process.env.TOKEN_SECRET;
 const SECRET2 = process.env.TOKEN_SECRET_2;
 
-const checkUser = async (req, res, next) => {
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+// jwt auth
+app.use(async (req, res, next) => {
     const token = req.headers['x-token'];
     if (token) {
         try {
@@ -40,29 +33,6 @@ const checkUser = async (req, res, next) => {
         }
     }
     next();
-};
-
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-app.use(checkUser);
-
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: async ({ req }) => ({
-        models,
-        user: req.user,
-        SECRET,
-        SECRET2,
-    }),
 });
 
-server.applyMiddleware({ app });
-
-const greetings = () => console.log(`
-🚀 Server ready at http://localhost:4000${server.graphqlPath}
-`);
-models.sequelize.sync({ /* force: true */ }).then(() => {
-    app.listen({ port: 4000 }, greetings);
-});
+export default app;

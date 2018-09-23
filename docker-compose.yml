@@ -22,7 +22,7 @@ services:
       - './server:/usr/src/app'
       - './server/package.json:/usr/src/package.json'
     ports:
-      - '4000:4000'
+      - '4000:3000'
     environment:
       - DATABASE_URL=postgres://postgres:postgres@messenger-db:5432/messenger_dev
       - NODE_ENV=${NODE_ENV}
@@ -40,7 +40,7 @@ services:
       - './client:/usr/src/app'
       - './client/package.json:/usr/src/package.json'
     ports:
-      - '4001:4001'
+      - '4001:3000'
     environment:
       - NODE_ENV=${NODE_ENV}
       - CHOKIDAR_USEPOLLING=true

@@ -1,16 +1,15 @@
 import React from 'react';
-import decode from 'jwt-decode';
 import PropTypes from 'prop-types';
 import { Mutation } from 'react-apollo';
 
 import {
-    ALL_TEAMS_QUERY,
+    ME_QUERY,
     ADD_TEAM_MEMBER_MUTATION,
 } from '../graphql/team';
 import { CREATE_CHANNEL_MUTATION } from '../graphql/channel';
 
-import Teams from '../components/Teams';
-import Channels from '../components/Channels';
+import TeamsList from '../components/TeamsList';
+import ChannelsList from '../components/ChannelsList';
 import AddChannelForm from '../components/AddChannelForm';
 import InvitePeopleForm from '../components/InvitePeopleForm';
 
@@ -21,7 +20,7 @@ class Sidebar extends React.Component {
             openAddChannelModal: false,
             openInvitePeopleModal: false,
             name: '',
-            isPublic: false,
+            isPublic: true,
             errors: {},
             email: '',
         };
@@ -80,9 +79,9 @@ class Sidebar extends React.Component {
                 update: (store, { data: { createChannel } }) => {
                     const { ok, channel } = createChannel;
                     if (!ok) return;
-                    const data = store.readQuery({ query: ALL_TEAMS_QUERY });
-                    data.allTeams[teamIndex].channels.push(channel);
-                    store.writeQuery({ query: ALL_TEAMS_QUERY, data });
+                    const data = store.readQuery({ query: ME_QUERY });
+                    data.me.teams[teamIndex].channels.push(channel);
+                    store.writeQuery({ query: ME_QUERY, data });
                 },
             });
         } catch (err) {
@@ -127,24 +126,20 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        const { teams, team } = this.props;
+        const { teams, team, username } = this.props;
         const {
             openAddChannelModal, openInvitePeopleModal, name, email,
             errors: { nameError, emailError }, isPublic,
         } = this.state;
-
-        const token = localStorage.getItem('token');
-        const { user: { id, username } } = decode(token);
-
         return (
             <React.Fragment>
-                <Teams teams={teams} />
-                <Channels
+                <TeamsList teams={teams} />
+                <ChannelsList
                     teamName={team.name}
                     teamId={team.id}
-                    username={username || ''}
+                    username={username}
                     channels={team.channels}
-                    isOwner={team.owner === id}
+                    isOwner={team.admin}
                     users={[
                         { id: 1, name: 'Eden Hazard' },
                         { id: 2, name: 'Sadio Mane' },
@@ -193,9 +188,11 @@ Sidebar.propTypes = {
     team: PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
+        admin: PropTypes.bool.isRequired,
         channels: PropTypes.arrayOf(PropTypes.shape).isRequired,
     }).isRequired,
     teamIndex: PropTypes.number.isRequired,
+    username: PropTypes.string.isRequired,
 };
 
 export default Sidebar;

@@ -11,12 +11,12 @@ import {
 import { Add } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
-const drawerWidth = 90;
+const DRAWER_WIDTH = 90;
 
 const styles = theme => ({
     drawerPaper: {
         position: 'relative',
-        width: drawerWidth,
+        width: DRAWER_WIDTH,
         backgroundColor: theme.palette.primary.dark,
         color: theme.palette.primary.dark,
     },
@@ -26,16 +26,16 @@ const styles = theme => ({
     },
 });
 
-const Teams = ({ classes, teams }) => {
-    const teamsList = teams.map(team => (
+const TeamsList = ({ classes, teams }) => {
+    const teamsList = teams.map(({ id, name }) => (
         <ListItem
-            key={`team-${team.id}`}
+            key={`team-${id}`}
             button
             component={Link}
-            to={`/view-team/${team.id}`}
+            to={`/view-team/${id}`}
         >
             <Avatar className={classes.avatar}>
-                {team.letter}
+                {name.charAt(0).toUpperCase()}
             </Avatar>
         </ListItem>
     ));
@@ -65,12 +65,12 @@ const Teams = ({ classes, teams }) => {
     );
 };
 
-Teams.propTypes = {
+TeamsList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     teams: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
-        letter: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
     })).isRequired,
 };
 
-export default withStyles(styles)(Teams);
+export default withStyles(styles)(TeamsList);

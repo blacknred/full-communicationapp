@@ -10,6 +10,7 @@ module.exports = {
         "react/no-children-prop": "off",
 
         "implicit-arrow-linebreak": [0, "as-beside"],
+        "react/require-default-props": [0],
         "react/prefer-stateless-function": [0, { "ignorePureComponents": true }]
     },
     "globals": {

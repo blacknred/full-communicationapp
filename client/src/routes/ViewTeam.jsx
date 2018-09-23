@@ -4,19 +4,21 @@ import { findIndex } from 'lodash';
 import { graphql } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
 
-import { ALL_TEAMS_QUERY } from '../graphql/team';
+import { ME_QUERY } from '../graphql/team';
 
+import Header from '../containers/Header';
 import Sidebar from '../containers/Sidebar';
-import Header from '../components/Header';
-import Messages from '../components/Messages';
-import SendMessage from '../components/SendMessage';
+import Loading from '../components/Loading';
+import Messages from '../containers/Messages';
+import SendMessage from '../containers/SendMessage';
 
 const ViewTeam = ({
-    data: { loading, allTeams, inviteTeams },
+    data: { loading, me },
     match: { params: { teamId, channelId } },
 }) => {
-    if (loading) return null;
-    const teams = [...allTeams, ...inviteTeams];
+    if (loading) return <Loading />;
+
+    const { username, teams } = me;
 
     if (!teams.length) return <Redirect to="/create-team" />;
 
@@ -31,11 +33,9 @@ const ViewTeam = ({
     return (
         <React.Fragment>
             <Sidebar
-                teams={teams.map(t => ({
-                    id: t.id,
-                    letter: t.name.charAt(0).toUpperCase(),
-                }))}
+                teams={teams}
                 team={team}
+                username={username}
                 teamIndex={teamIdX}
             />
             {
@@ -43,7 +43,10 @@ const ViewTeam = ({
                     <React.Fragment>
                         <Header channelName={channel.name} />
                         <Messages channelId={channel.id} />
-                        <SendMessage channelName={channel.name} />
+                        <SendMessage
+                            channelId={channel.id}
+                            channelName={channel.name}
+                        />
                     </React.Fragment>
                 )
             }
@@ -54,8 +57,12 @@ const ViewTeam = ({
 ViewTeam.propTypes = {
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
-        allTeams: PropTypes.array,
-        inviteTeams: PropTypes.array,
+        me: PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            username: PropTypes.string.isRequired,
+            admin: PropTypes.bool,
+            teams: PropTypes.arrayOf(PropTypes.shape).isRequired,
+        }),
     }).isRequired,
     match: PropTypes.shape({
         teamId: PropTypes.string,
@@ -63,4 +70,11 @@ ViewTeam.propTypes = {
     }).isRequired,
 };
 
-export default graphql(ALL_TEAMS_QUERY)(ViewTeam);
+export default graphql(
+    ME_QUERY,
+    {
+        options: {
+            fetchPolicy: 'network-only',
+        },
+    },
+)(ViewTeam);

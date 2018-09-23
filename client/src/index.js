@@ -4,9 +4,11 @@ import { ApolloProvider } from 'react-apollo';
 
 // import ApolloClient from 'apollo-boost';
 import { ApolloClient } from 'apollo-client';
+import { WebSocketLink } from 'apollo-link-ws';
+import { ApolloLink, split } from 'apollo-link';
 import { createHttpLink } from 'apollo-link-http';
+import { getMainDefinition } from 'apollo-utilities';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { ApolloLink } from 'apollo-link';
 
 import Routes from './routes';
 import registerServiceWorker from './registerServiceWorker';
@@ -38,6 +40,17 @@ import registerServiceWorker from './registerServiceWorker';
 
 const httpLink = createHttpLink({ uri: process.env.REACT_APP_SERVER_HOST });
 
+const wsLink = new WebSocketLink({
+    uri: process.env.REACT_APP_SERVER_WS_HOST,
+    options: {
+        reconnect: true,
+        connectionParams: {
+            token: localStorage.getItem('token'),
+            refreshToken: localStorage.getItem('refreshToken'),
+        },
+    },
+});
+
 const requestMiddlewareLink = new ApolloLink((operation, forward) => {
     const token = localStorage.getItem('token');
     const refreshToken = localStorage.getItem('refreshToken');
@@ -68,7 +81,14 @@ const requestMiddlewareLink = new ApolloLink((operation, forward) => {
 });
 
 const client = new ApolloClient({
-    link: requestMiddlewareLink.concat(httpLink),
+    link: split(
+        ({ query }) => {
+            const { kind, operation } = getMainDefinition(query);
+            return kind === 'OperationDefinition' && operation === 'subscription';
+        },
+        wsLink,
+        requestMiddlewareLink.concat(httpLink),
+    ),
     cache: new InMemoryCache(),
 });
 

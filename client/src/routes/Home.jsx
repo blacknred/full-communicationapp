@@ -3,11 +3,13 @@ import { Query } from 'react-apollo';
 
 import { ALL_USERS_QUERY } from '../graphql/user';
 
+import Loading from '../components/Loading';
+
 export default () => (
     <Query query={ALL_USERS_QUERY}>
         {
             ({ loading, error, data }) => {
-                if (loading) return <p>Loading...</p>;
+                if (loading) return <Loading />;
                 if (error) return <p>Error :(</p>;
                 return (
                     <div>

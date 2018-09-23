@@ -6,16 +6,16 @@ export default {
         createChannel: requiresAuth.createResolver(
             async (parent, args, { models, user }) => {
                 try {
-                    const team = await models.Team.findOne(
-                        { where: { id: args.teamId } },
+                    const member = await models.Member.findOne(
+                        { where: { teamId: args.teamId, userId: user.id } },
                         { raw: true },
                     );
-                    if (team.owner !== user.id) {
+                    if (!member.admin) {
                         return {
                             ok: false,
                             errors: [{
                                 path: 'name',
-                                message: 'You have to be the owner of the team to create channels',
+                                message: 'You have to be the admin of the team to create channels',
                             }],
                         };
                     }

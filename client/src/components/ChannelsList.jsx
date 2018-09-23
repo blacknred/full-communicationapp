@@ -21,12 +21,12 @@ import {
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
-const drawerWidth = 240;
+const DRAWER_WIDTH = 240;
 
 const styles = theme => ({
     drawerPaper: {
         position: 'relative',
-        width: drawerWidth,
+        width: DRAWER_WIDTH,
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
     },
@@ -38,7 +38,7 @@ const styles = theme => ({
     },
 });
 
-const Channels = ({
+const ChannelsList = ({
     classes, teamName, teamId, users, username, channels,
     onAddChannel, onInvitePeople, isOwner,
 }) => {
@@ -93,10 +93,18 @@ const Channels = ({
             <List>
                 <ListItem>
                     <ListItemText
-                        primary={teamName}
+                        primary={
+                            teamName.charAt(0).toUpperCase()
+                            + teamName.substr(1)
+                        }
                         secondary={username}
                         primaryTypographyProps={{
                             color: 'inherit',
+                            variant: 'headline',
+                        }}
+                        secondaryTypographyProps={{
+                            color: 'secondary',
+                            variant: 'body2',
                         }}
                     />
                 </ListItem>
@@ -110,7 +118,10 @@ const Channels = ({
                         {
                             isOwner && (
                                 <ListItemSecondaryAction>
-                                    <IconButton color="secondary" onClick={onAddChannel}>
+                                    <IconButton
+                                        color="secondary"
+                                        onClick={onAddChannel}
+                                    >
                                         <Add />
                                     </IconButton>
                                 </ListItemSecondaryAction>
@@ -154,7 +165,7 @@ const Channels = ({
     );
 };
 
-Channels.propTypes = {
+ChannelsList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     teamName: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
@@ -173,4 +184,4 @@ Channels.propTypes = {
     onInvitePeople: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(Channels);
+export default withStyles(styles)(ChannelsList);
