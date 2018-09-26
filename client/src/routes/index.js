@@ -9,11 +9,10 @@ import decode from 'jwt-decode';
 
 import Home from './Home';
 import Login from './Login';
-import Register from './Register';
-import CreateTeam from './CreateTeam';
 import Teams from './Teams';
-import DirectMessages from './DirectMessages';
+import Register from './Register';
 import StyleRoot from '../styleRoot';
+import CreateTeam from './CreateTeam';
 
 const isAuthenticated = () => {
     const token = localStorage.getItem('token');
@@ -53,8 +52,7 @@ const Index = () => (
             <Route path="/register" exact component={Register} />
             <Route path="/settings" exact component={Home} />
             <PrivateRoute path="/new-team" exact component={CreateTeam} />
-            <PrivateRoute path="/teams/:teamId/user/:userId" exact component={DirectMessages} />
-            <PrivateRoute path="/teams/:teamId?/:channelId?" exact component={Teams} />
+            <PrivateRoute path="/teams/:teamId?" exact component={Teams} />
         </Switch>
     </BrowserRouter>
 );

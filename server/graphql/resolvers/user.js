@@ -6,7 +6,9 @@ export default {
     User: {
         teams: (parent, args, { models, user }) => models
             .sequelize.query(
-                'select * from teams as team join members as member on team.id = member.team_id where member.user_id = ?',
+                `select * from teams as t
+                join members as m on t.id = m.team_id
+                where m.user_id = ?`,
                 {
                     replacements: [user.id],
                     model: models.Team,
@@ -22,10 +24,8 @@ export default {
         ),
     },
     Mutation: {
-        login: (
-            parent, { email, password }, { models, SECRET, SECRET2 },
-        ) => tryLogin({
-            email, password, models, SECRET, SECRET2,
+        login: (parent, { email, password }, { models }) => tryLogin({
+            email, password, models,
         }),
         register: async (parent, args, { models }) => {
             try {

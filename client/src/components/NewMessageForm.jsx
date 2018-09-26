@@ -7,26 +7,11 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-const DRAWER_WIDTH = 90 + 240;
 const ENTER_KEY = 13;
 
 const styles = theme => ({
     toolbar: {
-        bottom: 0,
-        left: 'auto',
-        right: 0,
-        position: 'absolute',
-        width: `calc(100% - ${DRAWER_WIDTH}px)`,
-        marginLeft: DRAWER_WIDTH,
         padding: theme.spacing.unit * 2,
-        backgroundColor: theme.palette.background.default,
-    },
-    // theme.mixins.toolbar,
-    form: {
-        // flexGrow: 1,
-        // padding: theme.spacing.unit * 1,
-        // borderRadius: '3px',
-        // border: `solid 1px ${theme.palette.grey[300]}`,
     },
 });
 
@@ -41,7 +26,6 @@ const NewMessageForm = ({
             variant="outlined"
             id="new-message"
             name="text"
-            className={classes.form}
             autoComplete="off"
             value={message}
             placeholder={`Message #${placeholder}`}

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 
 import {
     List,
-    Drawer,
     Divider,
     ListItem,
     IconButton,
@@ -14,23 +13,13 @@ import {
     ListItemSecondaryAction,
 } from '@material-ui/core';
 import {
-    FiberManualRecord,
     Add,
     Lock,
     LockOpen,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
-const DRAWER_WIDTH = 240;
-
 const styles = theme => ({
-    drawerPaper: {
-        position: 'relative',
-        width: DRAWER_WIDTH,
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText,
-    },
-    toolbar: theme.mixins.toolbar,
     iconRoot: {
         color: theme.palette.secondary.main,
         width: '0.8em',
@@ -39,8 +28,7 @@ const styles = theme => ({
 });
 
 const ChannelsList = ({
-    classes, teamName, teamId, users, username, channels,
-    onAddChannel, onInvitePeople, isOwner,
+    classes, isOwner, teamName, teamId, username, channels, onAddChannel,
 }) => {
     const channelsList = channels.map(ch => (
         <ListItem
@@ -53,42 +41,17 @@ const ChannelsList = ({
                 {ch.public ? <LockOpen /> : <Lock />}
             </ListItemIcon>
             <ListItemText
+                inset
                 primary={`# ${ch.name}`}
                 primaryTypographyProps={{
                     color: 'inherit',
-                    // variant: 'body2',
-                }}
-            />
-        </ListItem>
-    ));
-
-    const usersList = users.map(({ id, name }) => (
-        <ListItem
-            key={`channel-user-${id}`}
-            button
-            component={Link}
-            to={`/teams/${teamId}/user/${id}`}
-        >
-            <ListItemIcon className={classes.iconRoot}>
-                <FiberManualRecord />
-            </ListItemIcon>
-            <ListItemText
-                inset
-                primary={name}
-                primaryTypographyProps={{
-                    color: 'inherit',
-                    variant: 'body2',
                 }}
             />
         </ListItem>
     ));
 
     return (
-        <Drawer
-            variant="permanent"
-            classes={{ paper: classes.drawerPaper }}
-            anchor="right"
-        >
+        <React.Fragment>
             <List>
                 <ListItem>
                     <ListItemText
@@ -131,35 +94,7 @@ const ChannelsList = ({
                 {channelsList}
             </List>
             <Divider />
-            <List
-                dense
-                subheader={(
-                    <ListSubheader color="inherit">
-                        Direct Messages
-                    </ListSubheader>
-                )}
-            >
-                {usersList}
-                {
-                    isOwner && (
-                        <ListItem
-                            key="invite-people"
-                            button
-                            color="secondary"
-                            onClick={onInvitePeople}
-                        >
-                            <ListItemText
-                                primary="+ Invite People"
-                                primaryTypographyProps={{
-                                    color: 'secondary',
-                                    variant: 'button',
-                                }}
-                            />
-                        </ListItem>
-                    )
-                }
-            </List>
-        </Drawer>
+        </React.Fragment >
     );
 };
 
@@ -168,18 +103,13 @@ ChannelsList.propTypes = {
     teamName: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
     teamId: PropTypes.number.isRequired,
+    isOwner: PropTypes.bool.isRequired,
     channels: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
         public: PropTypes.bool.isRequired,
     })).isRequired,
-    isOwner: PropTypes.bool.isRequired,
-    users: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        name: PropTypes.string.isRequired,
-    })).isRequired,
     onAddChannel: PropTypes.func.isRequired,
-    onInvitePeople: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ChannelsList);

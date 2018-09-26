@@ -17,8 +17,6 @@ import models from './models';
 import { refreshTokens } from './auth';
 
 const PORT = process.env.PORT || 3000;
-const SECRET = process.env.TOKEN_SECRET;
-const SECRET2 = process.env.TOKEN_SECRET_2;
 const debug = Debug('corporate-messenger:server');
 
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './graphql/schema')));
@@ -37,8 +35,6 @@ const apollo = new ApolloServer({
         return {
             models,
             user: req.user,
-            SECRET,
-            SECRET2,
         };
     },
     // tracing: true,

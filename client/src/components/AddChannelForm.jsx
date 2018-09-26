@@ -21,12 +21,12 @@ const styles = theme => ({
 });
 
 const AddChannelForm = ({
-    classes, open, name, nameError, isPublic, onChange, onSubmit, onClose,
+    classes, open, channelName, nameError, isPublic,
+    onChange, onSubmit, onClose,
 }) => (
     <Dialog
         open={open}
         onClose={onClose}
-        aria-labelledby="form-dialog-title"
     >
         <DialogTitle>Add new channel</DialogTitle>
         <DialogContent>
@@ -34,12 +34,12 @@ const AddChannelForm = ({
                 autoFocus
                 required
                 fullWidth
-                id="name"
-                name="name"
+                id="channelName"
+                name="channelName"
                 label="Channel name"
                 autoComplete="name"
                 className={classes.form}
-                defaultValue={name}
+                defaultValue={channelName}
                 error={!!nameError}
                 helperText={nameError}
                 onChange={onChange}
@@ -50,7 +50,7 @@ const AddChannelForm = ({
                         checked={isPublic}
                         name="isPublic"
                         onChange={onChange}
-                        value={(!isPublic).toString()}//
+                        value={(!isPublic).toString()}
                     />
                 )}
                 label="Make channel public"
@@ -68,7 +68,7 @@ const AddChannelForm = ({
                 className={classes.submit}
                 onClick={onSubmit}
                 children="Create Team"
-                disabled={name.length === 0}
+                disabled={channelName.length === 0}
             />
         </DialogActions>
     </Dialog>
@@ -77,7 +77,7 @@ const AddChannelForm = ({
 AddChannelForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     open: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
+    channelName: PropTypes.string.isRequired,
     nameError: PropTypes.string.isRequired,
     isPublic: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,

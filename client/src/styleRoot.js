@@ -5,10 +5,7 @@ import {
 } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import { grey, red } from '@material-ui/core/colors';
-import {
-    Fade,
-    CssBaseline,
-} from '@material-ui/core';
+import { CssBaseline } from '@material-ui/core';
 
 const styles = {
     appFrame: {
@@ -43,7 +40,7 @@ const darkTheme = createMuiTheme({
         },
         type: 'dark',
         primary: {
-            main: '#473544',
+            main: 'rgb(49, 37, 47)',
         },
         secondary: {
             main: red[500],
@@ -58,11 +55,9 @@ const StyleRoot = (Component) => {
         return (
             <MuiThemeProvider theme={IS_NIGHT_MODE ? darkTheme : lightTheme}>
                 <CssBaseline />
-                <Fade in timeout={600}>
-                    <div style={styles.appFrame}>
-                        <Component {...props} />
-                    </div>
-                </Fade>
+                <div style={styles.appFrame}>
+                    <Component {...props} />
+                </div>
             </MuiThemeProvider>
         );
     }
@@ -70,7 +65,7 @@ const StyleRoot = (Component) => {
 };
 
 StyleRoot.propTypes = {
-    Component: PropTypes.element.isRequibrown,
+    Component: PropTypes.element.isRequired,
 };
 
 export default StyleRoot;

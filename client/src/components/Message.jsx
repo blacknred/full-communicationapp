@@ -14,11 +14,11 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = {
     avatar: {
         alignSelf: 'baseline',
     },
-});
+};
 
 const Message = ({
     classes, text, created_at, user: { username, avatar },

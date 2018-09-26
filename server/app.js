@@ -7,7 +7,6 @@ import models from './models';
 import { refreshTokens } from './auth';
 
 const SECRET = process.env.TOKEN_SECRET;
-const SECRET2 = process.env.TOKEN_SECRET_2;
 
 const app = express();
 app.use(cors());
@@ -23,7 +22,7 @@ app.use(async (req, res, next) => {
         } catch (err) {
             const refreshToken = req.headers['x-refresh-token'];
             const newTokens = await refreshTokens({
-                token, refreshToken, models, SECRET, SECRET2,
+                token, refreshToken, models,
             });
             if (newTokens.token && newTokens.refreshToken) {
                 res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');

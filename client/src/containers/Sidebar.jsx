@@ -1,47 +1,73 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Mutation } from 'react-apollo';
+import { Mutation, Query } from 'react-apollo';
 
 import {
     ME_QUERY,
+    TEAM_MEMBERS_QUERY,
     ADD_TEAM_MEMBER_MUTATION,
 } from '../graphql/team';
 import { CREATE_CHANNEL_MUTATION } from '../graphql/channel';
 
-import TeamsList from '../components/TeamsList';
-import ChannelsList from '../components/ChannelsList';
+import SidebarContent from '../components/SidebarContent';
 import AddChannelForm from '../components/AddChannelForm';
 import InvitePeopleForm from '../components/InvitePeopleForm';
+import SearchTeamMembersForm from '../components/SearchTeamMembersForm';
 
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            openAddChannelModal: false,
-            openInvitePeopleModal: false,
-            name: '',
+            isFullTeamsModeOpen: false,
+            isSidebarOpen: true,
+            isAddChannelModalOpen: false,
+            isInvitePeopleModalOpen: false,
+            isSearchTeamMembersModalOpen: false,
+            channelName: '',
             isPublic: true,
             errors: {},
             email: '',
+            adresat: '',
         };
+    }
+
+    onSidebarToggleHandler = (e) => {
+        e.preventDefault();
+        this.setState(prevState => ({
+            isSidebarOpen: !prevState.isSidebarOpen,
+        }));
+    }
+
+    onFullTeamsModeToggleHandler = (e) => {
+        e.preventDefault();
+        this.setState(prevState => ({
+            isFullTeamsModeOpen: !prevState.isFullTeamsModeOpen,
+        }));
     }
 
     onAddChannelToggleHandler = (e) => {
         e.preventDefault();
         this.setState(prevState => ({
-            openAddChannelModal: !prevState.openAddChannelModal,
+            isAddChannelModalOpen: !prevState.isAddChannelModalOpen,
         }));
     }
 
     onInvitePeopleToggleHandler = (e) => {
         e.preventDefault();
         this.setState(prevState => ({
-            openInvitePeopleModal: !prevState.openInvitePeopleModal,
+            isInvitePeopleModalOpen: !prevState.isInvitePeopleModalOpen,
+        }));
+    }
+
+    onSearchTeamMembersToggleHandler = (e) => {
+        e.preventDefault();
+        this.setState(prevState => ({
+            isSearchTeamMembersModalOpen: !prevState.isSearchTeamMembersModalOpen,
         }));
     }
 
     onChangeHandler = (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         const { name } = e.target;
         let { value } = e.target;
         if (name === 'isPublic') value = value === 'true';
@@ -50,13 +76,13 @@ class Sidebar extends React.Component {
 
     onCreateChannelSubmitHandler = async (handler) => {
         const { team, teamIndex } = this.props;
-        const { name, isPublic } = this.state;
+        const { channelName, isPublic } = this.state;
         let res = null;
         try {
             res = await handler({
                 variables: {
                     teamId: team.id,
-                    name,
+                    name: channelName,
                     public: isPublic,
                 },
                 optimisticResponse: {
@@ -66,7 +92,7 @@ class Sidebar extends React.Component {
                         channel: {
                             __typename: 'Channel',
                             id: -1,
-                            name,
+                            name: channelName,
                             public: isPublic,
                         },
                         errors: {
@@ -89,7 +115,7 @@ class Sidebar extends React.Component {
         }
         const { ok, errors } = res.data.createChannel;
         if (ok) {
-            this.setState({ openAddChannelModal: false });
+            this.setState({ isAddChannelModalOpen: false });
         } else {
             const err = {};
             errors.forEach(({ path, message }) => {
@@ -115,7 +141,7 @@ class Sidebar extends React.Component {
         }
         const { ok, errors } = res.data.addTeamMember;
         if (ok) {
-            this.setState({ openInvitePeopleModal: false });
+            this.setState({ isInvitePeopleModalOpen: false });
         } else {
             const err = {};
             errors.forEach(({ path, message }) => {
@@ -128,24 +154,23 @@ class Sidebar extends React.Component {
     render() {
         const { teams, team, username } = this.props;
         const {
-            openAddChannelModal, openInvitePeopleModal, name, email,
-            errors: { nameError, emailError }, isPublic,
+            isSidebarOpen, isFullTeamsModeOpen, isAddChannelModalOpen,
+            isInvitePeopleModalOpen, isSearchTeamMembersModalOpen, channelName,
+            adresat, email, isPublic, errors: { nameError, emailError },
         } = this.state;
         return (
             <React.Fragment>
-                <TeamsList teams={teams} />
-                <ChannelsList
-                    teamName={team.name}
-                    teamId={team.id}
+                <SidebarContent
+                    teams={teams}
+                    team={team}
                     username={username}
-                    channels={team.channels}
-                    isOwner={team.admin}
-                    users={[
-                        { id: 1, name: 'Eden Hazard' },
-                        { id: 2, name: 'Sadio Mane' },
-                    ]}// team.users
+                    isOpen={isSidebarOpen}
+                    isFullTeamsModeOpen={isFullTeamsModeOpen}
                     onAddChannel={this.onAddChannelToggleHandler}
                     onInvitePeople={this.onInvitePeopleToggleHandler}
+                    onSearchMember={this.onSearchTeamMembersToggleHandler}
+                    onToggleSidebar={this.onSidebarToggleHandler}
+                    onToggleFullTeamsMode={this.onFullTeamsModeToggleHandler}
                 />
                 <Mutation
                     mutation={CREATE_CHANNEL_MUTATION}
@@ -153,8 +178,8 @@ class Sidebar extends React.Component {
                 >
                     {createChannel => (
                         <AddChannelForm
-                            open={openAddChannelModal}
-                            name={name}
+                            open={isAddChannelModalOpen}
+                            channelName={channelName}
                             nameError={nameError || ''}
                             isPublic={isPublic}
                             onChange={this.onChangeHandler}
@@ -169,7 +194,7 @@ class Sidebar extends React.Component {
                 >
                     {addTeamMember => (
                         <InvitePeopleForm
-                            open={openInvitePeopleModal}
+                            open={isInvitePeopleModalOpen}
                             email={email}
                             emailError={emailError || ''}
                             onChange={this.onChangeHandler}
@@ -178,6 +203,41 @@ class Sidebar extends React.Component {
                         />
                     )}
                 </Mutation>
+                {
+                    isSearchTeamMembersModalOpen && (
+                        <Query
+                            query={TEAM_MEMBERS_QUERY}
+                            variables={{ teamId: team.id }}
+                        >
+                            {({ loading, error, data }) => {
+                                if (loading || error) return null;
+                                return (
+                                    <SearchTeamMembersForm
+                                        open={isSearchTeamMembersModalOpen}
+                                        currentTeamId={team.id}
+                                        adresat={adresat}
+                                        onChange={this.onChangeHandler}
+                                        onClose={this.onSearchTeamMembersToggleHandler}
+                                        members={
+                                            data.teamMembers.map(member => ({
+                                                value: member.id,
+                                                label: member.username,
+                                            }))
+                                            // [
+                                            //     { label: 'Afghanistan' },
+                                            //     { label: 'Aland Islands' },
+                                            // ].map(suggestion => ({
+                                            //     value: suggestion.label,
+                                            //     label: suggestion.label,
+                                            // }))
+                                        }
+                                    />
+                                );
+                            }}
+                        </Query>
+                    )
+                }
+
             </React.Fragment>
         );
     }
@@ -190,6 +250,7 @@ Sidebar.propTypes = {
         name: PropTypes.string.isRequired,
         admin: PropTypes.bool.isRequired,
         channels: PropTypes.arrayOf(PropTypes.shape).isRequired,
+        directMessageMembers: PropTypes.arrayOf(PropTypes.shape).isRequired,
     }).isRequired,
     teamIndex: PropTypes.number.isRequired,
     username: PropTypes.string.isRequired,

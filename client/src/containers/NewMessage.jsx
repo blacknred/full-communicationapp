@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 
 import NewMessageForm from '../components/NewMessageForm';
 
-class SendMessage extends React.Component {
+const MUTATION_MODE = 'CHANNEL';
+class NewMessage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -43,9 +44,10 @@ class SendMessage extends React.Component {
     }
 }
 
-SendMessage.propTypes = {
+NewMessage.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     placeholder: PropTypes.string.isRequired,
+    mode: PropTypes.oneOf(['CHANNEL', 'DIRECT']).isRequired,
 };
 
-export default SendMessage;
+export default graphql(CREATE_[CHANNEL]_MESSAGE_MUTATION)(NewMessage);

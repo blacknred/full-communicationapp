@@ -9,9 +9,7 @@ import Message from './Message';
 
 const styles = theme => ({
     content: {
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.default,
-        padding: `${theme.spacing.unit * 14}px ${theme.spacing.unit * 3}px`,
+        padding: `${theme.spacing.unit * 5}px ${theme.spacing.unit * 3}px`,
         overflowX: 'auto',
         height: '100%',
         display: 'flex',

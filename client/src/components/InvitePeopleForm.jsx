@@ -25,7 +25,6 @@ const InvitePeopleForm = ({
     <Dialog
         open={open}
         onClose={onClose}
-        aria-labelledby="form-dialog-title"
     >
         <DialogTitle>Add people to your team</DialogTitle>
         <DialogContent>

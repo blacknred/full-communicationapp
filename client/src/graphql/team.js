@@ -14,7 +14,20 @@ export const ME_QUERY = gql`
                     name
                     public
                 }
+                directMessageMembers {
+                    id
+                    username
+                }
             }
+        }
+    }
+`;
+
+export const TEAM_MEMBERS_QUERY = gql`
+    query TeamMembers($teamId: Int!) {
+        teamMembers(teamId: $teamId) {
+            id
+            username
         }
     }
 `;

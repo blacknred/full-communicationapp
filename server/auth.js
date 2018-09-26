@@ -2,31 +2,26 @@ import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const createTokens = async ({ user, SECRET, refreshTokenSecret }) => {
+const SECRET = process.env.TOKEN_SECRET;
+const SECRET2 = process.env.TOKEN_SECRET_2;
+
+const createTokens = async ({ user, refreshTokenSecret }) => {
     const createToken = jwt.sign(
-        {
-            user: _.pick(user, ['id', 'username']),
-        },
+        { user: _.pick(user, ['id', 'username']) },
         SECRET,
-        {
-            expiresIn: '1h',
-        },
+        { expiresIn: '1h' },
     );
 
     const createRefreshToken = jwt.sign(
-        {
-            user: _.pick(user, 'id', 'username'),
-        },
+        { user: _.pick(user, 'id', 'username') },
         refreshTokenSecret,
-        {
-            expiresIn: '7d',
-        },
+        { expiresIn: '7d' },
     );
 
     return Promise.all([createToken, createRefreshToken]);
 };
 
-export const refreshTokens = async ({ token, refreshToken, models, SECRET, SECRET2 }) => {
+export const refreshTokens = async ({ token, refreshToken, models }) => {
     let userId = 0;
     try {
         const { user: { id } } = jwt.decode(refreshToken);
@@ -35,15 +30,11 @@ export const refreshTokens = async ({ token, refreshToken, models, SECRET, SECRE
         return {};
     }
 
-    if (!userId) {
-        return {};
-    }
+    if (!userId) return {};
 
     const user = await models.User.findOne({ where: { id: userId }, raw: true });
 
-    if (!user) {
-        return {};
-    }
+    if (!user) return {};
 
     const refreshSecret = user.password + SECRET2;
 
@@ -54,7 +45,7 @@ export const refreshTokens = async ({ token, refreshToken, models, SECRET, SECRE
     }
 
     const [newToken, newRefreshToken] = await createTokens({
-        user, SECRET, refreshTokenSecret: refreshSecret,
+        user, refreshTokenSecret: refreshSecret,
     });
     return {
         token: newToken,
@@ -63,7 +54,7 @@ export const refreshTokens = async ({ token, refreshToken, models, SECRET, SECRE
     };
 };
 
-export const tryLogin = async ({ email, password, models, SECRET, SECRET2 }) => {
+export const tryLogin = async ({ email, password, models }) => {
     // is user exist
     const user = await models.User.findOne({ where: { email }, raw: true });
     if (!user) {
@@ -95,7 +86,7 @@ export const tryLogin = async ({ email, password, models, SECRET, SECRET2 }) => 
     // create token
     const refreshTokenSecret = user.password + SECRET2;
     const [token, refreshToken] = await createTokens({
-        user, SECRET, refreshTokenSecret,
+        user, refreshTokenSecret,
     });
     return {
         ok: true,

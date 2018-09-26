@@ -2,14 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 
+import Loading from '../components/Loading';
 import MessagesList from '../components/MessagesList';
 
 import {
-    MESSAGES_QUERY,
-    NEW_CHANNEL_MESSAGE_SUBSCRIPTION,
+    CHANNEL_MESSAGES_QUERY,
+    CHANNEL_MESSAGES_SUBSCRIPTION,
 } from '../graphql/message';
 
-class Messages extends React.Component {
+class ChannelMessages extends React.Component {
     componentWillMount() {
         const { channelId } = this.props;
         this.unsubscribe = this.subscribe(channelId);
@@ -31,7 +32,7 @@ class Messages extends React.Component {
         const { data } = this.props;
         console.log(`subscribed to channel ${channelId} messages`);
         data.subscribeToMore({
-            document: NEW_CHANNEL_MESSAGE_SUBSCRIPTION,
+            document: CHANNEL_MESSAGES_SUBSCRIPTION,
             variables: { channelId },
             updateQuery: (prev, { subscriptionData }) => {
                 if (!subscriptionData) return prev;
@@ -47,20 +48,16 @@ class Messages extends React.Component {
     }
 
     render() {
-        const { data: { loading, messages }, channelId } = this.props;
+        const { data: { loading, messages } } = this.props;
         return (
-            loading ? null
-                : (
-                    <MessagesList
-                        channelId={channelId}
-                        messages={messages}
-                    />
-                )
+            loading
+                ? <Loading />
+                : <MessagesList messages={messages} />
         );
     }
 }
 
-Messages.propTypes = {
+ChannelMessages.propTypes = {
     channelId: PropTypes.number.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
@@ -69,7 +66,7 @@ Messages.propTypes = {
 };
 
 export default graphql(
-    MESSAGES_QUERY,
+    CHANNEL_MESSAGES_QUERY,
     {
         variables: props => ({
             channelId: props.channelId,
@@ -78,4 +75,4 @@ export default graphql(
             fetchPolicy: 'network-only',
         },
     },
-)(Messages);
+)(ChannelMessages);

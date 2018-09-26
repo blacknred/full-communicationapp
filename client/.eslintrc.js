@@ -16,5 +16,6 @@ module.exports = {
     "globals": {
         "document": 1,
         "localStorage": 1,
+        "navigator": 1,
     }
 };

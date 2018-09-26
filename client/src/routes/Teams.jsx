@@ -1,22 +1,30 @@
+import {
+    Route,
+    Switch,
+    Redirect,
+} from 'react-router-dom';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { findIndex } from 'lodash';
-import { Redirect } from 'react-router-dom';
 import { graphql, compose } from 'react-apollo';
 
+import {
+    CREATE_MESSAGE_MUTATION,
+    CREATE_DIRECT_MESSAGE_MUTATION,
+} from '../graphql/message';
 import { ME_QUERY } from '../graphql/team';
-import { CREATE_MESSAGE_MUTATION } from '../graphql/message';
 
 import Header from '../containers/Header';
 import Sidebar from '../containers/Sidebar';
 import Loading from '../components/Loading';
-import Messages from '../containers/Messages';
-import SendMessage from '../containers/SendMessage';
+import NewMessage from '../containers/NewMessage';
+import ChannelMessages from '../containers/ChannelMessages';
+import DirectMessages from '../containers/DirectMessages';
 
 const Teams = ({
     mutate,
     data: { loading, me },
-    match: { params: { teamId, channelId } },
+    match: { params: { teamId, channelId, userId } },
 }) => {
     if (loading) return <Loading />;
 
@@ -40,25 +48,65 @@ const Teams = ({
                 username={username}
                 teamIndex={teamIdX}
             />
-            {
-                channel && (
-                    <React.Fragment>
-                        <Header channelName={channel.name} />
-                        <Messages channelId={channel.id} />
-                        <SendMessage
-                            onSubmit={async (text) => {
-                                await mutate({
-                                    variables: {
-                                        channelId: channel.id,
-                                        text,
-                                    },
-                                });
-                            }}
-                            placeholder={channel.name}
-                        />
-                    </React.Fragment>
-                )
-            }
+            <div
+                style={{
+                    flexGrow: 1,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}
+            >
+                <Switch>
+                    <Route
+                        exact
+                        path="/teams/:teamId/user/:userId"
+                        render={() => (
+                            <React.Fragment>
+                                <Header channelName="some username" />
+                                <DirectMessages
+                                    teamId={teamId}
+                                    userId={userId}
+                                />
+                                <NewMessage
+                                    onSubmit={async (text) => {
+                                        await mutate({
+                                            variables: {
+                                                teamId,
+                                                receiverId: userId,
+                                                text,
+                                            },
+                                        });
+                                    }}
+                                    placeholder={userId}
+                                />
+                            </React.Fragment>
+                        )}
+                    />
+                    <Route
+                        exact
+                        path="/teams/:teamId?/:channelId?"
+                        render={() => (
+                            channel && (
+                                <React.Fragment>
+                                    <Header channelName={channel.name} />
+                                    <ChannelMessages channelId={channel.id} />
+                                    <NewMessage
+                                        onSubmit={async (text) => {
+                                            await mutate({
+                                                variables: {
+                                                    channelId: channel.id,
+                                                    text,
+                                                },
+                                            });
+                                        }}
+                                        placeholder={channel.name}
+                                    />
+                                </React.Fragment>
+                            )
+                        )}
+                    />
+                </Switch>
+            </div>
         </React.Fragment>
     );
 };
@@ -72,22 +120,21 @@ Teams.propTypes = {
             username: PropTypes.string.isRequired,
             admin: PropTypes.bool,
             teams: PropTypes.arrayOf(PropTypes.shape).isRequired,
+            directMessageMembers: PropTypes.arrayOf(PropTypes.shape).isRequired,
         }),
     }).isRequired,
     match: PropTypes.shape({
         teamId: PropTypes.string,
         channelId: PropTypes.string,
+        userId: PropTypes.string,
     }).isRequired,
 };
 
-export default compose(
-    graphql(
-        ME_QUERY,
-        {
-            options: {
-                fetchPolicy: 'network-only',
-            },
+export default graphql(
+    ME_QUERY,
+    {
+        options: {
+            fetchPolicy: 'network-only',
         },
-    ),
-    graphql(CREATE_MESSAGE_MUTATION),
+    },
 )(Teams);
