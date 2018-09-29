@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import {
     Slide,
     Avatar,
+    Hidden,
     ListItem,
     Typography,
     ListItemText,
@@ -40,13 +41,22 @@ const Message = ({
             }
             <ListItemText
                 primary={text}
-                secondary={username}
+                secondary={(
+                    <React.Fragment>
+                        {username}
+                        <Hidden smDown>
+                            {`${moment.unix(created_at / 1000).fromNow(true)} ago`}
+                        </Hidden>
+                    </React.Fragment>
+                )}
             />
-            <ListItemSecondaryAction>
-                <Typography variant="caption">
-                    {moment.unix(created_at / 1000).fromNow(true)}
-                </Typography>
-            </ListItemSecondaryAction>
+            <Hidden mdUp>
+                <ListItemSecondaryAction>
+                    <Typography variant="caption">
+                        {moment.unix(created_at / 1000).fromNow(true)}
+                    </Typography>
+                </ListItemSecondaryAction>
+            </Hidden>
         </ListItem>
     </Slide>
 );

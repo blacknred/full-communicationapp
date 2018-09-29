@@ -4,7 +4,9 @@ import {
     createMuiTheme,
 } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import { grey, red } from '@material-ui/core/colors';
+import {
+    grey, red, teal, blue, blueGrey,
+} from '@material-ui/core/colors';
 import { CssBaseline } from '@material-ui/core';
 
 const styles = {
@@ -18,6 +20,21 @@ const styles = {
     },
 };
 
+const colors = [
+    {
+        main: '#473544',
+        secondary: red[400],
+    },
+    {
+        main: '#484d6b', // '#505886',
+        secondary: blue[400],
+    },
+    {
+        main: blueGrey[800],
+        secondary: teal.A100,
+    },
+];
+
 const lightTheme = createMuiTheme({
     palette: {
         background: {
@@ -25,10 +42,10 @@ const lightTheme = createMuiTheme({
         },
         type: 'light',
         primary: {
-            main: '#473544',
+            main: colors[0].main,
         },
         secondary: {
-            main: red[500],
+            main: colors[0].secondary,
         },
     },
 });
@@ -40,10 +57,10 @@ const darkTheme = createMuiTheme({
         },
         type: 'dark',
         primary: {
-            main: 'rgb(49, 37, 47)',
+            main: colors[1].main,
         },
         secondary: {
-            main: red[500],
+            main: colors[1].secondary,
         },
     },
 });

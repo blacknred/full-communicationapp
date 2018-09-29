@@ -52,9 +52,9 @@ export const DIRECT_MESSAGES_SUBSCRIPTION = gql`
     }
 `;
 
-export const CREATE_MESSAGE_MUTATION = gql`
+export const CREATE_CHANNEL_MESSAGE_MUTATION = gql`
     mutation($channelId: Int!, $text: String!) {
-        createMessage(channelId: $channelId, text: $text)
+        createChannelMessage(channelId: $channelId, text: $text)
     }
 `;
 

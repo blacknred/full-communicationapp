@@ -6,7 +6,6 @@ import {
     mergeTypes,
     mergeResolvers,
 } from 'merge-graphql-schemas';
-import jwt from 'jsonwebtoken';
 import { execute, subscribe } from 'graphql';
 import { ApolloServer } from 'apollo-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -14,7 +13,7 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 
 import app from './app';
 import models from './models';
-import { refreshTokens } from './auth';
+import { checkAuth2 } from './auth';
 
 const PORT = process.env.PORT || 3000;
 const debug = Debug('corporate-messenger:server');
@@ -27,46 +26,15 @@ const schema = makeExecutableSchema({
 });
 const apollo = new ApolloServer({
     schema,
-    context: async ({ req }) => {
-        // if (connection) {
-        //     console.log('ws');
-        //     return {};
-        // }
-        return {
-            models,
-            user: req.user,
-        };
-    },
-    // tracing: true,
-    // subscriptions: {
-    //     path: '/graphql',
-    //     onConnect: async ({ token, refreshToken }, webSocket) => {
-    //         let curUser = null;
-    //         if (token && refreshToken) {
-    //             try {
-    //                 const { user } = jwt.verify(token, SECRET);
-    //                 curUser = user;
-    //             } catch (err) {
-    //                 const { user } = await refreshTokens({
-    //                     token, refreshToken, models, SECRET, SECRET2,
-    //                 });
-    //                 curUser = user;
-    //             }
-    //             debug('ws client connected using Apollo server built-in SubscriptionServer.');
-    //             console.log(curUser);
-    //             return { models, user: curUser };
-    //         }
-    //         return { models };
-    //     },
-    //     onDisconnect: async (webSocket, context) => {
-    //         debug('Subscription client disconnected.');
-    //     },
-    // },
+    context: async ({ req }) => ({
+        models,
+        user: req.user,
+    }),
 });
 apollo.applyMiddleware({ app });
 
 const server = http.createServer(app);
-// apollo.installSubscriptionHandlers(server);
+
 // run
 models.sequelize.sync({}).then(() => server
     .listen({ port: PORT }, () => {
@@ -77,21 +45,9 @@ models.sequelize.sync({}).then(() => server
                 subscribe,
                 schema,
                 onConnect: async ({ token, refreshToken }, webSocket) => {
-                    let curUser = null;
-                    if (token && refreshToken) {
-                        try {
-                            const { user } = jwt.verify(token, SECRET);
-                            curUser = user;
-                        } catch (err) {
-                            const { user } = await refreshTokens({
-                                token, refreshToken, models, SECRET, SECRET2,
-                            });
-                            curUser = user;
-                        }
-                        debug(`Subscription client ${curUser.id} connected via new SubscriptionServer.`);
-                        return { models, user: curUser };
-                    }
-                    return { models };
+                    const user = await checkAuth2(models, token, refreshToken);
+                    debug(`Subscription client ${user.id} connected via new SubscriptionServer.`);
+                    return { models, user };
                 },
                 onDisconnect: async (webSocket, context) => {
                     debug('Subscription client disconnected.');

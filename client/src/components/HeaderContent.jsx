@@ -2,38 +2,59 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
+    Fade,
     Hidden,
-    Divider,
+    AppBar,
     Toolbar,
     IconButton,
     Typography,
 } from '@material-ui/core';
-import { Menu } from '@material-ui/icons';
+import { Menu, MoreHoriz } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = {
-    toolbar: {},
-};
+const styles = theme => ({
+    title: {
+        flex: 1,
+        marginLeft: theme.spacing.unit * 2,
+    },
+    appBar: {
+        backgroundColor: theme.palette.background.default,
+        // boxShadow: `-3px -2px 15px 0px ${theme.palette.primary.main}`,
+    },
+});
 
-const HeaderContent = ({ classes, channelName }) => (
-    <React.Fragment>
-        <Toolbar className={classes.toolbar}>
-            <Hidden mdUp>
+const HeaderContent = ({ classes, title }) => (
+    <Fade in>
+        <AppBar
+            elevation={1}
+            position="relative"
+            color="default"
+            className={classes.appBar}
+        >
+            <Toolbar>
+                <Hidden mdUp>
+                    <IconButton>
+                        <Menu />
+                    </IconButton>
+                </Hidden>
+                <Typography
+                    variant="title"
+                    color="primary"
+                    className={classes.title}
+                >
+                    {`#${title}`}
+                </Typography>
                 <IconButton>
-                    <Menu />
+                    <MoreHoriz />
                 </IconButton>
-            </Hidden>
-            <Typography variant="title">
-                {`#${channelName}`}
-            </Typography>
-        </Toolbar>
-        <Divider light />
-    </React.Fragment>
+            </Toolbar>
+        </AppBar>
+    </Fade>
 );
 
 HeaderContent.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    channelName: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(HeaderContent);

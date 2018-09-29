@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
+    Slide,
     Drawer,
     Hidden,
     SwipeableDrawer,
@@ -9,6 +10,7 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 
 import TeamsList from './TeamsList';
+import TeamHeader from './TeamHeader';
 import ChannelsList from './ChannelsList';
 import LastMentionedMembersList from './LastMentionedMembersList';
 
@@ -18,14 +20,15 @@ const ACTIONS_DRAWER_WIDTH = 260;
 
 const styles = theme => ({
     drawerPaper: {
-        position: 'relative',
         flexDirection: 'row',
         minHeight: '100vh',
         height: '100%',
+        position: 'relative',
         border: 0,
     },
     drawerPaperMobile: {
-        // width: '90%',
+        maxWidth: '100vw',
+        flexDirection: 'row',
     },
     actionsDrawer: {
         minWidth: ACTIONS_DRAWER_WIDTH,
@@ -37,8 +40,7 @@ const styles = theme => ({
 
 const SidebarContent = ({
     classes, teams, team, username, isOpen,
-    isFullTeamsModeOpen, onToggleFullTeamsMode,
-    onAddChannel, onInvitePeople, onToggleSidebar, onSearchMember,
+    isFullTeamsModeOpen, onToggle,
 }) => {
     const drawerContent = (
         <React.Fragment>
@@ -46,23 +48,25 @@ const SidebarContent = ({
                 teams={teams}
                 currentTeamId={team.id}
                 isFullModeOpen={isFullTeamsModeOpen}
-                onToggleFullMode={onToggleFullTeamsMode}
+                onToggle={onToggle}
             />
             <div className={classes.actionsDrawer}>
-                <ChannelsList
-                    teamName={team.name}
+                <TeamHeader
                     teamId={team.id}
+                    teamName={team.name}
                     username={username}
+                />
+                <ChannelsList
+                    teamId={team.id}
                     channels={team.channels}
                     isOwner={team.admin}
-                    onAddChannel={onAddChannel}
+                    onToggle={onToggle}
                 />
                 <LastMentionedMembersList
                     teamId={team.id}
                     isOwner={team.admin}
                     users={team.directMessageMembers}
-                    onInvitePeople={onInvitePeople}
-                    onSearchMember={onSearchMember}
+                    onToggle={onToggle}
                 />
             </div>
         </React.Fragment>
@@ -74,9 +78,9 @@ const SidebarContent = ({
                 <SwipeableDrawer
                     anchor="left"
                     open={isOpen}
-                    onOpen={onToggleSidebar}
-                    onClose={onToggleSidebar}
-                    classes={{ paper: classes.drawerPaper }}
+                    onOpen={() => onToggle('isSidebarOpen')}
+                    onClose={() => onToggle('isSidebarOpen')}
+                    classes={{ paper: classes.drawerPaperMobile }}
                     disableBackdropTransition={!iOS}
                     disableDiscovery={iOS}
                 >
@@ -84,13 +88,15 @@ const SidebarContent = ({
                 </SwipeableDrawer>
             </Hidden>
             <Hidden smDown implementation="css">
-                <Drawer
-                    variant="permanent"
-                    anchor="left"
-                    classes={{ paper: classes.drawerPaper }}
-                >
-                    {drawerContent}
-                </Drawer>
+                <Slide in direction="right">
+                    <Drawer
+                        variant="permanent"
+                        anchor="left"
+                        classes={{ paper: classes.drawerPaper }}
+                    >
+                        {drawerContent}
+                    </Drawer>
+                </Slide>
             </Hidden>
         </React.Fragment>
     );
@@ -109,11 +115,7 @@ SidebarContent.propTypes = {
     username: PropTypes.string.isRequired,
     isOpen: PropTypes.bool.isRequired,
     isFullTeamsModeOpen: PropTypes.bool.isRequired,
-    onAddChannel: PropTypes.func.isRequired,
-    onInvitePeople: PropTypes.func.isRequired,
-    onSearchMember: PropTypes.func.isRequired,
-    onToggleSidebar: PropTypes.func.isRequired,
-    onToggleFullTeamsMode: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(SidebarContent);

@@ -19,7 +19,7 @@ class Sidebar extends React.Component {
         super(props);
         this.state = {
             isFullTeamsModeOpen: false,
-            isSidebarOpen: true,
+            isSidebarOpen: false,
             isAddChannelModalOpen: false,
             isInvitePeopleModalOpen: false,
             isSearchTeamMembersModalOpen: false,
@@ -31,43 +31,13 @@ class Sidebar extends React.Component {
         };
     }
 
-    onSidebarToggleHandler = (e) => {
-        e.preventDefault();
+    onToggleHandler = (target) => {
         this.setState(prevState => ({
-            isSidebarOpen: !prevState.isSidebarOpen,
-        }));
-    }
-
-    onFullTeamsModeToggleHandler = (e) => {
-        e.preventDefault();
-        this.setState(prevState => ({
-            isFullTeamsModeOpen: !prevState.isFullTeamsModeOpen,
-        }));
-    }
-
-    onAddChannelToggleHandler = (e) => {
-        e.preventDefault();
-        this.setState(prevState => ({
-            isAddChannelModalOpen: !prevState.isAddChannelModalOpen,
-        }));
-    }
-
-    onInvitePeopleToggleHandler = (e) => {
-        e.preventDefault();
-        this.setState(prevState => ({
-            isInvitePeopleModalOpen: !prevState.isInvitePeopleModalOpen,
-        }));
-    }
-
-    onSearchTeamMembersToggleHandler = (e) => {
-        e.preventDefault();
-        this.setState(prevState => ({
-            isSearchTeamMembersModalOpen: !prevState.isSearchTeamMembersModalOpen,
+            [target]: !prevState[target],
         }));
     }
 
     onChangeHandler = (e) => {
-        // e.preventDefault();
         const { name } = e.target;
         let { value } = e.target;
         if (name === 'isPublic') value = value === 'true';
@@ -165,12 +135,8 @@ class Sidebar extends React.Component {
                     team={team}
                     username={username}
                     isOpen={isSidebarOpen}
+                    onToggle={this.onToggleHandler}
                     isFullTeamsModeOpen={isFullTeamsModeOpen}
-                    onAddChannel={this.onAddChannelToggleHandler}
-                    onInvitePeople={this.onInvitePeopleToggleHandler}
-                    onSearchMember={this.onSearchTeamMembersToggleHandler}
-                    onToggleSidebar={this.onSidebarToggleHandler}
-                    onToggleFullTeamsMode={this.onFullTeamsModeToggleHandler}
                 />
                 <Mutation
                     mutation={CREATE_CHANNEL_MUTATION}
@@ -184,7 +150,7 @@ class Sidebar extends React.Component {
                             isPublic={isPublic}
                             onChange={this.onChangeHandler}
                             onSubmit={() => this.onCreateChannelSubmitHandler(createChannel)}
-                            onClose={this.onAddChannelToggleHandler}
+                            onClose={this.onToggleHandler}
                         />
                     )}
                 </Mutation>
@@ -199,7 +165,7 @@ class Sidebar extends React.Component {
                             emailError={emailError || ''}
                             onChange={this.onChangeHandler}
                             onSubmit={() => this.onAddTeamMemberSubmitHandler(addTeamMember)}
-                            onClose={this.onInvitePeopleToggleHandler}
+                            onClose={this.onToggleHandler}
                         />
                     )}
                 </Mutation>
@@ -217,19 +183,12 @@ class Sidebar extends React.Component {
                                         currentTeamId={team.id}
                                         adresat={adresat}
                                         onChange={this.onChangeHandler}
-                                        onClose={this.onSearchTeamMembersToggleHandler}
+                                        onClose={this.onToggleHandler}
                                         members={
                                             data.teamMembers.map(member => ({
                                                 value: member.id,
                                                 label: member.username,
                                             }))
-                                            // [
-                                            //     { label: 'Afghanistan' },
-                                            //     { label: 'Aland Islands' },
-                                            // ].map(suggestion => ({
-                                            //     value: suggestion.label,
-                                            //     label: suggestion.label,
-                                            // }))
                                         }
                                     />
                                 );

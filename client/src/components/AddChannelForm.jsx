@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { compose } from 'recompose';
 
 import {
     Switch,
@@ -12,6 +13,7 @@ import {
     FormControlLabel,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
 const styles = theme => ({
     form: {
@@ -21,12 +23,13 @@ const styles = theme => ({
 });
 
 const AddChannelForm = ({
-    classes, open, channelName, nameError, isPublic,
+    classes, width, open, channelName, nameError, isPublic,
     onChange, onSubmit, onClose,
 }) => (
     <Dialog
         open={open}
-        onClose={onClose}
+        fullScreen={isWidthDown('sm', width)}
+        onClose={() => onClose('isAddChannelModalOpen')}
     >
         <DialogTitle>Add new channel</DialogTitle>
         <DialogContent>
@@ -58,7 +61,7 @@ const AddChannelForm = ({
         </DialogContent>
         <DialogActions>
             <Button
-                onClick={onClose}
+                onClick={() => onClose('isAddChannelModalOpen')}
                 children="Cansel"
             />
             <Button
@@ -76,6 +79,7 @@ const AddChannelForm = ({
 
 AddChannelForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
+    width: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
     channelName: PropTypes.string.isRequired,
     nameError: PropTypes.string.isRequired,
@@ -85,4 +89,4 @@ AddChannelForm.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(AddChannelForm);
+export default compose(withStyles(styles), withWidth())(AddChannelForm);

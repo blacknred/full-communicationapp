@@ -7,12 +7,13 @@ import {
 import React from 'react';
 import decode from 'jwt-decode';
 
-import Home from './Home';
-import Login from './Login';
-import Teams from './Teams';
-import Register from './Register';
-import StyleRoot from '../styleRoot';
-import CreateTeam from './CreateTeam';
+import Home from './routes/Home';
+import Teams from './routes/Teams';
+
+import StyleRoot from './styleRoot';
+import Login from './containers/Login';
+import Register from './containers/Register';
+import CreateTeam from './containers/CreateTeam';
 
 const isAuthenticated = () => {
     const token = localStorage.getItem('token');
@@ -52,7 +53,7 @@ const Index = () => (
             <Route path="/register" exact component={Register} />
             <Route path="/settings" exact component={Home} />
             <PrivateRoute path="/new-team" exact component={CreateTeam} />
-            <PrivateRoute path="/teams/:teamId?" exact component={Teams} />
+            <PrivateRoute path="/teams/:teamId?" component={Teams} />
         </Switch>
     </BrowserRouter>
 );

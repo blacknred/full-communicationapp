@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { compose } from 'recompose';
 import { Link } from 'react-router-dom';
 
 import {
@@ -15,8 +16,9 @@ import {
     FullscreenExit,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
-const DRAWER_MAX_WIDTH = 300;
+const DRAWER_MAX_WIDTH = 250;
 
 const styles = theme => ({
     root: {
@@ -40,7 +42,7 @@ const styles = theme => ({
 });
 
 const TeamsList = ({
-    classes, teams, currentTeamId, isFullModeOpen, onToggleFullMode,
+    classes, width, teams, currentTeamId, isFullModeOpen, onToggle,
 }) => {
     const teamsList = teams.map(({ id, name }) => (
         <ListItem
@@ -50,6 +52,11 @@ const TeamsList = ({
             to={`/teams/${id}`}
             selected={id === currentTeamId}
             classes={{ selected: classes.selected }}
+            onClick={() => (
+                isWidthDown('sm', width)
+                && isFullModeOpen
+                && onToggle('isFullTeamsModeOpen')
+            )}
         >
             <Avatar className={classes.avatar}>
                 {name.charAt(0).toUpperCase()}
@@ -105,7 +112,7 @@ const TeamsList = ({
                 <ListItem
                     button
                     key="expand-teams-list"
-                    onClick={onToggleFullMode}
+                    onClick={() => onToggle('isFullTeamsModeOpen')}
                 >
                     <Avatar className={classes.avatar}>
                         {isFullModeOpen ? <FullscreenExit /> : <Fullscreen />}
@@ -128,13 +135,14 @@ const TeamsList = ({
 
 TeamsList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
+    width: PropTypes.string.isRequired,
     teams: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
     })).isRequired,
     currentTeamId: PropTypes.number.isRequired,
     isFullModeOpen: PropTypes.bool.isRequired,
-    onToggleFullMode: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(TeamsList);
+export default compose(withStyles(styles), withWidth())(TeamsList);

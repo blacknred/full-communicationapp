@@ -12,11 +12,7 @@ import {
     ListSubheader,
     ListItemSecondaryAction,
 } from '@material-ui/core';
-import {
-    Add,
-    Lock,
-    LockOpen,
-} from '@material-ui/icons';
+import { Add, Lock, LockOpen } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -28,7 +24,7 @@ const styles = theme => ({
 });
 
 const ChannelsList = ({
-    classes, isOwner, teamName, teamId, username, channels, onAddChannel,
+    classes, isOwner, teamId, channels, onToggle,
 }) => {
     const channelsList = channels.map(ch => (
         <ListItem
@@ -52,26 +48,8 @@ const ChannelsList = ({
 
     return (
         <React.Fragment>
-            <List>
-                <ListItem>
-                    <ListItemText
-                        primary={
-                            teamName.charAt(0).toUpperCase()
-                            + teamName.substr(1)
-                        }
-                        secondary={username}
-                        primaryTypographyProps={{
-                            color: 'inherit',
-                            variant: 'headline',
-                        }}
-                        secondaryTypographyProps={{
-                            color: 'secondary',
-                            variant: 'body2',
-                        }}
-                    />
-                </ListItem>
-            </List>
             <Divider />
+            <br />
             <List
                 subheader={(
                     <ListSubheader color="inherit">
@@ -81,7 +59,7 @@ const ChannelsList = ({
                                 <ListItemSecondaryAction>
                                     <IconButton
                                         color="secondary"
-                                        onClick={onAddChannel}
+                                        onClick={() => onToggle('isAddChannelModalOpen')}
                                     >
                                         <Add />
                                     </IconButton>
@@ -94,14 +72,13 @@ const ChannelsList = ({
                 {channelsList}
             </List>
             <Divider />
-        </React.Fragment >
+            <br />
+        </React.Fragment>
     );
 };
 
 ChannelsList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    teamName: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
     teamId: PropTypes.number.isRequired,
     isOwner: PropTypes.bool.isRequired,
     channels: PropTypes.arrayOf(PropTypes.shape({
@@ -109,7 +86,7 @@ ChannelsList.propTypes = {
         name: PropTypes.string.isRequired,
         public: PropTypes.bool.isRequired,
     })).isRequired,
-    onAddChannel: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(ChannelsList);

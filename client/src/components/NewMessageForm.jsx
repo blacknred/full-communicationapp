@@ -27,6 +27,7 @@ const NewMessageForm = ({
             id="new-message"
             name="text"
             autoComplete="off"
+            multiline={message.length > 50}
             value={message}
             placeholder={`Message #${placeholder}`}
             onChange={onChange}

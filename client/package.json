@@ -36,6 +36,7 @@
     "react-scripts": "1.1.5",
     "react-select": "^2.0.0",
     "react-transition-group": "^2.4.0",
+    "recompose": "^0.30.0",
     "subscriptions-transport-ws": "^0.9.15"
   },
   "devDependencies": {

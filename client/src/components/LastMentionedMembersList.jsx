@@ -20,13 +20,12 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
     iconRoot: {
         color: theme.palette.secondary.main,
-        width: '0.8em',
         margin: 0,
     },
 });
 
 const LastMentionedMembersList = ({
-    classes, isOwner, teamId, users, onSearchMember, onInvitePeople,
+    classes, isOwner, teamId, users, onToggle,
 }) => {
     const membersList = users.map(user => (
         <ListItem
@@ -36,7 +35,7 @@ const LastMentionedMembersList = ({
             to={`/teams/${teamId}/user/${user.id}`}
         >
             <ListItemIcon className={classes.iconRoot}>
-                <FiberManualRecord />
+                <FiberManualRecord fontSize="small" />
             </ListItemIcon>
             <ListItemText
                 inset
@@ -58,7 +57,7 @@ const LastMentionedMembersList = ({
                     <ListItemSecondaryAction>
                         <IconButton
                             color="secondary"
-                            onClick={onSearchMember}
+                            onClick={() => onToggle('isSearchTeamMembersModalOpen')}
                         >
                             <OpenInNew />
                         </IconButton>
@@ -73,7 +72,7 @@ const LastMentionedMembersList = ({
                         key="invite-people"
                         button
                         color="secondary"
-                        onClick={onInvitePeople}
+                        onClick={() => onToggle('isInvitePeopleModalOpen')}
                     >
                         <ListItemText
                             primary="+ Invite People"
@@ -97,8 +96,7 @@ LastMentionedMembersList.propTypes = {
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
     })).isRequired,
-    onSearchMember: PropTypes.func.isRequired,
-    onInvitePeople: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(LastMentionedMembersList);

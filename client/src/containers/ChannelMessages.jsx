@@ -51,7 +51,7 @@ class ChannelMessages extends React.Component {
         const { data: { loading, messages } } = this.props;
         return (
             loading
-                ? <Loading />
+                ? <Loading small />
                 : <MessagesList messages={messages} />
         );
     }

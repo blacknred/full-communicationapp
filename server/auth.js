@@ -94,3 +94,41 @@ export const tryLogin = async ({ email, password, models }) => {
         refreshToken,
     };
 };
+
+export const checkAuth = async (models, req, res, next) => {
+    const token = req.headers['x-token'];
+    if (token) {
+        try {
+            const { user } = jwt.verify(token, SECRET);
+            req.user = user;
+            console.log('user', req.user);
+        } catch (err) {
+            const refreshToken = req.headers['x-refresh-token'];
+            const newTokens = await refreshTokens({
+                token, refreshToken, models,
+            });
+            if (newTokens.token && newTokens.refreshToken) {
+                res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
+                res.set('x-token', newTokens.token);
+                res.set('x-refresh-token', newTokens.refreshToken);
+            }
+        }
+    }
+    next();
+};
+
+export const checkAuth2 = async (models, token, refreshToken) => {
+    let curUser = null;
+    if (token && refreshToken) {
+        try {
+            const { user } = jwt.verify(token, SECRET);
+            curUser = user;
+        } catch (err) {
+            const { user } = await refreshTokens({
+                token, refreshToken, models,
+            });
+            curUser = user;
+        }
+    }
+    return curUser;
+};

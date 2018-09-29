@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { compose } from 'recompose';
 
 import {
     Dialog,
@@ -10,6 +11,7 @@ import {
     DialogActions,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
 const styles = theme => ({
     form: {
@@ -20,15 +22,17 @@ const styles = theme => ({
 });
 
 const InvitePeopleForm = ({
-    classes, open, email, emailError, onClose, onChange, onSubmit,
+    classes, width, open, email, emailError, onClose, onChange, onSubmit,
 }) => (
     <Dialog
         open={open}
-        onClose={onClose}
+        fullScreen={isWidthDown('sm', width)}
+        onClose={() => onClose('isInvitePeopleModalOpen')}
     >
         <DialogTitle>Add people to your team</DialogTitle>
         <DialogContent>
             <TextField
+                
                 autoFocus
                 required
                 fullWidth
@@ -45,7 +49,7 @@ const InvitePeopleForm = ({
         </DialogContent>
         <DialogActions>
             <Button
-                onClick={onClose}
+                onClick={() => onClose('isInvitePeopleModalOpen')}
                 children="Cansel"
             />
             <Button
@@ -63,6 +67,7 @@ const InvitePeopleForm = ({
 
 InvitePeopleForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
+    width: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
     email: PropTypes.string.isRequired,
     emailError: PropTypes.string.isRequired,
@@ -71,4 +76,4 @@ InvitePeopleForm.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(InvitePeopleForm);
+export default compose(withStyles(styles), withWidth())(InvitePeopleForm);

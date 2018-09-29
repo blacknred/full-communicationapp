@@ -45,7 +45,7 @@ export default {
         ),
     },
     Mutation: {
-        createMessage: requiresAuth.createResolver(
+        createChannelMessage: requiresAuth.createResolver(
             async (parent, args, { models, user }) => {
                 try {
                     const message = await models.Message.create({

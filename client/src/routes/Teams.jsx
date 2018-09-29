@@ -6,23 +6,20 @@ import {
 import React from 'react';
 import PropTypes from 'prop-types';
 import { findIndex } from 'lodash';
-import { graphql, compose } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
-import {
-    CREATE_MESSAGE_MUTATION,
-    CREATE_DIRECT_MESSAGE_MUTATION,
-} from '../graphql/message';
 import { ME_QUERY } from '../graphql/team';
 
 import Header from '../containers/Header';
 import Sidebar from '../containers/Sidebar';
 import Loading from '../components/Loading';
-import NewMessage from '../containers/NewMessage';
-import ChannelMessages from '../containers/ChannelMessages';
+import ContentWrapper from '../components/ContentWrapper';
 import DirectMessages from '../containers/DirectMessages';
+import ChannelMessages from '../containers/ChannelMessages';
+import NewDirectMessage from '../containers/NewDirectMessage';
+import NewChannelMessage from '../containers/NewChannelMessage';
 
 const Teams = ({
-    mutate,
     data: { loading, me },
     match: { params: { teamId, channelId, userId } },
 }) => {
@@ -48,35 +45,21 @@ const Teams = ({
                 username={username}
                 teamIndex={teamIdX}
             />
-            <div
-                style={{
-                    flexGrow: 1,
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
+            <ContentWrapper>
                 <Switch>
                     <Route
                         exact
                         path="/teams/:teamId/user/:userId"
                         render={() => (
                             <React.Fragment>
-                                <Header channelName="some username" />
+                                <Header title="some username" />
                                 <DirectMessages
-                                    teamId={teamId}
+                                    teamId={team.id}
                                     userId={userId}
                                 />
-                                <NewMessage
-                                    onSubmit={async (text) => {
-                                        await mutate({
-                                            variables: {
-                                                teamId,
-                                                receiverId: userId,
-                                                text,
-                                            },
-                                        });
-                                    }}
+                                <NewDirectMessage
+                                    teamId={team.id}
+                                    receiverId={userId}
                                     placeholder={userId}
                                 />
                             </React.Fragment>
@@ -88,17 +71,10 @@ const Teams = ({
                         render={() => (
                             channel && (
                                 <React.Fragment>
-                                    <Header channelName={channel.name} />
+                                    <Header title={channel.name} />
                                     <ChannelMessages channelId={channel.id} />
-                                    <NewMessage
-                                        onSubmit={async (text) => {
-                                            await mutate({
-                                                variables: {
-                                                    channelId: channel.id,
-                                                    text,
-                                                },
-                                            });
-                                        }}
+                                    <NewChannelMessage
+                                        channelId={channel.id}
                                         placeholder={channel.name}
                                     />
                                 </React.Fragment>
@@ -106,13 +82,12 @@ const Teams = ({
                         )}
                     />
                 </Switch>
-            </div>
+            </ContentWrapper>
         </React.Fragment>
     );
 };
 
 Teams.propTypes = {
-    mutate: PropTypes.func.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
         me: PropTypes.shape({
@@ -120,7 +95,6 @@ Teams.propTypes = {
             username: PropTypes.string.isRequired,
             admin: PropTypes.bool,
             teams: PropTypes.arrayOf(PropTypes.shape).isRequired,
-            directMessageMembers: PropTypes.arrayOf(PropTypes.shape).isRequired,
         }),
     }).isRequired,
     match: PropTypes.shape({

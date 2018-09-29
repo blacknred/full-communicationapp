@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 
 import HeaderContent from '../components/HeaderContent';
 
-const Header = ({ channelName }) => (
+const Header = ({ title }) => (
     <HeaderContent
-        channelName={channelName}
+        title={title}
     />
 );
 
 Header.propTypes = {
-    channelName: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
 };
 
 export default Header;

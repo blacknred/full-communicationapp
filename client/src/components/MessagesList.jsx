@@ -9,11 +9,13 @@ import Message from './Message';
 
 const styles = theme => ({
     content: {
-        padding: `${theme.spacing.unit * 5}px ${theme.spacing.unit * 3}px`,
-        overflowX: 'auto',
+        overflowX: 'hidden',
         height: '100%',
         display: 'flex',
         flexDirection: 'column-reverse',
+        '&>div': {
+            padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit / 2}px`,
+        },
     },
 });
 
