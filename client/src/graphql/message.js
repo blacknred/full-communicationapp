@@ -5,7 +5,7 @@ export const CHANNEL_MESSAGES_QUERY = gql`
         messages(channelId: $channelId) {
             id
             text
-            user {
+            sender {
                 username
             }
             created_at
@@ -31,7 +31,7 @@ export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
         newChannelMessage(channelId: $channelId) {
             id
             text
-            user {
+            sender {
                 username
             }
             created_at
@@ -44,7 +44,7 @@ export const DIRECT_MESSAGES_SUBSCRIPTION = gql`
         newChannelMessage(channelId: $channelId) {
             id
             text
-            user {
+            sender {
                 username
             }
             created_at

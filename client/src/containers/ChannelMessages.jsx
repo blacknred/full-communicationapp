@@ -68,11 +68,11 @@ ChannelMessages.propTypes = {
 export default graphql(
     CHANNEL_MESSAGES_QUERY,
     {
-        variables: props => ({
-            channelId: props.channelId,
-        }),
-        options: {
+        options: props => ({
+            variables: {
+                channelId: props.channelId,
+            },
             fetchPolicy: 'network-only',
-        },
+        }),
     },
 )(ChannelMessages);

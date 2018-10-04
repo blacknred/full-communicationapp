@@ -18,7 +18,7 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit * 2,
     },
     appBar: {
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: theme.palette.background.paper, // default,
         // boxShadow: `-3px -2px 15px 0px ${theme.palette.primary.main}`,
     },
 });
@@ -39,7 +39,7 @@ const HeaderContent = ({ classes, title }) => (
                 </Hidden>
                 <Typography
                     variant="title"
-                    color="primary"
+                    color="secondary"
                     className={classes.title}
                 >
                     {`#${title}`}

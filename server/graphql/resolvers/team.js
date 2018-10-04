@@ -93,6 +93,16 @@ export default {
         ),
     },
     Team: {
+        admin: async ({ id }, args, { models }) => models.sequelize.query(
+            `select u.id, u.username from users as u
+            join members as m on u.id = m.user_id
+            where m.team_id = ? and m.admin = true`,
+            {
+                replacements: [id],
+                model: models.User,
+                raw: true,
+            },
+        ).then(users => users[0]),
         channels: ({ id }, args, { models }) => models
             .Channel.findAll({ where: { teamId: id } }),
         directMessageMembers: ({ id }, args, { models, user }) => models.sequelize.query(

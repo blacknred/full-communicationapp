@@ -25,7 +25,7 @@ const styles = theme => ({
 });
 
 const TeamHeader = ({
-    classes, teamId, teamName, username,
+    classes, teamId, teamName, admin: { id, username },
 }) => (
     <List>
         <ListItem dense>
@@ -46,7 +46,7 @@ const TeamHeader = ({
             <Typography
                 component={Link}
                 color="inherit"
-                to={`/teams/${teamId}/user/${username}`}
+                to={`/teams/${teamId}/user/${id}`}
             >
                 {username}
             </Typography>
@@ -58,7 +58,10 @@ TeamHeader.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     teamId: PropTypes.number.isRequired,
     teamName: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
+    admin: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        username: PropTypes.string.isRequired,
+    }).isRequired,
 };
 
 export default withStyles(styles)(TeamHeader);

@@ -2,7 +2,7 @@ export default `
     type Message {
         id: Int!
         text: String!
-        user: User!
+        sender: User!
         channel: Channel!
         created_at: String!
     }

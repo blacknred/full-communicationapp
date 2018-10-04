@@ -25,13 +25,19 @@ const styles = theme => ({
         height: '100%',
         position: 'relative',
         border: 0,
+        '&>div:last-of-type': {
+            width: ACTIONS_DRAWER_WIDTH,
+        },
     },
     drawerPaperMobile: {
-        maxWidth: '100vw',
+        minWidth: '100vw',
         flexDirection: 'row',
+        '&>div:last-of-type': {
+            minWidth: ACTIONS_DRAWER_WIDTH,
+            width: '100%',
+        },
     },
     actionsDrawer: {
-        minWidth: ACTIONS_DRAWER_WIDTH,
         overflowY: 'auto',
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
@@ -39,8 +45,7 @@ const styles = theme => ({
 });
 
 const SidebarContent = ({
-    classes, teams, team, username, isOpen,
-    isFullTeamsModeOpen, onToggle,
+    classes, teams, team, isOwner, isOpen, isFullTeamsModeOpen, onToggle,
 }) => {
     const drawerContent = (
         <React.Fragment>
@@ -50,21 +55,27 @@ const SidebarContent = ({
                 isFullModeOpen={isFullTeamsModeOpen}
                 onToggle={onToggle}
             />
-            <div className={classes.actionsDrawer}>
+            { /* eslint-disable */}
+            <div
+                className={classes.actionsDrawer}
+                onClick={() => onToggle('isSidebarOpen')}
+                role="navigation"
+            >
+                { /* eslint-enable */}
                 <TeamHeader
                     teamId={team.id}
                     teamName={team.name}
-                    username={username}
+                    admin={team.admin}
                 />
                 <ChannelsList
                     teamId={team.id}
                     channels={team.channels}
-                    isOwner={team.admin}
+                    isOwner={isOwner}
                     onToggle={onToggle}
                 />
                 <LastMentionedMembersList
                     teamId={team.id}
-                    isOwner={team.admin}
+                    isOwner={isOwner}
                     users={team.directMessageMembers}
                     onToggle={onToggle}
                 />
@@ -108,11 +119,11 @@ SidebarContent.propTypes = {
     team: PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
-        admin: PropTypes.bool.isRequired,
+        admin: PropTypes.shape().isRequired,
         channels: PropTypes.arrayOf(PropTypes.shape).isRequired,
         directMessageMembers: PropTypes.arrayOf(PropTypes.shape).isRequired,
     }).isRequired,
-    username: PropTypes.string.isRequired,
+    isOwner: PropTypes.bool.isRequired,
     isOpen: PropTypes.bool.isRequired,
     isFullTeamsModeOpen: PropTypes.bool.isRequired,
     onToggle: PropTypes.func.isRequired,

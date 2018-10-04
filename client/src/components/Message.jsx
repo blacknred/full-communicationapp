@@ -22,7 +22,7 @@ const styles = {
 };
 
 const Message = ({
-    classes, text, created_at, user: { username, avatar },
+    classes, text, created_at, sender: { username, avatar },
 }) => (
     <Slide in direction="up">
         <ListItem>
@@ -65,7 +65,7 @@ Message.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     text: PropTypes.string.isRequired,
     created_at: PropTypes.string.isRequired,
-    user: PropTypes.shape({
+    sender: PropTypes.shape({
         username: PropTypes.string.isRequired,
     }).isRequired,
 };

@@ -50,7 +50,7 @@ const LastMentionedMembersList = ({
 
     return (
         <List
-            dense
+            // dense
             subheader={(
                 <ListSubheader color="inherit">
                     <span>Direct Chats</span>
@@ -94,7 +94,7 @@ LastMentionedMembersList.propTypes = {
     isOwner: PropTypes.bool.isRequired,
     users: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
-        name: PropTypes.string.isRequired,
+        username: PropTypes.string.isRequired,
     })).isRequired,
     onToggle: PropTypes.func.isRequired,
 };

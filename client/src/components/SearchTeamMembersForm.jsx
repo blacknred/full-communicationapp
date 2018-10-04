@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 import {
     Slide,
@@ -12,6 +12,7 @@ import {
     TextField,
     IconButton,
     Typography,
+    DialogTitle,
     DialogActions,
     DialogContent,
 } from '@material-ui/core';
@@ -25,40 +26,31 @@ const styles = theme => ({
         minWidth: 300,
         width: '100%', // Fix IE11 issue.
     },
-    root: {
-        flexGrow: 1,
-        height: 250,
-    },
+    // root: {
+    //     flexGrow: 1,
+    //     height: 250,
+    // },
     input: {
         display: 'flex',
         padding: 0,
     },
-    valueContainer: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        flex: 1,
-        alignItems: 'center',
-    },
-    chip: {
-        margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
-    },
-    chipFocused: {
-        // backgroundColor: emphasize(
-        //     theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
-        //     0.08,
-        // ),
-    },
+    // valueContainer: {
+    //     display: 'flex',
+    //     flexWrap: 'wrap',
+    //     flex: 1,
+    //     alignItems: 'center',
+    // },
     noOptionsMessage: {
         padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
     },
-    singleValue: {
-        fontSize: 16,
-    },
-    placeholder: {
-        position: 'absolute',
-        left: 2,
-        fontSize: 16,
-    },
+    // singleValue: {
+    //     fontSize: 16,
+    // },
+    // placeholder: {
+    //     position: 'absolute',
+    //     left: 2,
+    //     fontSize: 16,
+    // },
     paper: {
         position: 'absolute',
         zIndex: 1,
@@ -71,6 +63,30 @@ const styles = theme => ({
     },
 });
 
+// react select components
+
+const inputComponent = ({ inputRef, ...props }) => (
+    <div ref={inputRef} {...props} />
+);
+
+const Control = ({
+    selectProps, innerProps, innerRef, children,
+}) => (
+    <TextField
+        fullWidth
+        InputProps={{
+            inputComponent,
+            inputProps: {
+                className: selectProps.classes.form,
+                inputRef: innerRef,
+                children,
+                ...innerProps,
+            },
+        }}
+        {...selectProps.textFieldProps}
+    />
+);
+
 const NoOptionsMessage = ({ selectProps, innerProps, children }) => (
     <Typography
         color="textSecondary"
@@ -81,31 +97,9 @@ const NoOptionsMessage = ({ selectProps, innerProps, children }) => (
     </Typography>
 );
 
-const inputComponent = ({ inputRef, ...props }) => (
-    <div ref={inputRef} {...props} />
-);
 
-const Control = ({
-    selectProps, innerProps, innerRef, children,
-}) => (
-        <TextField
-            autoFocus
-            name="adresat"
-            // label="Search users in team"
-            // placeholder="..."
-            fullWidth
-            InputProps={{
-                inputComponent,
-                inputProps: {
-                    className: selectProps.classes.form,
-                    inputRef: innerRef,
-                    children,
-                    ...innerProps,
-                },
-            }}
-            {...selectProps.textFieldProps}
-        />
-    );
+
+
 
 const Option = ({
     innerRef, isFocused, isSelected, innerProps, history, children,
@@ -159,45 +153,61 @@ const Menu = ({ selectProps, innerProps, children }) => (
 );
 
 const SearchTeamMembersForm = ({
-    classes, width, open, onClose, members, adresat, onChange, currentTeamId,
-}) => (
+    classes, width, open, onClose, members, currentTeamId, history,
+}) => {
+    const selectStyles = {
+        input: base => ({
+            ...base,
+            color: '#fff',
+            '& input': {
+                font: 'inherit',
+            },
+        }),
+    };
+    return (
         <Dialog
             open={open}
+            // scroll="body"
             fullScreen={isWidthDown('sm', width)}
             onClose={() => onClose('isSearchTeamMembersModalOpen')}
             TransitionComponent={
                 props => <Slide direction="up" {...props} />
             }
-            keepMounted
         >
             <DialogActions>
-                <Typography variant="title">Find the team member for chatting</Typography>
+                <DialogTitle>Find the team member for chatting</DialogTitle>
                 <IconButton onClick={() => onClose('isSearchTeamMembersModalOpen')}>
                     <Close />
                 </IconButton>
             </DialogActions>
             <DialogContent>
                 <Select
-                    // styles={selectStyles}
-                    classes={classes}
+                    className="basic-single"
+                    classNamePrefix="select"
+                    autoFocus
+                    menuIsOpen
                     options={members}
-                    components={{
-                        Control,
-                        Menu,
-                        // MultiValue,
-                        NoOptionsMessage,
-                        Option,
-                        Placeholder,
-                        SingleValue,
-                        ValueContainer,
+                    onChange={(opt) => {
+                        history.push(`/teams/${currentTeamId}/user/${opt.value}`);
+                        onClose('isSearchTeamMembersModalOpen');
                     }}
-                    value={adresat}
-                    onChange={onChange} // withRouter() history.push('')
-                    placeholder="Search a person"
+                    placeholder="Type the username"
+                    // styles={selectStyles}
+                    // classes={classes}
+                    // components={{
+                    //     Control,
+                    //     // Menu,
+                    //     NoOptionsMessage,
+                    //     // Option,
+                    //     // Placeholder,
+                    //     // SingleValue,
+                    //     // ValueContainer,
+                    // }}
                 />
             </DialogContent>
         </Dialog>
     );
+};
 
 SearchTeamMembersForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
@@ -205,9 +215,10 @@ SearchTeamMembersForm.propTypes = {
     open: PropTypes.bool.isRequired,
     currentTeamId: PropTypes.number.isRequired,
     members: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
-    adresat: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
-    onChange: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(withRouter(SearchTeamMembersForm));
+export default compose(
+    withStyles(styles),
+    withWidth(),
+)(withRouter(SearchTeamMembersForm));

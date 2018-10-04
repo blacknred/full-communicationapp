@@ -11,41 +11,41 @@ import {
 } from '../graphql/message';
 
 class DirectMessages extends React.Component {
-    // componentWillMount() {
-    //     const { channelId } = this.props;
-    //     this.unsubscribe = this.subscribe(channelId);
-    // }
+    componentWillMount() {
+        const { userId } = this.props;
+        this.unsubscribe = this.subscribe(userId);
+    }
 
-    // componentWillReceiveProps(nextProps) {
-    //     const { channelId } = this.props;
-    //     if (channelId !== nextProps.channelId) {
-    //         if (this.unsubscribe) this.unsubscribe();
-    //         this.unsubscribe = this.subscribe(nextProps.channelId);
-    //     }
-    // }
+    componentWillReceiveProps(nextProps) {
+        const { userId } = this.props;
+        if (userId !== nextProps.userId) {
+            if (this.unsubscribe) this.unsubscribe();
+            this.unsubscribe = this.subscribe(nextProps.userId);
+        }
+    }
 
-    // componentWillUnmount() {
-    //     if (this.unsubscribe) this.unsubscribe();
-    // }
+    componentWillUnmount() {
+        if (this.unsubscribe) this.unsubscribe();
+    }
 
-    // subscribe = (channelId) => {
-    //     const { data } = this.props;
-    //     console.log(`subscribed to channel ${channelId} messages`);
-    //     data.subscribeToMore({
-    //         document: DIRECT_MESSAGES_SUBSCRIPTION,
-    //         variables: { channelId },
-    //         updateQuery: (prev, { subscriptionData }) => {
-    //             if (!subscriptionData) return prev;
-    //             return {
-    //                 ...prev,
-    //                 messages: [
-    //                     ...prev.messages,
-    //                     subscriptionData.data.newChannelMessage,
-    //                 ],
-    //             };
-    //         },
-    //     });
-    // }
+    subscribe = (userId) => {
+        const { data } = this.props;
+        console.log(`subscribed to member ${userId} messages`);
+        // data.subscribeToMore({
+        //     document: DIRECT_MESSAGES_SUBSCRIPTION,
+        //     variables: { userId },
+        //     updateQuery: (prev, { subscriptionData }) => {
+        //         if (!subscriptionData) return prev;
+        //         return {
+        //             ...prev,
+        //             messages: [
+        //                 ...prev.messages,
+        //                 subscriptionData.data.newChannelMessage,
+        //             ],
+        //         };
+        //     },
+        // });
+    }
 
     render() {
         const { data: { loading, directMessages } } = this.props;
@@ -58,7 +58,6 @@ class DirectMessages extends React.Component {
 }
 
 DirectMessages.propTypes = {
-    teamId: PropTypes.number.isRequired,
     userId: PropTypes.number.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
@@ -69,12 +68,12 @@ DirectMessages.propTypes = {
 export default graphql(
     DIRECT_MESSAGES_QUERY,
     {
-        variables: props => ({
-            teamId: props.teamId,
-            userId: props.userId,
-        }),
-        options: {
+        options: props => ({
+            variables: {
+                teamId: props.teamId,
+                userId: props.userId,
+            },
             fetchPolicy: 'network-only',
-        },
+        }),
     },
 )(DirectMessages);

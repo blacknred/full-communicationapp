@@ -4,6 +4,7 @@ import {
     Redirect,
 } from 'react-router-dom';
 import React from 'react';
+import decode from 'jwt-decode';
 import PropTypes from 'prop-types';
 import { findIndex } from 'lodash';
 import { graphql } from 'react-apollo';
@@ -25,24 +26,23 @@ const Teams = ({
 }) => {
     if (loading) return <Loading />;
 
-    const { username, teams } = me;
+    const { teams } = me;
 
     if (!teams.length) return <Redirect to="/create-team" />;
 
     const teamIdInt = parseInt(teamId, 10);
     const teamIdX = teamIdInt ? findIndex(teams, ['id', teamIdInt]) : 0;
     const team = teamIdX === -1 ? teams[0] : teams[teamIdX];
-
-    const channelIdInt = parseInt(channelId, 10);
-    const channelIdX = channelIdInt ? findIndex(team.channels, ['id', channelIdInt]) : 0;
-    const channel = channelIdX === -1 ? team.channels[0] : team.channels[channelIdX];
+    const token = localStorage.getItem('token');
+    const { user: { id } } = decode(token);
+    const isTeamOwner = id === team.admin.id;
 
     return (
         <React.Fragment>
             <Sidebar
                 teams={teams}
                 team={team}
-                username={username}
+                isOwner={isTeamOwner}
                 teamIndex={teamIdX}
             />
             <ContentWrapper>
@@ -50,36 +50,44 @@ const Teams = ({
                     <Route
                         exact
                         path="/teams/:teamId/user/:userId"
-                        render={() => (
-                            <React.Fragment>
-                                <Header title="some username" />
-                                <DirectMessages
-                                    teamId={team.id}
-                                    userId={userId}
-                                />
-                                <NewDirectMessage
-                                    teamId={team.id}
-                                    receiverId={userId}
-                                    placeholder={userId}
-                                />
-                            </React.Fragment>
-                        )}
+                        render={() => {
+                            const userIdInt = parseInt(userId, 10);
+                            return (
+                                <React.Fragment>
+                                    <Header title="some username" />
+                                    <DirectMessages
+                                        teamId={team.id}
+                                        userId={userIdInt}
+                                    />
+                                    <NewDirectMessage
+                                        teamId={team.id}
+                                        receiverId={userIdInt}
+                                        placeholder={userId}
+                                    />
+                                </React.Fragment>
+                            );
+                        }}
                     />
                     <Route
                         exact
                         path="/teams/:teamId?/:channelId?"
-                        render={() => (
-                            channel && (
-                                <React.Fragment>
-                                    <Header title={channel.name} />
-                                    <ChannelMessages channelId={channel.id} />
-                                    <NewChannelMessage
-                                        channelId={channel.id}
-                                        placeholder={channel.name}
-                                    />
-                                </React.Fragment>
-                            )
-                        )}
+                        render={() => {
+                            const channelIdInt = parseInt(channelId, 10);
+                            const channelIdX = channelIdInt ? findIndex(team.channels, ['id', channelIdInt]) : 0;
+                            const channel = channelIdX === -1 ? team.channels[0] : team.channels[channelIdX];
+                            return (
+                                channel && (
+                                    <React.Fragment>
+                                        <Header title={channel.name} />
+                                        <ChannelMessages channelId={channel.id} />
+                                        <NewChannelMessage
+                                            channelId={channel.id}
+                                            placeholder={channel.name}
+                                        />
+                                    </React.Fragment>
+                                )
+                            );
+                        }}
                     />
                 </Switch>
             </ContentWrapper>
@@ -91,10 +99,10 @@ Teams.propTypes = {
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
         me: PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            username: PropTypes.string.isRequired,
-            admin: PropTypes.bool,
-            teams: PropTypes.arrayOf(PropTypes.shape).isRequired,
+            // id: PropTypes.number.isRequired,
+            // username: PropTypes.string.isRequired,
+            // admin: PropTypes.bool,
+            // teams: PropTypes.arrayOf(PropTypes.shape).isRequired,
         }),
     }).isRequired,
     match: PropTypes.shape({

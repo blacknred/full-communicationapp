@@ -53,7 +53,8 @@ const Index = () => (
             <Route path="/register" exact component={Register} />
             <Route path="/settings" exact component={Home} />
             <PrivateRoute path="/new-team" exact component={CreateTeam} />
-            <PrivateRoute path="/teams/:teamId?" component={Teams} />
+            <PrivateRoute path="/teams/:teamId/user/:userId" component={Teams} />
+            <PrivateRoute path="/teams/:teamId?/:channelId?" component={Teams} />
         </Switch>
     </BrowserRouter>
 );

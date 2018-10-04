@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import {
-    grey, red, teal, blue, blueGrey,
+    grey, red, blue, blueGrey,
 } from '@material-ui/core/colors';
 import { CssBaseline } from '@material-ui/core';
 
@@ -22,16 +22,19 @@ const styles = {
 
 const colors = [
     {
+        // browny
         main: '#473544',
         secondary: red[400],
     },
     {
-        main: '#484d6b', // '#505886',
+        // ocean
+        main: '#484d6b',
         secondary: blue[400],
     },
     {
+        // green day
         main: blueGrey[800],
-        secondary: teal.A100,
+        secondary: '#009688',
     },
 ];
 
@@ -42,10 +45,10 @@ const lightTheme = createMuiTheme({
         },
         type: 'light',
         primary: {
-            main: colors[0].main,
+            main: colors[1].main,
         },
         secondary: {
-            main: colors[0].secondary,
+            main: colors[1].secondary,
         },
     },
 });
@@ -57,10 +60,10 @@ const darkTheme = createMuiTheme({
         },
         type: 'dark',
         primary: {
-            main: colors[1].main,
+            main: colors[0].main,
         },
         secondary: {
-            main: colors[1].secondary,
+            main: colors[0].secondary,
         },
     },
 });

@@ -27,7 +27,6 @@ class Sidebar extends React.Component {
             isPublic: true,
             errors: {},
             email: '',
-            adresat: '',
         };
     }
 
@@ -122,18 +121,18 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        const { teams, team, username } = this.props;
+        const { teams, team, isOwner } = this.props;
         const {
             isSidebarOpen, isFullTeamsModeOpen, isAddChannelModalOpen,
             isInvitePeopleModalOpen, isSearchTeamMembersModalOpen, channelName,
-            adresat, email, isPublic, errors: { nameError, emailError },
+            email, isPublic, errors: { nameError, emailError },
         } = this.state;
         return (
             <React.Fragment>
                 <SidebarContent
                     teams={teams}
                     team={team}
-                    username={username}
+                    isOwner={isOwner}
                     isOpen={isSidebarOpen}
                     onToggle={this.onToggleHandler}
                     isFullTeamsModeOpen={isFullTeamsModeOpen}
@@ -181,7 +180,6 @@ class Sidebar extends React.Component {
                                     <SearchTeamMembersForm
                                         open={isSearchTeamMembersModalOpen}
                                         currentTeamId={team.id}
-                                        adresat={adresat}
                                         onChange={this.onChangeHandler}
                                         onClose={this.onToggleHandler}
                                         members={
@@ -196,7 +194,6 @@ class Sidebar extends React.Component {
                         </Query>
                     )
                 }
-
             </React.Fragment>
         );
     }
@@ -207,12 +204,12 @@ Sidebar.propTypes = {
     team: PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
-        admin: PropTypes.bool.isRequired,
+        admin: PropTypes.shape().isRequired,
         channels: PropTypes.arrayOf(PropTypes.shape).isRequired,
         directMessageMembers: PropTypes.arrayOf(PropTypes.shape).isRequired,
     }).isRequired,
+    isOwner: PropTypes.bool.isRequired,
     teamIndex: PropTypes.number.isRequired,
-    username: PropTypes.string.isRequired,
 };
 
 export default Sidebar;
