@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import {
     List,
+    Tooltip,
     Divider,
     ListItem,
     IconButton,
@@ -57,12 +58,14 @@ const ChannelsList = ({
                         {
                             isOwner && (
                                 <ListItemSecondaryAction>
-                                    <IconButton
-                                        color="secondary"
-                                        onClick={() => onToggle('isAddChannelModalOpen')}
-                                    >
-                                        <Add />
-                                    </IconButton>
+                                    <Tooltip title="Add new channel">
+                                        <IconButton
+                                            color="secondary"
+                                            onClick={() => onToggle('isAddChannelModalOpen')}
+                                        >
+                                            <Add />
+                                        </IconButton>
+                                    </Tooltip>
                                 </ListItemSecondaryAction>
                             )
                         }

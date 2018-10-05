@@ -33,6 +33,10 @@ class Sidebar extends React.Component {
     onToggleHandler = (target) => {
         this.setState(prevState => ({
             [target]: !prevState[target],
+            channelName: '',
+            isPublic: true,
+            errors: {},
+            email: '',
         }));
     }
 

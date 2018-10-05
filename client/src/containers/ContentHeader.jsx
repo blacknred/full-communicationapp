@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import HeaderContent from '../components/HeaderContent';
+import ContentHeader from '../components/ContentHeader';
 
 const Header = ({ title }) => (
-    <HeaderContent
+    <ContentHeader
         title={title}
     />
 );

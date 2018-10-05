@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import {
     List,
     Avatar,
+    Tooltip,
     ListItem,
     ListItemText,
 } from '@material-ui/core';
@@ -91,9 +92,11 @@ const TeamsList = ({
                     component={Link}
                     to="/new-team"
                 >
-                    <Avatar className={classes.avatar}>
-                        <Add color="secondary" />
-                    </Avatar>
+                    <Tooltip title="Create new team">
+                        <Avatar className={classes.avatar}>
+                            <Add color="secondary" />
+                        </Avatar>
+                    </Tooltip>
                     {
                         isFullModeOpen && (
                             <ListItemText
@@ -105,7 +108,6 @@ const TeamsList = ({
                             />
                         )
                     }
-
                 </ListItem>
             </List>
             <List>
@@ -114,9 +116,11 @@ const TeamsList = ({
                     key="expand-teams-list"
                     onClick={() => onToggle('isFullTeamsModeOpen')}
                 >
-                    <Avatar className={classes.avatar}>
-                        {isFullModeOpen ? <FullscreenExit /> : <Fullscreen />}
-                    </Avatar>
+                    <Tooltip title={isFullModeOpen ? 'Decreese panel' : 'Enlarge panel'}>
+                        <Avatar className={classes.avatar}>
+                            {isFullModeOpen ? <FullscreenExit /> : <Fullscreen />}
+                        </Avatar>
+                    </Tooltip>
                 </ListItem>
                 <ListItem
                     key="link-settings"
@@ -124,9 +128,11 @@ const TeamsList = ({
                     component={Link}
                     to="/settings"
                 >
-                    <Avatar className={classes.avatar}>
-                        <Settings />
-                    </Avatar>
+                    <Tooltip title="Settings">
+                        <Avatar className={classes.avatar}>
+                            <Settings />
+                        </Avatar>
+                    </Tooltip>
                 </ListItem>
             </List>
         </div>

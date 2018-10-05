@@ -12,15 +12,15 @@ import {
 
 class DirectMessages extends React.Component {
     componentWillMount() {
-        const { userId } = this.props;
-        this.unsubscribe = this.subscribe(userId);
+        const { teamId, userId } = this.props;
+        this.unsubscribe = this.subscribe(teamId, userId);
     }
 
     componentWillReceiveProps(nextProps) {
-        const { userId } = this.props;
-        if (userId !== nextProps.userId) {
+        const { teamId, userId } = this.props;
+        if (userId !== nextProps.userId || teamId !== nextProps.teamId) {
             if (this.unsubscribe) this.unsubscribe();
-            this.unsubscribe = this.subscribe(nextProps.userId);
+            this.unsubscribe = this.subscribe(nextProps.teamId, nextProps.userId);
         }
     }
 
@@ -28,36 +28,37 @@ class DirectMessages extends React.Component {
         if (this.unsubscribe) this.unsubscribe();
     }
 
-    subscribe = (userId) => {
+    subscribe = (teamId, userId) => {
         const { data } = this.props;
-        console.log(`subscribed to member ${userId} messages`);
-        // data.subscribeToMore({
-        //     document: DIRECT_MESSAGES_SUBSCRIPTION,
-        //     variables: { userId },
-        //     updateQuery: (prev, { subscriptionData }) => {
-        //         if (!subscriptionData) return prev;
-        //         return {
-        //             ...prev,
-        //             messages: [
-        //                 ...prev.messages,
-        //                 subscriptionData.data.newChannelMessage,
-        //             ],
-        //         };
-        //     },
-        // });
+        console.log(`subscribed to messages of team ${teamId} member ${userId} `);
+        return data.subscribeToMore({
+            document: DIRECT_MESSAGES_SUBSCRIPTION,
+            variables: { teamId, userId },
+            updateQuery: (prev, { subscriptionData }) => {
+                if (!subscriptionData) return prev;
+                return {
+                    ...prev,
+                    directMessages: [
+                        ...prev.directMessages,
+                        subscriptionData.data.newDirectMessage,
+                    ],
+                };
+            },
+        });
     }
 
     render() {
         const { data: { loading, directMessages } } = this.props;
         return (
             loading
-                ? <Loading />
+                ? <Loading small />
                 : <MessagesList messages={directMessages} />
         );
     }
 }
 
 DirectMessages.propTypes = {
+    teamId: PropTypes.number.isRequired,
     userId: PropTypes.number.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,

@@ -20,23 +20,41 @@ const styles = {
     },
 };
 
-const colors = [
-    {
-        // browny
-        main: '#473544',
-        secondary: red[400],
+const IS_NIGHT_MODE = false;
+const COLOR_MODE = 'ocean';
+
+const colors = {
+    browny: {
+        light: {
+            main: '#473544',
+            secondary: red[400],
+        },
+        dark: {
+            main: '#473544',
+            secondary: red[400],
+        },
     },
-    {
-        // ocean
-        main: '#484d6b',
-        secondary: blue[400],
+    ocean: {
+        light: {
+            main: '#484d6b',
+            secondary: blue[400],
+        },
+        dark: {
+            main: '#484d6b',
+            secondary: blue[400],
+        },
     },
-    {
-        // green day
-        main: blueGrey[800],
-        secondary: '#009688',
+    green_day: {
+        light: {
+            main: blueGrey[800],
+            secondary: '#009688',
+        },
+        dark: {
+            main: blueGrey[800],
+            secondary: '#009688',
+        },
     },
-];
+};
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -45,10 +63,10 @@ const lightTheme = createMuiTheme({
         },
         type: 'light',
         primary: {
-            main: colors[1].main,
+            main: colors[COLOR_MODE].light.main,
         },
         secondary: {
-            main: colors[1].secondary,
+            main: colors[COLOR_MODE].light.secondary,
         },
     },
 });
@@ -60,15 +78,13 @@ const darkTheme = createMuiTheme({
         },
         type: 'dark',
         primary: {
-            main: colors[0].main,
+            main: colors[COLOR_MODE].dark.main,
         },
         secondary: {
-            main: colors[0].secondary,
+            main: colors[COLOR_MODE].dark.secondary,
         },
     },
 });
-
-const IS_NIGHT_MODE = false;
 
 const StyleRoot = (Component) => {
     function styleRoot(props) {

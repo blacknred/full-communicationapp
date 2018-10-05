@@ -25,7 +25,7 @@ export const requiresAdmin = requiresAuth.createResolver((parent, args, { user }
 export const requiresTeamAccess = createResolver(
     async (parent, { channelId }, { user, models }) => {
         if (!user || !user.id) throw new Error('Not authenticated');
-        // check if part of the team
+        // check if user is part of the team
         const channel = await models.Channel.findOne(
             { where: { id: channelId } },
             { raw: true },
@@ -37,6 +37,22 @@ export const requiresTeamAccess = createResolver(
         if (!member) {
             throw new Error(`You have to be a member of the
             team to subscribe to messages`);
+        }
+    },
+);
+
+export const requiresDirectTeamAccess = createResolver(
+    async (parent, { teamId, userId }, { user, models }) => {
+        if (!user || !user.id) throw new Error('Not authenticated');
+        // check if both members (user and receiver) are part of the team
+        const members = await models.Member.findAll({
+            where: {
+                teamId,
+                [models.sequelize.Op.or]: [{ userId }, { userId: user.id }],
+            },
+        });
+        if (members.length !== 2) {
+            throw new Error('Something went wrong');
         }
     },
 );

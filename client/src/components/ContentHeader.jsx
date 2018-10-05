@@ -23,7 +23,7 @@ const styles = theme => ({
     },
 });
 
-const HeaderContent = ({ classes, title }) => (
+const ContentHeader = ({ classes, title }) => (
     <Fade in>
         <AppBar
             elevation={1}
@@ -52,9 +52,9 @@ const HeaderContent = ({ classes, title }) => (
     </Fade>
 );
 
-HeaderContent.propTypes = {
+ContentHeader.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     title: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles)(HeaderContent);
+export default withStyles(styles)(ContentHeader);

@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
 
 import NewMessageForm from '../components/NewMessageForm';
-
-import { CREATE_CHANNEL_MESSAGE_MUTATION } from '../graphql/message';
 
 class NewChannelMessage extends React.Component {
     constructor(props) {
@@ -22,18 +19,13 @@ class NewChannelMessage extends React.Component {
 
     onSubmitHandler = async () => {
         const { text } = this.state;
-        const { mutate, channelId } = this.props;
+        const { submit } = this.props;
         if (!text || !text.trim()) return;
         try {
-            await mutate({
-                variables: {
-                    channelId,
-                    text,
-                },
-            });
+            await submit(text);
             this.setState({ text: '' });
         } catch (err) {
-            // return;
+            // return null;
         }
     }
 
@@ -52,9 +44,8 @@ class NewChannelMessage extends React.Component {
 }
 
 NewChannelMessage.propTypes = {
-    mutate: PropTypes.func.isRequired,
-    channelId: PropTypes.number.isRequired,
+    submit: PropTypes.func.isRequired,
     placeholder: PropTypes.string.isRequired,
 };
 
-export default graphql(CREATE_CHANNEL_MESSAGE_MUTATION)(NewChannelMessage);
+export default NewChannelMessage;

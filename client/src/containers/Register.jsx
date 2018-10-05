@@ -30,7 +30,7 @@ class Register extends React.Component {
         });
         const { ok, errors } = res.data.register;
         if (ok) {
-            history.push('/');
+            history.push('/login');
         } else {
             const err = {};
             errors.forEach(({ path, message }) => {

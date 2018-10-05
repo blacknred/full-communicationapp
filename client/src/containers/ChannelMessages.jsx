@@ -30,8 +30,8 @@ class ChannelMessages extends React.Component {
 
     subscribe = (channelId) => {
         const { data } = this.props;
-        console.log(`subscribed to channel ${channelId} messages`);
-        data.subscribeToMore({
+        console.log(`subscribed to messages of channel ${channelId}`);
+        return data.subscribeToMore({
             document: CHANNEL_MESSAGES_SUBSCRIPTION,
             variables: { channelId },
             updateQuery: (prev, { subscriptionData }) => {

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import {
     List,
+    Tooltip,
     ListItem,
     IconButton,
     ListItemText,
@@ -55,12 +56,14 @@ const LastMentionedMembersList = ({
                 <ListSubheader color="inherit">
                     <span>Direct Chats</span>
                     <ListItemSecondaryAction>
-                        <IconButton
-                            color="secondary"
-                            onClick={() => onToggle('isSearchTeamMembersModalOpen')}
-                        >
-                            <OpenInNew />
-                        </IconButton>
+                        <Tooltip title="Find Member">
+                            <IconButton
+                                color="secondary"
+                                onClick={() => onToggle('isSearchTeamMembersModalOpen')}
+                            >
+                                <OpenInNew />
+                            </IconButton>
+                        </Tooltip>
                     </ListItemSecondaryAction>
                 </ListSubheader>
             )}

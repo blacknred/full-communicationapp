@@ -40,8 +40,8 @@ export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
 `;
 
 export const DIRECT_MESSAGES_SUBSCRIPTION = gql`
-    subscription($channelId: Int!) {
-        newChannelMessage(channelId: $channelId) {
+    subscription($teamId: Int!, $userId: Int!) {
+        newDirectMessage(teamId: $teamId, userId: $userId) {
             id
             text
             sender {
