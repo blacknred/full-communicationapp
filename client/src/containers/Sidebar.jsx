@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Mutation, Query } from 'react-apollo';
 
 import {
-    ME_QUERY,
     TEAM_MEMBERS_QUERY,
     ADD_TEAM_MEMBER_MUTATION,
 } from '../graphql/team';
+import { ME_QUERY } from '../graphql/user';
 import { CREATE_CHANNEL_MUTATION } from '../graphql/channel';
 
 import SidebarContent from '../components/SidebarContent';
@@ -190,6 +190,7 @@ class Sidebar extends React.Component {
                                             data.teamMembers.map(member => ({
                                                 value: member.id,
                                                 label: member.username,
+                                                online: member.online,
                                             }))
                                         }
                                     />

@@ -182,8 +182,8 @@ const SearchTeamMembersForm = ({
             </DialogActions>
             <DialogContent>
                 <Select
-                    className="basic-single"
-                    classNamePrefix="select"
+                    // className="basic-single"
+                    // classNamePrefix="select"
                     autoFocus
                     menuIsOpen
                     options={members}
@@ -192,17 +192,17 @@ const SearchTeamMembersForm = ({
                         onClose('isSearchTeamMembersModalOpen');
                     }}
                     placeholder="Type the username"
-                    // styles={selectStyles}
-                    // classes={classes}
-                    // components={{
-                    //     Control,
-                    //     // Menu,
-                    //     NoOptionsMessage,
-                    //     // Option,
-                    //     // Placeholder,
-                    //     // SingleValue,
-                    //     // ValueContainer,
-                    // }}
+                    styles={selectStyles}
+                    classes={classes}
+                    components={{
+                        Control,
+                        Menu,
+                        NoOptionsMessage,
+                        Option,
+                        // Placeholder,
+                        // SingleValue,
+                        // ValueContainer,
+                    }}
                 />
             </DialogContent>
         </Dialog>

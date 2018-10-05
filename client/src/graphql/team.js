@@ -1,36 +1,11 @@
 import gql from 'graphql-tag';
 
-export const ME_QUERY = gql`
-    {
-        me {
-            id
-            username
-            teams {
-                id
-                name
-                admin {
-                    id
-                    username
-                }
-                channels {
-                    id
-                    name
-                    public
-                }
-                directMessageMembers {
-                    id
-                    username
-                }
-            }
-        }
-    }
-`;
-
 export const TEAM_MEMBERS_QUERY = gql`
     query TeamMembers($teamId: Int!) {
         teamMembers(teamId: $teamId) {
             id
             username
+            online
         }
     }
 `;

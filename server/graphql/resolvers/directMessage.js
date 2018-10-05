@@ -36,7 +36,7 @@ export default {
     },
     Query: {
         directMessages: requiresAuth.createResolver(
-            async (parent, { teamId, otherUserId }, { models, user }) => models
+            (parent, { teamId, otherUserId }, { models, user }) => models
                 .DirectMessage.findAll(
                     {
                         order: [['created_at', 'ASC']],

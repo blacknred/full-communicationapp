@@ -2,6 +2,16 @@ version: '3'
 
 services:
 
+  redis:
+    container_name: messenger-redis
+    build: ./redis
+    volumes:
+      - ./redis/redis-data:/data
+    ports:
+      - '6377:6379'
+    healthcheck:
+      test: exit 0
+
   db:
     container_name: messenger-db
     build: ./db
@@ -28,10 +38,13 @@ services:
       - NODE_ENV=${NODE_ENV}
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+      - REDIS_PASSWORD=default-password
     depends_on:
       - db
+      - redis
     links:
       - db
+      - redis
 
   web-client:
     container_name: messenger-web-client

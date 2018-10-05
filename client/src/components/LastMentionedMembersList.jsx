@@ -15,6 +15,7 @@ import {
 import {
     OpenInNew,
     FiberManualRecord,
+    RadioButtonUnchecked,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -36,10 +37,13 @@ const LastMentionedMembersList = ({
             to={`/teams/${teamId}/user/${user.id}`}
         >
             <ListItemIcon className={classes.iconRoot}>
-                <FiberManualRecord fontSize="small" />
+                {
+                    user.online
+                        ? <FiberManualRecord fontSize="small" />
+                        : <RadioButtonUnchecked fontSize="small" />
+                }
             </ListItemIcon>
             <ListItemText
-                inset
                 primary={user.username}
                 primaryTypographyProps={{
                     color: 'inherit',
@@ -98,6 +102,7 @@ LastMentionedMembersList.propTypes = {
     users: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         username: PropTypes.string.isRequired,
+        online: PropTypes.bool.isRequired,
     })).isRequired,
     onToggle: PropTypes.func.isRequired,
 };

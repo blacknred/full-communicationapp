@@ -1,14 +1,16 @@
+import redisClient from '../../redis';
 import { tryLogin } from '../../auth';
 import formateErrors from '../../formateErrors';
 import { requiresAuth } from '../../permissions';
 
 export default {
     User: {
+        online: async ({ id }) => !!await redisClient.getAsync(`${id}_user_online`),
         teams: (parent, args, { models, user }) => models
             .sequelize.query(
                 `select * from teams as t
-                join members as m on t.id = m.team_id
-                where m.user_id = ?`,
+                    join members as m on t.id = m.team_id
+                    where m.user_id = ?`,
                 {
                     replacements: [user.id],
                     model: models.Team,

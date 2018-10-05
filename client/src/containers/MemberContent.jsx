@@ -7,8 +7,7 @@ import NewMessage from './NewMessage';
 import ContentHeader from './ContentHeader';
 import DirectMessages from './DirectMessages';
 
-import { ME_QUERY } from '../graphql/team';
-import { USER_QUERY } from '../graphql/user';
+import { ME_QUERY, USER_QUERY } from '../graphql/user';
 import { CREATE_DIRECT_MESSAGE_MUTATION } from '../graphql/message';
 
 const MemberContent = ({
@@ -17,7 +16,10 @@ const MemberContent = ({
     const userIdInt = parseInt(userId, 10);
     return !loading && (
         <React.Fragment>
-            <ContentHeader title={getUser.username} />
+            <ContentHeader
+                title={getUser.username}
+                status={getUser.online ? 'Online' : 'Offline'}
+            />
             <DirectMessages
                 teamId={teamId}
                 userId={userIdInt}

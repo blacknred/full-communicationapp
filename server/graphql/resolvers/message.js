@@ -33,7 +33,7 @@ export default {
     },
     Query: {
         messages: requiresAuth.createResolver(
-            async (parent, { channelId }, { models }) => models
+            (parent, { channelId }, { models }) => models
                 .Message.findAll(
                     {
                         order: [['created_at', 'ASC']],

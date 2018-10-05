@@ -20,7 +20,7 @@ import MemberContent from './containers/MemberContent';
 import ChannelContent from './containers/ChannelContent';
 import ContentWrapper from './components/ContentWrapper';
 
-import { ME_QUERY } from './graphql/team';
+import { ME_QUERY } from './graphql/user';
 
 const isAuthenticated = () => {
     const token = localStorage.getItem('token');
@@ -59,7 +59,6 @@ const TeamsRoute = ({ match: { params: { teamId } } }) => (
     >
         {({ loading, error, data }) => {
             if (loading || error) return <Loading />;
-
             const { me: { teams } } = data;
 
             if (!teams.length) return <Redirect to="/create-team" />;

@@ -4,7 +4,7 @@ import { requiresAuth } from '../../permissions';
 export default {
     Query: {
         teamMembers: requiresAuth.createResolver(
-            async (parent, { teamId }, { models }) => models
+            (parent, { teamId }, { models }) => models
                 .sequelize.query(
                     `select * from users as u
                     join members as m on m.user_id = u.id
@@ -93,7 +93,7 @@ export default {
         ),
     },
     Team: {
-        admin: async ({ id }, args, { models }) => models.sequelize.query(
+        admin: ({ id }, args, { models }) => models.sequelize.query(
             `select u.id, u.username from users as u
             join members as m on u.id = m.user_id
             where m.team_id = ? and m.admin = true`,

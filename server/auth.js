@@ -2,8 +2,11 @@ import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const SECRET = process.env.TOKEN_SECRET;
-const SECRET2 = process.env.TOKEN_SECRET_2;
+import redisClient from './redis';
+
+const SECRET = process.env.TOKEN_SECRET || 'insecure-secret';
+const SECRET2 = process.env.TOKEN_SECRET_2 || 'insecure-secret2';
+const ONLINE_TIMESPAN = process.env.ONLINE_TIMESPAN || 60 * 5;
 
 const createTokens = async ({ user, refreshTokenSecret }) => {
     const createToken = jwt.sign(
@@ -101,7 +104,13 @@ export const checkAuth = async (models, req, res, next) => {
         try {
             const { user } = jwt.verify(token, SECRET);
             req.user = user;
-            console.log('user', req.user);
+            /*
+            in case of successful authentication set up
+            online status of current user id with ONLINE_TIMESPAN
+            */
+            const onlineStatus = `${user.id}_user_online`;
+            redisClient.set(onlineStatus, 1);
+            redisClient.expire(onlineStatus, ONLINE_TIMESPAN);
         } catch (err) {
             const refreshToken = req.headers['x-refresh-token'];
             const newTokens = await refreshTokens({

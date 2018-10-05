@@ -16,7 +16,10 @@ const ChannelContent = ({ channels, channelId, mutate }) => {
     return (
         channel && (
             <React.Fragment>
-                <ContentHeader title={channel.name} />
+                <ContentHeader
+                    title={channel.name}
+                    status={channel.public ? 'Public' : 'Restricted'}
+                />
                 <ChannelMessages channelId={channel.id} />
                 <NewMessage
                     placeholder={channel.name}

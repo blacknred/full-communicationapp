@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import {
     Fade,
+    Chip,
     Hidden,
     AppBar,
     Toolbar,
@@ -23,7 +24,7 @@ const styles = theme => ({
     },
 });
 
-const ContentHeader = ({ classes, title }) => (
+const ContentHeader = ({ classes, title, status }) => (
     <Fade in>
         <AppBar
             elevation={1}
@@ -36,6 +37,13 @@ const ContentHeader = ({ classes, title }) => (
                     <IconButton>
                         <Menu />
                     </IconButton>
+                </Hidden>
+                <Hidden smDown>
+                    <Chip
+                        label={status}
+                        color="secondary"
+                        variant="outlined"
+                    />
                 </Hidden>
                 <Typography
                     variant="title"
@@ -55,6 +63,7 @@ const ContentHeader = ({ classes, title }) => (
 ContentHeader.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     title: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(ContentHeader);

@@ -3,6 +3,7 @@ export default `
         id: Int!
         username: String!
         email: String!
+        online: Boolean!
         teams: [Team!]!
     }
 

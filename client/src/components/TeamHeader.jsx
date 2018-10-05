@@ -8,7 +8,10 @@ import {
     Typography,
     ListItemIcon,
 } from '@material-ui/core';
-import { FiberManualRecord } from '@material-ui/icons';
+import {
+    FiberManualRecord,
+    RadioButtonUnchecked,
+} from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -25,7 +28,7 @@ const styles = theme => ({
 });
 
 const TeamHeader = ({
-    classes, teamId, teamName, admin: { id, username },
+    classes, teamId, teamName, admin: { id, username, online },
 }) => (
     <List>
         <ListItem dense>
@@ -41,7 +44,11 @@ const TeamHeader = ({
         </ListItem>
         <ListItem className={classes.admin}>
             <ListItemIcon>
-                <FiberManualRecord fontSize="small" />
+                {
+                    online
+                        ? <FiberManualRecord fontSize="small" />
+                        : <RadioButtonUnchecked fontSize="small" />
+                }
             </ListItemIcon>
             <Typography
                 component={Link}
@@ -61,6 +68,7 @@ TeamHeader.propTypes = {
     admin: PropTypes.shape({
         id: PropTypes.number.isRequired,
         username: PropTypes.string.isRequired,
+        online: PropTypes.bool.isRequired,
     }).isRequired,
 };
 
