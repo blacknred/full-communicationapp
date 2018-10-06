@@ -58,10 +58,14 @@ const TeamsRoute = ({ match: { params: { teamId } } }) => (
         fetchPolicy="network-only"
     >
         {({ loading, error, data }) => {
-            if (loading || error) return <Loading />;
+            if (loading) return <Loading />;
+            if (error) {
+                console.log(error);
+                return 'error component';
+            }
             const { me: { teams } } = data;
 
-            if (!teams.length) return <Redirect to="/create-team" />;
+            if (!teams.length) return <Redirect to="/new-team" />;
 
             const teamIdInt = parseInt(teamId, 10);
             const teamIdX = teamIdInt ? findIndex(teams, ['id', teamIdInt]) : 0;

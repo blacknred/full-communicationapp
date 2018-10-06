@@ -17,6 +17,7 @@ import { checkAuth2 } from './auth';
 
 const PORT = process.env.PORT || 3000;
 const debug = Debug('corporate-messenger:server');
+const IS_FORCE = process.env.NODE_ENV === 'test' ? { force: true } : null;
 
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './graphql/schema')));
 const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './graphql/resolvers')));
@@ -36,7 +37,7 @@ apollo.applyMiddleware({ app });
 const server = http.createServer(app);
 
 // run
-models.sequelize.sync({}).then(() => server
+models.sequelize.sync(IS_FORCE).then(() => server
     .listen({ port: PORT }, () => {
         // eslint-disable-next-line no-new
         new SubscriptionServer(

@@ -24,7 +24,7 @@ const createTokens = async ({ user, refreshTokenSecret }) => {
     return Promise.all([createToken, createRefreshToken]);
 };
 
-export const refreshTokens = async ({ token, refreshToken, models }) => {
+export const refreshTokens = async ({ refreshToken, models }) => {
     let userId = 0;
     try {
         const { user: { id } } = jwt.decode(refreshToken);
@@ -32,6 +32,7 @@ export const refreshTokens = async ({ token, refreshToken, models }) => {
     } catch (err) {
         return {};
     }
+    console.log('userId', userId);
 
     if (!userId) return {};
 
@@ -60,6 +61,7 @@ export const refreshTokens = async ({ token, refreshToken, models }) => {
 export const tryLogin = async ({ email, password, models }) => {
     // is user exist
     const user = await models.User.findOne({ where: { email }, raw: true });
+    console.log('user', user);
     if (!user) {
         return {
             ok: false,
@@ -113,9 +115,7 @@ export const checkAuth = async (models, req, res, next) => {
             redisClient.expire(onlineStatus, ONLINE_TIMESPAN);
         } catch (err) {
             const refreshToken = req.headers['x-refresh-token'];
-            const newTokens = await refreshTokens({
-                token, refreshToken, models,
-            });
+            const newTokens = await refreshTokens({ refreshToken, models });
             if (newTokens.token && newTokens.refreshToken) {
                 res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
                 res.set('x-token', newTokens.token);

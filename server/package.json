@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "DEBUG=corporate-messenger:* nodemon --exec babel-node app/server",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest"
     },
     "keywords": [],
     "author": "",
@@ -21,6 +21,8 @@
     },
     "dependencies": {
         "apollo-server-express": "^2.1.0",
+        "axios": "^0.18.0",
+        "babel-jest": "^23.6.0",
         "bcryptjs": "^2.4.3",
         "bluebird": "^3.5.2",
         "body-parser": "^1.18.3",
@@ -30,6 +32,7 @@
         "graphql": "^14.0.2",
         "graphql-subscriptions": "^1.0.0",
         "graphql-tools": "^4.0.0",
+        "jest": "^23.6.0",
         "jsonwebtoken": "^8.3.0",
         "lodash": "^4.17.11",
         "merge-graphql-schemas": "^1.5.5",
@@ -37,6 +40,7 @@
         "pg-hstore": "^2.3.2",
         "redis": "^2.8.0",
         "sequelize": "^4.38.1",
-        "subscriptions-transport-ws": "^0.9.15"
+        "subscriptions-transport-ws": "^0.9.15",
+        "xmlhttprequest": "^1.8.0"
     }
 }

@@ -23,7 +23,6 @@ export default {
             (parent, args, { models, user }) => models
                 .User.findOne({ where: { id: user.id } }),
         ),
-        allUsers: (parent, args, { models }) => models.User.findAll(),
         getUser: (parent, { userId }, { models }) => models
             .User.findOne({ where: { id: userId } }),
     },

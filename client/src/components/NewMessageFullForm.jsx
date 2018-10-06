@@ -56,7 +56,7 @@ const NewMessageFullForm = ({
                 value={text}
                 placeholder={`Message #${placeholder}`}
                 onChange={onChange}
-                rows={10}
+                rows={6}
                 className={classes.form}
             />
         </DialogContent>
