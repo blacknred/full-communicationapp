@@ -68,7 +68,6 @@ const AddChannelForm = ({
                 type="submit"
                 variant="raised"
                 color="primary"
-                className={classes.submit}
                 onClick={onSubmit}
                 children="Create Team"
                 disabled={channelName.length === 0}

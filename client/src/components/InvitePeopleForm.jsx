@@ -32,7 +32,6 @@ const InvitePeopleForm = ({
         <DialogTitle>Add people to your team</DialogTitle>
         <DialogContent>
             <TextField
-                
                 autoFocus
                 required
                 fullWidth
@@ -56,7 +55,6 @@ const InvitePeopleForm = ({
                 type="submit"
                 variant="raised"
                 color="primary"
-                className={classes.submit}
                 onClick={onSubmit}
                 children="Invite"
                 disabled={email.length === 0}

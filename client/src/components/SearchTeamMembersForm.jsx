@@ -63,6 +63,10 @@ const styles = theme => ({
     },
 });
 
+function Transition(props) {
+    return <Slide direction="up" {...props} />;
+}
+
 // react select components
 
 const inputComponent = ({ inputRef, ...props }) => (
@@ -170,9 +174,7 @@ const SearchTeamMembersForm = ({
             // scroll="body"
             fullScreen={isWidthDown('sm', width)}
             onClose={() => onClose('isSearchTeamMembersModalOpen')}
-            TransitionComponent={
-                props => <Slide direction="up" {...props} />
-            }
+            TransitionComponent={Transition}
         >
             <DialogActions>
                 <DialogTitle>Find the team member for chatting</DialogTitle>

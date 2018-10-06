@@ -9,7 +9,7 @@ import {
     ListItemIcon,
 } from '@material-ui/core';
 import {
-    FiberManualRecord,
+    RadioButtonChecked,
     RadioButtonUnchecked,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
@@ -46,7 +46,7 @@ const TeamHeader = ({
             <ListItemIcon>
                 {
                     online
-                        ? <FiberManualRecord fontSize="small" />
+                        ? <RadioButtonChecked fontSize="small" />
                         : <RadioButtonUnchecked fontSize="small" />
                 }
             </ListItemIcon>

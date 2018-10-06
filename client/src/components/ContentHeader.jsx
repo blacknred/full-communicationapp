@@ -10,7 +10,15 @@ import {
     IconButton,
     Typography,
 } from '@material-ui/core';
-import { Menu, MoreHoriz } from '@material-ui/icons';
+import {
+    Menu,
+    Lock,
+    LockOpen,
+    MoreVert,
+    MoreHoriz,
+    RadioButtonChecked,
+    RadioButtonUnchecked,
+} from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -41,6 +49,7 @@ const ContentHeader = ({ classes, title, status }) => (
                 <Hidden smDown>
                     <Chip
                         label={status}
+                        clickable
                         color="secondary"
                         variant="outlined"
                     />
@@ -48,12 +57,26 @@ const ContentHeader = ({ classes, title, status }) => (
                 <Typography
                     variant="title"
                     color="secondary"
+                    noWrap
                     className={classes.title}
                 >
                     {`#${title}`}
                 </Typography>
+                <Hidden mdUp>
+                    <IconButton>
+                        {status === 'Online' && <RadioButtonChecked fontSize="small" />}
+                        {status === 'Offline' && <RadioButtonUnchecked fontSize="small" />}
+                        {status === 'Public' && <LockOpen fontSize="small" />}
+                        {status === 'Private' && <Lock fontSize="small" />}
+                    </IconButton>
+                </Hidden>
                 <IconButton>
-                    <MoreHoriz />
+                    <Hidden mdUp>
+                        <MoreVert />
+                    </Hidden>
+                    <Hidden smDown>
+                        <MoreHoriz />
+                    </Hidden>
                 </IconButton>
             </Toolbar>
         </AppBar>

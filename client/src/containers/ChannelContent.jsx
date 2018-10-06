@@ -18,7 +18,7 @@ const ChannelContent = ({ channels, channelId, mutate }) => {
             <React.Fragment>
                 <ContentHeader
                     title={channel.name}
-                    status={channel.public ? 'Public' : 'Restricted'}
+                    status={channel.public ? 'Public' : 'Private'}
                 />
                 <ChannelMessages channelId={channel.id} />
                 <NewMessage

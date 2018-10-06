@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core';
 import {
     OpenInNew,
-    FiberManualRecord,
+    RadioButtonChecked,
     RadioButtonUnchecked,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
@@ -39,7 +39,7 @@ const LastMentionedMembersList = ({
             <ListItemIcon className={classes.iconRoot}>
                 {
                     user.online
-                        ? <FiberManualRecord fontSize="small" />
+                        ? <RadioButtonChecked fontSize="small" />
                         : <RadioButtonUnchecked fontSize="small" />
                 }
             </ListItemIcon>
