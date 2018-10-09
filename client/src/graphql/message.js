@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const CHANNEL_MESSAGES_QUERY = gql`
     query($channelId: Int!) {
-        messages(channelId: $channelId) {
+        channelMessages(channelId: $channelId) {
             id
             text
             sender {

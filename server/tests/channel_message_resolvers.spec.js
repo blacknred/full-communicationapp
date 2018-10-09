@@ -30,11 +30,11 @@ describe('channel message resolvers', async () => {
     });
 
     test('get channel messages', async () => {
-        const { data: { messages } } = await axios.post(
+        const { data: { channelMessages } } = await axios.post(
             serverUrl,
             {
                 query: `
-                    messages(channelId: ${channel.id}) {
+                    channelMessages(channelId: ${channel.id}) {
                         id
                         text
                         sender {
@@ -50,8 +50,8 @@ describe('channel message resolvers', async () => {
                 },
             },
         );
-        expect(messages).toMatchObject({
-            messages: [channelMessage],
+        expect(channelMessages).toMatchObject({
+            channelMessages: [channelMessage],
         });
     });
 });

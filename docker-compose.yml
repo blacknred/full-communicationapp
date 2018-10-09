@@ -5,34 +5,45 @@ services:
   redis:
     container_name: messenger-redis
     build: ./redis
-    volumes:
-      - ./redis/redis-data:/data
     ports:
       - '6377:6379'
+    volumes:
+      - ./redis/redis-data:/data
+    environment:
+      - REDIS_PASSWORD=default-password
     healthcheck:
       test: exit 0
 
   db:
     container_name: messenger-db
     build: ./db
-    volumes:
-      - ./db/pg-data:/var/lib/postgresql/data
     ports:
       - '5438:5432'
+    volumes:
+      - ./db/pg-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     healthcheck:
       test: exit 0
 
+  storage:
+    container_name: messenger-storage
+    build: ./storage
+    ports:
+      - '4004:3000'
+    volumes:
+      - './storage:/usr/src/app'
+      - './storage/package.json:/usr/src/package.json'
+
   server:
     container_name: messenger-server
     build: ./server
+    ports:
+      - '4000:3000'
     volumes:
       - './server:/usr/src/app'
       - './server/package.json:/usr/src/package.json'
-    ports:
-      - '4000:3000'
     environment:
       - DATABASE_URL=postgres://postgres:postgres@messenger-db:5432/messenger_dev
       - DATABASE_TEST_URL=postgres://postgres:postgres@messenger-db:5432/messenger_test
@@ -50,11 +61,11 @@ services:
   web-client:
     container_name: messenger-web-client
     build: ./client
+    ports:
+      - '4001:3000'
     volumes:
       - './client:/usr/src/app'
       - './client/package.json:/usr/src/package.json'
-    ports:
-      - '4001:3000'
     environment:
       - NODE_ENV=${NODE_ENV}
       - CHOKIDAR_USEPOLLING=true

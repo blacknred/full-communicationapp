@@ -38,8 +38,8 @@ class ChannelMessages extends React.Component {
                 if (!subscriptionData) return prev;
                 return {
                     ...prev,
-                    messages: [
-                        ...prev.messages,
+                    channelMessages: [
+                        ...prev.channelMessages,
                         subscriptionData.data.newChannelMessage,
                     ],
                 };
@@ -48,11 +48,11 @@ class ChannelMessages extends React.Component {
     }
 
     render() {
-        const { data: { loading, messages } } = this.props;
+        const { data: { loading, channelMessages } } = this.props;
         return (
             loading
                 ? <Loading small />
-                : <MessagesList messages={messages} />
+                : <MessagesList messages={channelMessages} />
         );
     }
 }
@@ -61,7 +61,7 @@ ChannelMessages.propTypes = {
     channelId: PropTypes.number.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
-        messages: PropTypes.array,
+        channelMessages: PropTypes.array,
     }).isRequired,
 };
 

@@ -16,7 +16,6 @@ import {
     InsertLink,
     AttachFile,
     InsertChart,
-    InsertPhoto,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
@@ -44,11 +43,12 @@ const NewMessageForm = ({
                 <Notes />
             </IconButton>
             <IconButton
-                onClick={() => (
-                    isWidthDown('sm', width) && onToggle('isFullOptionsOpen')
-                )}
+                onClick={() => {
+                    if (isWidthDown('sm', width)) onToggle('isFullOptionsOpen');
+                    onToggle('isFileUploadFormOpen');
+                }}
             >
-                <InsertPhoto />
+                <AttachFile />
             </IconButton>
         </React.Fragment>
     );
@@ -68,13 +68,6 @@ const NewMessageForm = ({
                 )}
             >
                 <InsertChart />
-            </IconButton>
-            <IconButton
-                onClick={() => (
-                    isWidthDown('sm', width) && onToggle('isFullOptionsOpen')
-                )}
-            >
-                <AttachFile />
             </IconButton>
         </React.Fragment>
     );

@@ -33,10 +33,11 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 
 const httpLink = createHttpLink({ uri: process.env.REACT_APP_SERVER_HOST });
 
-const wsLink = new WebSocketLink({
+export const wsLink = new WebSocketLink({
     uri: process.env.REACT_APP_SERVER_WS_HOST,
     options: {
         reconnect: true,
+        lazy: true,
         connectionParams: {
             token: localStorage.getItem('token'),
             refreshToken: localStorage.getItem('refreshToken'),

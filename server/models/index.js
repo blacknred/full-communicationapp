@@ -17,10 +17,10 @@ const sequelize = new Sequelize(DATABASE_URL[ENV], {
 const models = {
     User: sequelize.import('./user'),
     Team: sequelize.import('./team'),
+    File: sequelize.import('./file'),
     Channel: sequelize.import('./channel'),
-    Member: sequelize.import('./member'),
     Message: sequelize.import('./message'),
-    DirectMessage: sequelize.import('./directMessage'),
+    TeamMember: sequelize.import('./teamMember'),
 };
 
 Object.keys(models).forEach((modelName) => {

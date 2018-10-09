@@ -1,6 +1,7 @@
 import React from 'react';
 import { graphql } from 'react-apollo';
 
+import { wsLink } from '../apolloClient';
 import { LOGIN_MUTATION } from '../graphql/user';
 
 import LoginForm from '../components/LoginForm';
@@ -33,6 +34,7 @@ class Login extends React.Component {
         if (ok) {
             localStorage.setItem('token', token);
             localStorage.setItem('refreshToken', refreshToken);
+            wsLink.subscriptionClient.tryReconnect();
             history.push('/teams');
         } else {
             const err = {};

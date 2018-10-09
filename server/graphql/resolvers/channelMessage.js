@@ -22,7 +22,7 @@ export default {
             ),
         },
     },
-    Message: {
+    ChannelMessage: {
         sender: ({ user, userId }, args, { models }) => {
             if (user) return user;
             return models.User.findOne(
@@ -32,9 +32,9 @@ export default {
         },
     },
     Query: {
-        messages: requiresAuth.createResolver(
+        channelMessages: requiresAuth.createResolver(
             (parent, { channelId }, { models }) => models
-                .Message.findAll(
+                .ChannelMessage.findAll(
                     {
                         order: [['created_at', 'ASC']],
                         where: { channelId },
@@ -47,10 +47,12 @@ export default {
         createChannelMessage: requiresAuth.createResolver(
             async (parent, args, { models, user }) => {
                 try {
-                    const message = await models.Message.create({
+                    const message = await models.ChannelMessage.create({
                         ...args,
                         userId: user.id,
                     });
+
+                    // save files data if exists
 
                     const asyncFunc = async () => {
                         const currentUser = await models.User.findOne({

@@ -40,9 +40,8 @@ export default (sequelize, DataTypes) => {
         {
             hooks: {
                 afterValidate: async (user) => {
-                    const hashedPassword = await bcrypt.hash(user.password, 12);
                     // eslint-disable-next-line no-param-reassign
-                    user.password = hashedPassword;
+                    user.password = await bcrypt.hash(user.password, 12);
                 },
             },
         },
@@ -50,15 +49,21 @@ export default (sequelize, DataTypes) => {
 
     User.associate = (models) => {
         User.belongsToMany(models.Team, {
-            through: models.Member,
+            through: models.TeamMember,
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',
             },
         });
-        // N:M
         User.belongsToMany(models.Channel, {
-            through: 'channel_member',
+            through: 'channel_members',
+            foreignKey: {
+                name: 'userId',
+                field: 'user_id',
+            },
+        });
+        User.belongsToMany(models.Channel, {
+            through: 'private_channel_members',
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',

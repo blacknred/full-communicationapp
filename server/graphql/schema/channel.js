@@ -3,7 +3,7 @@ export default `
         id: Int!
         name: String!
         public: Boolean!
-        messages: [Message!]!
+        messages: [ChannelMessage!]!
         users: [User!]!
     }
 

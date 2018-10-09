@@ -6,11 +6,11 @@ import { requiresAuth } from '../../permissions';
 export default {
     User: {
         online: async ({ id }) => !!await redisClient.getAsync(`${id}_user_online`),
-        teams: (parent, args, { models, user }) => models
-            .sequelize.query(
+        teams: (parent, args, { models, user }) => models.sequelize
+            .query(
                 `select * from teams as t
-                    join members as m on t.id = m.team_id
-                    where m.user_id = ?`,
+                join team_member as tm on t.id = tm.team_id
+                where tm.user_id = ?`,
                 {
                     replacements: [user.id],
                     model: models.Team,
@@ -20,11 +20,11 @@ export default {
     },
     Query: {
         me: requiresAuth.createResolver(
-            (parent, args, { models, user }) => models
-                .User.findOne({ where: { id: user.id } }),
+            (parent, args, { models, user }) => models.User
+                .findOne({ where: { id: user.id } }),
         ),
-        getUser: (parent, { userId }, { models }) => models
-            .User.findOne({ where: { id: userId } }),
+        getUser: (parent, { userId }, { models }) => models.User
+            .findOne({ where: { id: userId } }),
     },
     Mutation: {
         login: (parent, { email, password }, { models }) => tryLogin({

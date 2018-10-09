@@ -57,13 +57,13 @@ const TeamsRoute = ({ match: { params: { teamId } } }) => (
         query={ME_QUERY}
         fetchPolicy="network-only"
     >
-        {({ loading, error, data }) => {
-            if (loading) return <Loading />;
+        {({ loading, error, data: { me } }) => {
+            if (loading || !me) return <Loading />;
             if (error) {
                 console.log(error);
-                return 'error component';
+                return 'render error component';
             }
-            const { me: { teams } } = data;
+            const { teams } = me;
 
             if (!teams.length) return <Redirect to="/new-team" />;
 

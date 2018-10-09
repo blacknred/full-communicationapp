@@ -1,3 +1,8 @@
-import { PubSub } from 'graphql-subscriptions';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
 
-export default new PubSub();
+import redisClient from './redis';
+
+export default new RedisPubSub({
+    publisher: redisClient,
+    subscriber: redisClient,
+});

@@ -2,13 +2,41 @@ import formateErrors from '../../formateErrors';
 import { requiresAuth } from '../../permissions';
 
 export default {
+    Team: {
+        admin: ({ id }, args, { models }) => models.sequelize
+            .query(
+                `select u.id, u.username from users as u
+                join team_member as tm on u.id = tm.user_id
+                where tm.team_id = ? and tm.admin = true`,
+                {
+                    replacements: [id],
+                    model: models.User,
+                    raw: true,
+                },
+            ).then(users => users[0]), // TODO:
+        channels: ({ id }, args, { models }) => models.Channel
+            .findAll({ where: { teamId: id } }),
+        directMessageMembers: ({ id }, args, { models, user }) => models.sequelize
+            .query(
+                `select distinct on (u.id) u.id, u.username from users as u
+                join direct_message as dm on u.id = dm.receiver_id
+                join messages as m on m.id = dm.message_id
+                where (:currentUserId = m.user_id or :currentUserId = dm.receiver_id)
+                and dm.team_id = :teamId`,
+                {
+                    replacements: { currentUserId: user.id, teamId: id },
+                    model: models.User,
+                    raw: true,
+                },
+            ),
+    },
     Query: {
         teamMembers: requiresAuth.createResolver(
             (parent, { teamId }, { models }) => models
                 .sequelize.query(
                     `select * from users as u
-                    join members as m on m.user_id = u.id
-                    where m.team_id = ?`,
+                    join team_member as tm on tm.user_id = u.id
+                    where tm.team_id = ?`,
                     {
                         replacements: [teamId],
                         model: models.User,
@@ -95,32 +123,6 @@ export default {
                         errors: formateErrors(err, models),
                     };
                 }
-            },
-        ),
-    },
-    Team: {
-        admin: ({ id }, args, { models }) => models.sequelize.query(
-            `select u.id, u.username from users as u
-            join members as m on u.id = m.user_id
-            where m.team_id = ? and m.admin = true`,
-            {
-                replacements: [id],
-                model: models.User,
-                raw: true,
-            },
-        ).then(users => users[0]),
-        channels: ({ id }, args, { models }) => models
-            .Channel.findAll({ where: { teamId: id } }),
-        directMessageMembers: ({ id }, args, { models, user }) => models.sequelize.query(
-            `select distinct on (u.id) u.id, u.username from users as u
-            join direct_messages as dm
-            on (u.id = dm.sender_id) or (u.id = dm.receiver_id)
-            where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)
-            and dm.team_id = :teamId`,
-            {
-                replacements: { currentUserId: user.id, teamId: id },
-                model: models.User,
-                raw: true,
             },
         ),
     },

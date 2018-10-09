@@ -1,10 +1,11 @@
 export default `
     type DirectMessage {
         id: Int!
-        text: String!
+        text: String
         sender: User!
         receiverId: Int!
         created_at: String!
+        files: [File!]
     }
 
     type Subscription {
@@ -16,6 +17,6 @@ export default `
     }
 
     type Mutation {
-        createDirectMessage(teamId: Int!, receiverId: Int!, text: String!): Boolean!
+        createDirectMessage(teamId: Int!, receiverId: Int!, text: String, files: [File!]): Boolean!
     }
 `;

@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
-    const Member = sequelize.define(
-        'member',
+    const TeamMember = sequelize.define(
+        'team_member',
         {
             admin: {
                 type: DataTypes.BOOLEAN,
@@ -9,5 +9,5 @@ export default (sequelize, DataTypes) => {
         },
     );
 
-    return Member;
+    return TeamMember;
 };

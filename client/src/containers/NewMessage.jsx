@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Dropzone from 'react-dropzone';
 
 import NewMessageForm from '../components/NewMessageForm';
 import NewMessageFullForm from '../components/NewMessageFullForm';
@@ -11,6 +12,7 @@ class NewChannelMessage extends React.Component {
             text: '',
             isFullOptionsOpen: false,
             isFullFormOpen: false,
+            isFileUploadFormOpen: false,
         };
     }
 
@@ -56,6 +58,9 @@ class NewChannelMessage extends React.Component {
                     onSubmit={this.onSubmitHandler}
                     onClose={this.onToggleHandler}
                 />
+                <Dropzone>
+                    +
+                </Dropzone>
             </React.Fragment>
 
         );
