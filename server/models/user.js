@@ -13,8 +13,8 @@ export default (sequelize, DataTypes) => {
                         msg: 'The username can only contain letters and numbers',
                     },
                     len: {
-                        args: [3, 25],
-                        msg: 'The username needs to be between 3 and 25 characters long',
+                        args: [5, 25],
+                        msg: 'The username needs to be between 5 and 25 characters long',
                     },
                 },
             },
@@ -23,7 +23,7 @@ export default (sequelize, DataTypes) => {
                 unique: true,
                 validate: {
                     isEmail: {
-                        mgs: 'Invalid email',
+                        mgs: 'The email is invalid',
                     },
                 },
             },
@@ -31,8 +31,8 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 validate: {
                     len: {
-                        args: [5, 100],
-                        msg: 'The password needs to be between 5 and 100 characters long',
+                        args: [5, 20],
+                        msg: 'The password needs to be between 5 and 20 characters long',
                     },
                 },
             },
@@ -56,14 +56,14 @@ export default (sequelize, DataTypes) => {
             },
         });
         User.belongsToMany(models.Channel, {
-            through: 'channel_members',
+            through: models.PrivateChannelMember,
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',
             },
         });
         User.belongsToMany(models.Channel, {
-            through: 'private_channel_members',
+            through: 'channel_members',
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',

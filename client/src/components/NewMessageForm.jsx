@@ -20,6 +20,8 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
+import FileUpload from '../containers/FileUpload';
+
 const ENTER_KEY = 13;
 
 const styles = theme => ({
@@ -29,44 +31,34 @@ const styles = theme => ({
 });
 
 const NewMessageForm = ({
-    classes, width, placeholder, text, isFullOptionsOpen,
+    classes, width, placeholder, channelId, text, isFullOptionsOpen,
     onToggle, onChange, onSubmit, isFullFormOpen,
 }) => {
+    const fullOptionsToggle = () => isWidthDown('sm', width) && onToggle('isFullOptionsOpen');
     const basicOptions = (
         <React.Fragment>
             <IconButton
                 onClick={() => {
-                    if (isWidthDown('sm', width)) onToggle('isFullOptionsOpen');
+                    fullOptionsToggle();
                     onToggle('isFullFormOpen');
                 }}
             >
                 <Notes />
             </IconButton>
-            <IconButton
-                onClick={() => {
-                    if (isWidthDown('sm', width)) onToggle('isFullOptionsOpen');
-                    onToggle('isFileUploadFormOpen');
-                }}
-            >
-                <AttachFile />
-            </IconButton>
+            <FileUpload channelId={channelId}>
+                <IconButton onClick={fullOptionsToggle}>
+                    <AttachFile />
+                </IconButton>
+            </FileUpload>
         </React.Fragment>
     );
     const fullOptions = (
         <React.Fragment>
             {basicOptions}
-            <IconButton
-                onClick={() => (
-                    isWidthDown('sm', width) && onToggle('isFullOptionsOpen')
-                )}
-            >
+            <IconButton onClick={fullOptionsToggle}>
                 <InsertLink />
             </IconButton>
-            <IconButton
-                onClick={() => (
-                    isWidthDown('sm', width) && onToggle('isFullOptionsOpen')
-                )}
-            >
+            <IconButton onClick={fullOptionsToggle}>
                 <InsertChart />
             </IconButton>
         </React.Fragment>
@@ -120,6 +112,7 @@ const NewMessageForm = ({
 NewMessageForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
+    channelId: PropTypes.number.isRequired,
     placeholder: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     isFullFormOpen: PropTypes.bool.isRequired,

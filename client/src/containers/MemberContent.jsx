@@ -2,13 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { findIndex } from 'lodash';
 import { graphql, compose } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import NewMessage from './NewMessage';
 import ContentHeader from './ContentHeader';
 import DirectMessages from './DirectMessages';
 
-import { ME_QUERY, USER_QUERY } from '../graphql/user';
+import { ME_QUERY } from '../graphql/user';
 import { CREATE_DIRECT_MESSAGE_MUTATION } from '../graphql/message';
+
+
+const USER_QUERY = gql`
+    query GetUser($userId: Int!) {
+        getUser(userId: $userId) {
+            username
+            online
+        }
+    }
+`;
 
 const MemberContent = ({
     teamId, userId, mutate, data: { loading, getUser },

@@ -5,11 +5,11 @@ import { requiresAuth } from '../../permissions';
 
 export default {
     User: {
-        online: async ({ id }) => !!await redisClient.getAsync(`${id}_user_online`),
+        online: async ({ id }) => !!await redisClient.getAsync(`user_${id}_online`),
         teams: (parent, args, { models, user }) => models.sequelize
             .query(
                 `select * from teams as t
-                join team_member as tm on t.id = tm.team_id
+                join team_members as tm on t.id = tm.team_id
                 where tm.user_id = ?`,
                 {
                     replacements: [user.id],

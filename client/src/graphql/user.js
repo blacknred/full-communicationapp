@@ -16,7 +16,8 @@ export const ME_QUERY = gql`
                 channels {
                     id
                     name
-                    public
+                    private
+                    dm
                 }
                 directMessageMembers {
                     id
@@ -24,15 +25,6 @@ export const ME_QUERY = gql`
                     online
                 }
             }
-        }
-    }
-`;
-
-export const USER_QUERY = gql`
-    query GetUser($userId: Int!) {
-        getUser(userId: $userId) {
-            username
-            online
         }
     }
 `;

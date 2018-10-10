@@ -7,6 +7,7 @@ export default (sequelize, DataTypes) => {
             path: DataTypes.STRING,
             type: DataTypes.STRING,
             thumb: DataTypes.STRING,
+            description: DataTypes.STRING,
         },
     );
 

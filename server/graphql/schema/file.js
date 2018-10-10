@@ -4,5 +4,7 @@ export default `
         name: String!
         path: String!
         type: String!
+        thumb: String
+        description: String
     }
 `;

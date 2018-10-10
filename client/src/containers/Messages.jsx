@@ -2,15 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 
+import FileUpload from './FileUpload';
 import Loading from '../components/Loading';
 import MessagesList from '../components/MessagesList';
 
 import {
-    CHANNEL_MESSAGES_QUERY,
+    MESSAGES_QUERY,
     CHANNEL_MESSAGES_SUBSCRIPTION,
 } from '../graphql/message';
 
-class ChannelMessages extends React.Component {
+class Messages extends React.Component {
     componentWillMount() {
         const { channelId } = this.props;
         this.unsubscribe = this.subscribe(channelId);
@@ -38,8 +39,8 @@ class ChannelMessages extends React.Component {
                 if (!subscriptionData) return prev;
                 return {
                     ...prev,
-                    channelMessages: [
-                        ...prev.channelMessages,
+                    messages: [
+                        ...prev.messages,
                         subscriptionData.data.newChannelMessage,
                     ],
                 };
@@ -48,25 +49,41 @@ class ChannelMessages extends React.Component {
     }
 
     render() {
-        const { data: { loading, channelMessages } } = this.props;
+        const { data: { loading, messages }, channelId } = this.props;
         return (
             loading
                 ? <Loading small />
-                : <MessagesList messages={channelMessages} />
+                : (
+                    <FileUpload
+                        style={{
+                            gridColumn: 3,
+                            gridRow: 2,
+                            paddingLeft: '20px',
+                            paddingRight: '20px',
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                            overflowY: 'auto',
+                        }}
+                        channelId={channelId}
+                        disableClick
+                    >
+                        <MessagesList messages={messages} />
+                    </FileUpload>
+                )
         );
     }
 }
 
-ChannelMessages.propTypes = {
+Messages.propTypes = {
     channelId: PropTypes.number.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
-        channelMessages: PropTypes.array,
+        Messages: PropTypes.array,
     }).isRequired,
 };
 
 export default graphql(
-    CHANNEL_MESSAGES_QUERY,
+    MESSAGES_QUERY,
     {
         options: props => ({
             variables: {
@@ -75,4 +92,4 @@ export default graphql(
             fetchPolicy: 'network-only',
         }),
     },
-)(ChannelMessages);
+)(Messages);

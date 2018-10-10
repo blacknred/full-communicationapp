@@ -12,12 +12,14 @@ import { Query } from 'react-apollo';
 
 import StyleRoot from './styleRoot';
 import Login from './containers/Login';
+import Error from './components/Error';
 import Loading from './components/Loading';
 import Sidebar from './containers/Sidebar';
 import Register from './containers/Register';
+import Messages from './containers/Messages';
+import NewMessage from './containers/NewMessage';
 import CreateTeam from './containers/CreateTeam';
-import MemberContent from './containers/MemberContent';
-import ChannelContent from './containers/ChannelContent';
+import ContentHeader from './containers/ContentHeader';
 import ContentWrapper from './components/ContentWrapper';
 
 import { ME_QUERY } from './graphql/user';
@@ -52,60 +54,49 @@ const PrivateRoute = ({ component: Component, ...rest }) => (
     />
 );
 
-const TeamsRoute = ({ match: { params: { teamId } } }) => (
+const TeamsRoute = ({ match: { params: { teamId, channelId } } }) => (
     <Query
         query={ME_QUERY}
         fetchPolicy="network-only"
     >
         {({ loading, error, data: { me } }) => {
             if (loading || !me) return <Loading />;
-            if (error) {
-                console.log(error);
-                return 'render error component';
-            }
-            const { teams } = me;
+            if (error) return <Error text={error} />;
+            const { id: currentUserId, teams } = me;
 
             if (!teams.length) return <Redirect to="/new-team" />;
 
             const teamIdInt = parseInt(teamId, 10);
             const teamIdX = teamIdInt ? findIndex(teams, ['id', teamIdInt]) : 0;
             const team = teamIdX === -1 ? teams[0] : teams[teamIdX];
-            const token = localStorage.getItem('token');
-            const { user: { id } } = decode(token);
-            const isTeamOwner = id === team.admin.id;
+
+            const channelIdInt = parseInt(channelId, 10);
+            const channelIdX = channelIdInt ? findIndex(team.channels, ['id', channelIdInt]) : 0;
+            const channel = channelIdX === -1 ? team.channels[0] : team.channels[channelIdX];
 
             return (
                 <React.Fragment>
                     <Sidebar
                         team={team}
                         teams={teams}
-                        isOwner={isTeamOwner}
+                        isOwner={currentUserId === team.admin.id}
                         teamIndex={teamIdX}
                     />
-                    <ContentWrapper>
-                        <Switch>
-                            <Route
-                                exact
-                                path="/teams/:teamId/user/:userId"
-                                render={({ match: { params: { userId } } }) => (
-                                    <MemberContent
-                                        teamId={team.id}
-                                        userId={userId}
-                                    />
-                                )}
-                            />
-                            <Route
-                                exact
-                                path="/teams/:teamId?/:channelId?"
-                                render={({ match: { params: { channelId } } }) => (
-                                    <ChannelContent
-                                        channels={team.channels}
-                                        channelId={channelId}
-                                    />
-                                )}
-                            />
-                        </Switch>
-                    </ContentWrapper>
+                    {
+                        channel && (
+                            <ContentWrapper>
+                                <ContentHeader
+                                    title={channel.name}
+                                    status={channel.public ? 'Public' : 'Private'}
+                                />
+                                <Messages channelId={channel.id} />
+                                <NewMessage
+                                    channelId={channel.id}
+                                    placeholder={channel.name}
+                                />
+                            </ContentWrapper>
+                        )
+                    }
                 </React.Fragment>
             );
         }}
@@ -115,6 +106,7 @@ const TeamsRoute = ({ match: { params: { teamId } } }) => (
 TeamsRoute.propTypes = {
     match: PropTypes.shape({
         teamId: PropTypes.string,
+        channelId: PropTypes.string,
     }).isRequired,
 };
 
@@ -125,7 +117,7 @@ const Index = () => (
             <Route path="/register" exact component={Register} />
             {/* <Route path="/settings" exact component={Settings} /> */}
             <PrivateRoute path="/new-team" exact component={CreateTeam} />
-            <PrivateRoute path="/teams/:teamId?" component={TeamsRoute} />
+            <PrivateRoute path="/teams/:teamId?/:channelId" exact component={TeamsRoute} />
             <Redirect to="/teams" />
         </Switch>
     </BrowserRouter>

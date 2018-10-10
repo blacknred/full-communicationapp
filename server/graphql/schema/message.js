@@ -1,5 +1,5 @@
 export default `
-    type ChannelMessage {
+    type Message {
         id: Int!
         text: String
         sender: User!
@@ -9,14 +9,14 @@ export default `
     }
 
     type Subscription {
-        newChannelMessage(channelId: Int!): ChannelMessage!
+        newChannelMessage(channelId: Int!): Message!
     }
 
     type Query {
-        channelMessages(channelId: Int!): [ChannelMessage!]!
+        messages(channelId: Int!): [Message!]!
     }
 
     type Mutation {
-        createChannelMessage(channelId: Int!, text: String, files: [File!]): Boolean!
+        createMessage(channelId: Int!, text: String, files: [File!]): Boolean!
     }
 `;

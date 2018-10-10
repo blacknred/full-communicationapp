@@ -16,10 +16,11 @@ import {
     InsertLink,
     AttachFile,
     InsertChart,
-    InsertPhoto,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
+
+import FileUpload from '../containers/FileUpload';
 
 const styles = theme => ({
     form: {
@@ -34,7 +35,7 @@ function Transition(props) {
 }
 
 const NewMessageFullForm = ({
-    classes, width, isFullFormOpen, placeholder, text,
+    classes, width, isFullFormOpen, placeholder, channelId, text,
     onClose, onChange, onSubmit,
 }) => (
     <Dialog
@@ -61,9 +62,11 @@ const NewMessageFullForm = ({
             />
         </DialogContent>
         <Toolbar>
-            <IconButton>
-                <InsertPhoto />
-            </IconButton>
+            <FileUpload channelId={channelId}>
+                <IconButton>
+                    <AttachFile />
+                </IconButton>
+            </FileUpload>
             <IconButton>
                 <InsertLink />
             </IconButton>
@@ -94,6 +97,7 @@ const NewMessageFullForm = ({
 NewMessageFullForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
+    channelId: PropTypes.number.isRequired,
     placeholder: PropTypes.string.isRequired,
     text: PropTypes.string.isRequired,
     isFullFormOpen: PropTypes.bool.isRequired,

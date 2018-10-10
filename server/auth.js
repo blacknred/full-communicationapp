@@ -110,7 +110,7 @@ export const checkAuth = async (models, req, res, next) => {
             in case of successful authentication set up
             online status of current user id with ONLINE_TIMESPAN
             */
-            const onlineStatus = `${user.id}_user_online`;
+            const onlineStatus = `user_${user.id}_online`;
             redisClient.set(onlineStatus, 1);
             redisClient.expire(onlineStatus, ONLINE_TIMESPAN);
         } catch (err) {

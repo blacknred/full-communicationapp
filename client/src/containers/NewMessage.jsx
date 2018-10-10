@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Dropzone from 'react-dropzone';
+import { graphql } from 'react-apollo';
 
 import NewMessageForm from '../components/NewMessageForm';
 import NewMessageFullForm from '../components/NewMessageFullForm';
+
+import { CREATE_MESSAGE_MUTATION } from '../graphql/message';
+
 
 class NewChannelMessage extends React.Component {
     constructor(props) {
@@ -12,7 +15,6 @@ class NewChannelMessage extends React.Component {
             text: '',
             isFullOptionsOpen: false,
             isFullFormOpen: false,
-            isFileUploadFormOpen: false,
         };
     }
 
@@ -30,10 +32,15 @@ class NewChannelMessage extends React.Component {
 
     onSubmitHandler = async () => {
         const { text } = this.state;
-        const { submit } = this.props;
+        const { channelId, mutate } = this.props;
         if (!text || !text.trim()) return;
         try {
-            await submit(text);
+            await mutate({
+                variables: {
+                    channelId,
+                    text,
+                },
+            });
             this.setState({ text: '', isFullFormOpen: false });
         } catch (err) {
             // return null;
@@ -41,35 +48,32 @@ class NewChannelMessage extends React.Component {
     }
 
     render() {
-        const { placeholder } = this.props;
+        const { mutate, ...otherProps } = this.props;
         return (
             <React.Fragment>
                 <NewMessageForm
                     {...this.state}
-                    placeholder={placeholder}
+                    {...otherProps}
                     onChange={this.onChangeHandler}
                     onSubmit={this.onSubmitHandler}
                     onToggle={this.onToggleHandler}
                 />
                 <NewMessageFullForm
                     {...this.state}
-                    placeholder={placeholder}
+                    {...otherProps}
                     onChange={this.onChangeHandler}
                     onSubmit={this.onSubmitHandler}
                     onClose={this.onToggleHandler}
                 />
-                <Dropzone>
-                    +
-                </Dropzone>
             </React.Fragment>
-
         );
     }
 }
 
 NewChannelMessage.propTypes = {
-    submit: PropTypes.func.isRequired,
+    channelId: PropTypes.number.isRequired,
+    mutate: PropTypes.func.isRequired,
     placeholder: PropTypes.string.isRequired,
 };
 
-export default NewChannelMessage;
+export default graphql(CREATE_MESSAGE_MUTATION)(NewChannelMessage);
