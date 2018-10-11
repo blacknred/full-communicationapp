@@ -7,6 +7,7 @@ export default (sequelize, DataTypes) => {
                 defaultValue: false,
             },
         },
+        { timestamps: false },
     );
 
     return TeamMember;

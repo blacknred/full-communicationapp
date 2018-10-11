@@ -7,7 +7,7 @@ import Loading from '../components/Loading';
 import MessagesList from '../components/MessagesList';
 
 import {
-    MESSAGES_QUERY,
+    GET_MESSAGES_QUERY,
     CHANNEL_MESSAGES_SUBSCRIPTION,
 } from '../graphql/message';
 
@@ -41,7 +41,7 @@ class Messages extends React.Component {
                     ...prev,
                     messages: [
                         ...prev.messages,
-                        subscriptionData.data.newChannelMessage,
+                        subscriptionData.data.channelMessagesUpdated,
                     ],
                 };
             },
@@ -49,7 +49,7 @@ class Messages extends React.Component {
     }
 
     render() {
-        const { data: { loading, messages }, channelId } = this.props;
+        const { data: { loading, getMessages }, channelId } = this.props;
         return (
             loading
                 ? <Loading small />
@@ -67,7 +67,7 @@ class Messages extends React.Component {
                         channelId={channelId}
                         disableClick
                     >
-                        <MessagesList messages={messages} />
+                        <MessagesList messages={getMessages} />
                     </FileUpload>
                 )
         );
@@ -78,12 +78,12 @@ Messages.propTypes = {
     channelId: PropTypes.number.isRequired,
     data: PropTypes.shape({
         loading: PropTypes.bool.isRequired,
-        Messages: PropTypes.array,
+        getMessages: PropTypes.array,
     }).isRequired,
 };
 
 export default graphql(
-    MESSAGES_QUERY,
+    GET_MESSAGES_QUERY,
     {
         options: props => ({
             variables: {

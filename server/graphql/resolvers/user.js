@@ -1,35 +1,15 @@
+import bcrypt from 'bcryptjs';
+
 import redisClient from '../../redis';
-import { tryLogin } from '../../auth';
 import formateErrors from '../../formateErrors';
 import { requiresAuth } from '../../permissions';
+import { createTokens, SECRET2 } from '../../auth';
 
 export default {
     User: {
         online: async ({ id }) => !!await redisClient.getAsync(`user_${id}_online`),
-        teams: (parent, args, { models, user }) => models.sequelize
-            .query(
-                `select * from teams as t
-                join team_members as tm on t.id = tm.team_id
-                where tm.user_id = ?`,
-                {
-                    replacements: [user.id],
-                    model: models.Team,
-                    raw: true,
-                },
-            ),
-    },
-    Query: {
-        me: requiresAuth.createResolver(
-            (parent, args, { models, user }) => models.User
-                .findOne({ where: { id: user.id } }),
-        ),
-        getUser: (parent, { userId }, { models }) => models.User
-            .findOne({ where: { id: userId } }),
     },
     Mutation: {
-        login: (parent, { email, password }, { models }) => tryLogin({
-            email, password, models,
-        }),
         register: async (parent, args, { models }) => {
             try {
                 const user = await models.User.create(args);
@@ -44,5 +24,94 @@ export default {
                 };
             }
         },
+        login: async (parent, { email, password }, { models }) => {
+            try {
+                // is user exist
+                const user = await models.User.findOne({
+                    where: { email }, raw: true,
+                });
+                console.log('user', user);
+                if (!user) {
+                    return {
+                        ok: false,
+                        errors: [
+                            {
+                                path: 'email',
+                                message: 'Wrong email',
+                            },
+                        ],
+                    };
+                }
+
+                // is password valid
+                const isPasswordValid = await bcrypt.compare(password, user.password);
+                if (!isPasswordValid) {
+                    return {
+                        ok: false,
+                        errors: [
+                            {
+                                path: 'password',
+                                message: 'Wrong password',
+                            },
+                        ],
+                    };
+                }
+
+                // create token
+                const refreshTokenSecret = user.password + SECRET2;
+                const [token, refreshToken] = await createTokens({
+                    user, refreshTokenSecret,
+                });
+                return {
+                    ok: true,
+                    token,
+                    refreshToken,
+                };
+            } catch (err) {
+                return {
+                    ok: false,
+                    errors: formateErrors(err, models),
+                };
+            }
+        },
+        updateUser: requiresAuth.createResolver(
+            async (parent, { option, value }, { models, user }) => {
+                try {
+                    // TODO: update user
+                    const updatedUser = await models.sequelise
+                        .query(
+                            `update users
+                            set :option = :value
+                            where id = :userId
+                            `,
+                            {
+                                replacements: { option, value, userId: user.id },
+                                model: models.User,
+                                raw: true,
+                            },
+                        );
+                    return {
+                        ok: true,
+                        user: updatedUser,
+                    };
+                } catch (err) {
+                    return {
+                        ok: false,
+                        errors: formateErrors(err, models),
+                    };
+                }
+            },
+        ),
+        deleteUser: requiresAuth.createResolver(
+            async (parent, args, { models, user }) => {
+                try {
+                    // TODO: delete user
+                    await models.User.destroy({ where: { id: user.id } });
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            },
+        ),
     },
 };

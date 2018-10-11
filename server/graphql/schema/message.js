@@ -9,14 +9,16 @@ export default `
     }
 
     type Subscription {
-        newChannelMessage(channelId: Int!): Message!
+        channelMessagesUpdated(channelId: Int!): Message!
     }
 
     type Query {
-        messages(channelId: Int!): [Message!]!
+        getMessages(channelId: Int!): [Message!]!
     }
 
     type Mutation {
-        createMessage(channelId: Int!, text: String, files: [File!]): Boolean!
+        createMessage(channelId: Int!, text: String, files: [File!], forwarded: Boolean=false): Boolean!
+        updateMessage(messageId: Int!, newText: String, newFiles: [File!]): Boolean!
+        deleteMessage(messageId: Int!, adminAccess: Boolean=false): Boolean!
     }
 `;

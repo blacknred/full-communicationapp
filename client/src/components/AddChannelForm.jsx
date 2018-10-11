@@ -23,7 +23,7 @@ const styles = theme => ({
 });
 
 const AddChannelForm = ({
-    classes, width, open, channelName, nameError, isPublic,
+    classes, width, open, channelName, nameError, isPrivate,
     onChange, onSubmit, onClose,
 }) => (
     <Dialog
@@ -50,14 +50,19 @@ const AddChannelForm = ({
             <FormControlLabel
                 control={(
                     <Switch
-                        checked={isPublic}
-                        name="isPublic"
+                        checked={isPrivate}
+                        name="isPrivate"
                         onChange={onChange}
-                        value={(!isPublic).toString()}
+                        value={(!isPrivate).toString()}
                     />
                 )}
-                label="Make channel public"
+                label="Make channel private"
             />
+            {
+                isPrivate && (
+                    // TODO: select teammates and update members in upper container state
+                )
+            }
         </DialogContent>
         <DialogActions>
             <Button
@@ -69,7 +74,7 @@ const AddChannelForm = ({
                 variant="raised"
                 color="primary"
                 onClick={onSubmit}
-                children="Create Team"
+                children="Create Channel"
                 disabled={channelName.length === 0}
             />
         </DialogActions>
@@ -82,7 +87,7 @@ AddChannelForm.propTypes = {
     open: PropTypes.bool.isRequired,
     channelName: PropTypes.string.isRequired,
     nameError: PropTypes.string.isRequired,
-    isPublic: PropTypes.bool.isRequired,
+    isPrivate: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,

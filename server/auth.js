@@ -1,14 +1,13 @@
 import _ from 'lodash';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import redisClient from './redis';
 
-const SECRET = process.env.TOKEN_SECRET || 'insecure-secret';
-const SECRET2 = process.env.TOKEN_SECRET_2 || 'insecure-secret2';
 const ONLINE_TIMESPAN = process.env.ONLINE_TIMESPAN || 60 * 5;
+const SECRET = process.env.TOKEN_SECRET || 'insecure-secret';
+export const SECRET2 = process.env.TOKEN_SECRET_2 || 'insecure-secret2';
 
-const createTokens = async ({ user, refreshTokenSecret }) => {
+export const createTokens = async ({ user, refreshTokenSecret }) => {
     const createToken = jwt.sign(
         { user: _.pick(user, ['id', 'username']) },
         SECRET,
@@ -55,48 +54,6 @@ export const refreshTokens = async ({ refreshToken, models }) => {
         token: newToken,
         refreshToken: newRefreshToken,
         user,
-    };
-};
-
-export const tryLogin = async ({ email, password, models }) => {
-    // is user exist
-    const user = await models.User.findOne({ where: { email }, raw: true });
-    console.log('user', user);
-    if (!user) {
-        return {
-            ok: false,
-            errors: [
-                {
-                    path: 'email',
-                    message: 'Wrong email',
-                },
-            ],
-        };
-    }
-
-    // is password valid
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-        return {
-            ok: false,
-            errors: [
-                {
-                    path: 'password',
-                    message: 'Wrong password',
-                },
-            ],
-        };
-    }
-
-    // create token
-    const refreshTokenSecret = user.password + SECRET2;
-    const [token, refreshToken] = await createTokens({
-        user, refreshTokenSecret,
-    });
-    return {
-        ok: true,
-        token,
-        refreshToken,
     };
 };
 

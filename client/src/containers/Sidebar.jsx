@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Mutation, Query } from 'react-apollo';
 
 import {
-    TEAM_MEMBERS_QUERY,
+    GET_TEAMS_QUERY,
+    GET_TEAM_MEMBERS_QUERY,
     ADD_TEAM_MEMBER_MUTATION,
 } from '../graphql/team';
-import { ME_QUERY } from '../graphql/user';
 import { CREATE_CHANNEL_MUTATION } from '../graphql/channel';
 
 import SidebarContent from '../components/SidebarContent';
@@ -24,9 +24,10 @@ class Sidebar extends React.Component {
             isInvitePeopleModalOpen: false,
             isSearchTeamMembersModalOpen: false,
             channelName: '',
-            isPublic: true,
+            isPrivate: false,
             errors: {},
             email: '',
+            members: [],
         };
     }
 
@@ -34,7 +35,7 @@ class Sidebar extends React.Component {
         this.setState(prevState => ({
             [target]: !prevState[target],
             channelName: '',
-            isPublic: true,
+            isPrivate: false,
             errors: {},
             email: '',
         }));
@@ -43,20 +44,21 @@ class Sidebar extends React.Component {
     onChangeHandler = (e) => {
         const { name } = e.target;
         let { value } = e.target;
-        if (name === 'isPublic') value = value === 'true';
+        if (name === 'isPrivate') value = value === 'true';
         this.setState({ [name]: value });
     }
 
     onCreateChannelSubmitHandler = async (handler) => {
         const { team, teamIndex } = this.props;
-        const { channelName, isPublic } = this.state;
+        const { channelName, isPrivate, members } = this.state;
         let res = null;
         try {
             res = await handler({
                 variables: {
                     teamId: team.id,
                     name: channelName,
-                    public: isPublic,
+                    private: isPrivate,
+                    members,
                 },
                 optimisticResponse: {
                     createChannel: {
@@ -66,7 +68,7 @@ class Sidebar extends React.Component {
                             __typename: 'Channel',
                             id: -1,
                             name: channelName,
-                            public: isPublic,
+                            private: isPrivate,
                         },
                         errors: {
                             __typename: 'Error',
@@ -78,9 +80,9 @@ class Sidebar extends React.Component {
                 update: (store, { data: { createChannel } }) => {
                     const { ok, channel } = createChannel;
                     if (!ok) return;
-                    const data = store.readQuery({ query: ME_QUERY });
+                    const data = store.readQuery({ query: GET_TEAMS_QUERY });
                     data.me.teams[teamIndex].channels.push(channel);
-                    store.writeQuery({ query: ME_QUERY, data });
+                    store.writeQuery({ query: GET_TEAMS_QUERY, data });
                 },
             });
         } catch (err) {
@@ -129,7 +131,7 @@ class Sidebar extends React.Component {
         const {
             isSidebarOpen, isFullTeamsModeOpen, isAddChannelModalOpen,
             isInvitePeopleModalOpen, isSearchTeamMembersModalOpen, channelName,
-            email, isPublic, errors: { nameError, emailError },
+            email, isPrivate, errors: { nameError, emailError },
         } = this.state;
         return (
             <React.Fragment>
@@ -141,22 +143,6 @@ class Sidebar extends React.Component {
                     onToggle={this.onToggleHandler}
                     isFullTeamsModeOpen={isFullTeamsModeOpen}
                 />
-                <Mutation
-                    mutation={CREATE_CHANNEL_MUTATION}
-                    ignoreResults
-                >
-                    {createChannel => (
-                        <AddChannelForm
-                            open={isAddChannelModalOpen}
-                            channelName={channelName}
-                            nameError={nameError || ''}
-                            isPublic={isPublic}
-                            onChange={this.onChangeHandler}
-                            onSubmit={() => this.onCreateChannelSubmitHandler(createChannel)}
-                            onClose={this.onToggleHandler}
-                        />
-                    )}
-                </Mutation>
                 <Mutation
                     mutation={ADD_TEAM_MEMBER_MUTATION}
                     ignoreResults
@@ -172,10 +158,29 @@ class Sidebar extends React.Component {
                         />
                     )}
                 </Mutation>
+
+
+                <Mutation
+                    mutation={CREATE_CHANNEL_MUTATION}
+                    ignoreResults
+                >
+                    {createChannel => (
+                        <AddChannelForm
+                            open={isAddChannelModalOpen}
+                            channelName={channelName}
+                            nameError={nameError || ''}
+                            isPrivate={isPrivate}
+                            onChange={this.onChangeHandler}
+                            onSubmit={() => this.onCreateChannelSubmitHandler(createChannel)}
+                            onClose={this.onToggleHandler}
+                        />
+                    )}
+                </Mutation>
+
                 {
                     isSearchTeamMembersModalOpen && (
                         <Query
-                            query={TEAM_MEMBERS_QUERY}
+                            query={GET_TEAM_MEMBERS_QUERY}
                             variables={{ teamId: team.id }}
                         >
                             {({ loading, error, data }) => {

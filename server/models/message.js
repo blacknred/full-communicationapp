@@ -3,6 +3,10 @@ export default (sequelize, DataTypes) => {
         'message',
         {
             text: DataTypes.STRING,
+            forwarded: {
+                type: DataTypes.Boolean,
+                defaultValue: false,
+            },
             // type: {
             //     type: DataTypes.ENUM,
             //     values: ['channel', 'direct'],

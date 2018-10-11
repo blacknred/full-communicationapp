@@ -21,6 +21,12 @@ import {
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
+import {
+    GET_TEAMS_QUERY,
+    GET_TEAM_MEMBERS_QUERY,
+    ADD_TEAM_MEMBER_MUTATION,
+} from '../graphql/channel';
+
 const styles = theme => ({
     title: {
         flex: 1,
@@ -32,7 +38,7 @@ const styles = theme => ({
     },
 });
 
-const ContentHeader = ({ classes, title, status }) => (
+const ChannelHeader = ({ classes, title, status }) => (
     <Fade in>
         <AppBar
             elevation={1}
@@ -83,10 +89,10 @@ const ContentHeader = ({ classes, title, status }) => (
     </Fade>
 );
 
-ContentHeader.propTypes = {
+ChannelHeader.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     title: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles)(ContentHeader);
+export default withStyles(styles)(ChannelHeader);

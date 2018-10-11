@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ContentHeader from '../components/ContentHeader';
+import ChannelHeaderContent from '../components/ChannelHeader';
 
-const Header = ({ title, status }) => (
-    <ContentHeader
+const ChannelHeader = ({ title, status }) => (
+    <ChannelHeaderContent
         title={title}
         status={status}
     />
 );
 
-Header.propTypes = {
+ChannelHeader.propTypes = {
     title: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
 };
 
-export default Header;
+export default ChannelHeader;

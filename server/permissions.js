@@ -30,7 +30,7 @@ export const requiresTeamAccess = createResolver(
             { where: { id: channelId } },
             { raw: true },
         );
-        const member = await models.Member.findOne(
+        const member = await models.TeamMember.findOne(
             { where: { teamId: channel.teamId, userId: user.id } },
             { raw: true },
         );
@@ -45,7 +45,7 @@ export const requiresDirectTeamAccess = createResolver(
     async (parent, { teamId, userId }, { user, models }) => {
         if (!user || !user.id) throw new Error('Not authenticated');
         // check if both members (user and receiver) are part of the team
-        const members = await models.Member.findAll({
+        const members = await models.TeamMember.findAll({
             where: {
                 teamId,
                 [models.sequelize.Op.or]: [{ userId }, { userId: user.id }],

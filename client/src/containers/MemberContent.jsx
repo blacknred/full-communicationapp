@@ -8,9 +8,8 @@ import NewMessage from './NewMessage';
 import ContentHeader from './ContentHeader';
 import DirectMessages from './DirectMessages';
 
-import { ME_QUERY } from '../graphql/user';
+import { GET_TEAMS_QUERY } from '../graphql/team';
 import { CREATE_DIRECT_MESSAGE_MUTATION } from '../graphql/message';
-
 
 const USER_QUERY = gql`
     query GetUser($userId: Int!) {
@@ -48,7 +47,7 @@ const MemberContent = ({
                             createDirectMessage: true,
                         },
                         update: (store) => {
-                            const data = store.readQuery({ query: ME_QUERY });
+                            const data = store.readQuery({ query: GET_TEAMS_QUERY });
                             const teamIdX = findIndex(data.me.teams, ['id', teamId]);
                             const notYetThere = data.me.teams[teamIdX].directMessageMembers
                                 .every(member => member.id !== parseInt(userIdInt, 10));
@@ -58,7 +57,7 @@ const MemberContent = ({
                                 id: userIdInt,
                                 username: 'someone',
                             });
-                            store.writeQuery({ query: ME_QUERY, data });
+                            store.writeQuery({ query: GET_TEAMS_QUERY, data });
                         },
                     });
                 }}

@@ -4,29 +4,25 @@ export default `
         username: String!
         email: String!
         online: Boolean!
-        teams: [Team!]!
     }
 
-    type Query {
-        me: User!
-        getUser(userId: Int!): User
-    }
-
-    type RegisterResponse {
+    type UserResponse {
         ok: Boolean!
-        user: User
         errors: [Error!]
+        user: User
     }
 
     type LoginResponse {
         ok: Boolean!
+        errors: [Error!]
         token: String
         refreshToken: String
-        errors: [Error!]
     }
 
     type Mutation {
-        register(username: String!, email: String!, password: String!): RegisterResponse!
+        register(username: String!, email: String!, password: String!): UserResponse!
         login(email: String!, password: String!): LoginResponse!
+        updateUser(option: String!, value: String!): UserResponse!
+        deleteUser(): Boolean!
     }
 `;

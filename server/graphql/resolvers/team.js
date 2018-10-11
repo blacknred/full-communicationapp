@@ -13,7 +13,7 @@ export default {
                     model: models.User,
                     raw: true,
                 },
-            ).then(users => users[0]), // TODO:
+            ).then(users => users[0]), // TODO: remove then
         channels: ({ id }, args, { models, user }) => models.sequelize
             .query(
                 `select distinct on (id) * from channels as c 
@@ -40,9 +40,22 @@ export default {
             ),
     },
     Query: {
-        teamMembers: requiresAuth.createResolver(
-            (parent, { teamId }, { models }) => models
-                .sequelize.query(
+        getTeams: requiresAuth.createResolver(
+            (parent, args, { models, user }) => models.sequelize
+                .query(
+                    `select * from teams as t
+                    join team_members as tm on t.id = tm.team_id
+                    where tm.user_id = ?`,
+                    {
+                        replacements: [user.id],
+                        model: models.Team,
+                        raw: true,
+                    },
+                ),
+        ),
+        getTeamMembers: requiresAuth.createResolver(
+            (parent, { teamId }, { models }) => models.sequelize
+                .query(
                     `select * from users as u
                     join team_member as tm on tm.user_id = u.id
                     where tm.team_id = ?`,
@@ -66,7 +79,7 @@ export default {
                                 { transaction },
                             );
 
-                            // create a  'general' public channel
+                            // create a 'general' public channel
                             await models.Channel.create(
                                 {
                                     name: 'general',
@@ -103,11 +116,11 @@ export default {
         addTeamMember: requiresAuth.createResolver(
             async (parent, { email, teamId }, { models, user }) => {
                 try {
-                    // check if user has admin rights
+                    // check if user has the team admin rights
                     // and new member is a valid user
-                    const [member, userToAdd] = await Promise.all([
+                    const [isAdmin, isValidUser] = await Promise.all([
                         models.TeamMember.findOne(
-                            { where: { teamId, userId: user.id } },
+                            { where: { teamId, userId: user.id, admin: true } },
                             { raw: true },
                         ),
                         models.User.findOne(
@@ -115,7 +128,7 @@ export default {
                             { raw: true },
                         ),
                     ]);
-                    if (!member.admin) {
+                    if (!isAdmin) {
                         return {
                             ok: false,
                             errors: [{
@@ -124,7 +137,7 @@ export default {
                             }],
                         };
                     }
-                    if (!userToAdd) {
+                    if (!isValidUser) {
                         return {
                             ok: false,
                             errors: [{
@@ -134,9 +147,31 @@ export default {
                         };
                     }
 
+                    // check if user is allready the team member
+                    const isMember = await models.sequelize
+                        .query(
+                            `select * from team_members as tm
+                            join users as u on u.id = tm.user_id
+                            where u.email = ?`,
+                            {
+                                replacements: [email],
+                                model: models.TeamMember,
+                                raw: true,
+                            },
+                        );
+                    if (isMember) {
+                        return {
+                            ok: false,
+                            errors: [{
+                                path: 'email',
+                                message: 'The user allready in a team',
+                            }],
+                        };
+                    }
+
                     // create a entry for new team member
                     await models.TeamMember.create({
-                        userId: userToAdd.id,
+                        userId: isValidUser.id,
                         teamId,
                     });
 
@@ -146,6 +181,68 @@ export default {
                         ok: false,
                         errors: formateErrors(err, models),
                     };
+                }
+            },
+        ),
+        updateTeam: requiresAuth.createResolver(
+            async (parent, { teamId, option, value }, { models, user }) => {
+                try {
+                    // check if user has the team admin rights
+                    const isAdmin = await models.TeamMember.findOne(
+                        { where: { teamId, userId: user.id, admin: true } },
+                        { raw: true },
+                    );
+                    if (!isAdmin) {
+                        return {
+                            ok: false,
+                            errors: [{
+                                message: 'The operation needs team admin rights',
+                            }],
+                        };
+                    }
+
+                    // TODO: update the team
+                    const updatedTeam = await models.sequelise
+                        .query(
+                            `update teams
+                            set :option = :value
+                            where id = :teamId
+                            `,
+                            {
+                                replacements: { option, value, teamId },
+                                model: models.Team,
+                                raw: true,
+                            },
+                        );
+
+                    return {
+                        ok: true,
+                        team: updatedTeam,
+                    };
+                } catch (err) {
+                    return {
+                        ok: false,
+                        errors: formateErrors(err, models),
+                    };
+                }
+            },
+        ),
+        deleteTeam: requiresAuth.createResolver(
+            async (parent, { teamId }, { models, user }) => {
+                try {
+                    // check if user has the team admin rights
+                    const isAdmin = await models.TeamMember.findOne(
+                        { where: { teamId, userId: user.id, admin: true } },
+                        { raw: true },
+                    );
+                    if (!isAdmin) return false;
+
+                    // TODO: delete the team
+                    await models.Teams.destroy({ where: { id: teamId } });
+
+                    return true;
+                } catch (err) {
+                    return false;
                 }
             },
         ),

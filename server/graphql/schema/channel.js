@@ -9,12 +9,14 @@ export default `
     }
 
     type ChannelResponse {
-        ok:Boolean!
-        channel: Channel
+        ok: Boolean!
         errors: [Error!]
+        channel: Channel
     }
 
     type DMChannelResponse {
+        ok: Boolean!
+        errors: [Error!]
         id: Int!
         name: String!
     }
@@ -22,5 +24,7 @@ export default `
     type Mutation {
         createChannel(teamId: Int!, name: String!, private: Boolean=false, members: [Int!]=[]): ChannelResponse!
         getOrCreateChannel(teamId: Int!, members: [Int!]!): DMChannelResponse!
+        updateChannel(channelId: Int!, option: String!, value: String!): ChannelResponse!
+        deleteChannel(channelId: Int!): Boolean!
     }
 `;
