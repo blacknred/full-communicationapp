@@ -10,10 +10,9 @@ import {
     ListItemText,
     ListItemIcon,
     ListSubheader,
-    ListItemSecondaryAction,
 } from '@material-ui/core';
 import {
-    OpenInNew,
+    AddCircleOutline,
     RadioButtonChecked,
     RadioButtonUnchecked,
 } from '@material-ui/icons';
@@ -23,6 +22,11 @@ const styles = theme => ({
     iconRoot: {
         color: theme.palette.secondary.main,
         margin: 0,
+    },
+    subheader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        paddingRight: theme.spacing.unit,
     },
 });
 
@@ -55,20 +59,20 @@ const LastMentionedMembersList = ({
 
     return (
         <List
-            // dense
             subheader={(
-                <ListSubheader color="inherit">
-                    <span>Direct Chats</span>
-                    <ListItemSecondaryAction>
-                        <Tooltip title="Find Member">
-                            <IconButton
-                                color="secondary"
-                                onClick={() => onToggle('isSearchTeamMembersModalOpen')}
-                            >
-                                <OpenInNew />
-                            </IconButton>
-                        </Tooltip>
-                    </ListItemSecondaryAction>
+                <ListSubheader
+                    color="inherit"
+                    className={classes.subheader}
+                >
+                    {`DIRECT CHATS (${users.length})`}
+                    <Tooltip title="Find Member">
+                        <IconButton
+                            color="inherit"
+                            onClick={() => onToggle('isSearchTeamMembersModalOpen')}
+                        >
+                            <AddCircleOutline />
+                        </IconButton>
+                    </Tooltip>
                 </ListSubheader>
             )}
         >

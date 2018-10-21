@@ -5,6 +5,9 @@ export const GET_TEAMS_QUERY = gql`
         getTeams {
             id
             name
+            description
+            updatesCount
+            membersCount
             admin {
                 id
                 username
@@ -13,8 +16,19 @@ export const GET_TEAMS_QUERY = gql`
             channels {
                 id
                 name
+                description
                 private
                 dm
+                updatesCount
+                participantsCount
+            }
+            starredChannels {
+                id
+                name
+                description
+                private
+                dm
+                updatesCount
             }
             directMessageMembers {
                 id
@@ -36,8 +50,8 @@ export const GET_TEAM_MEMBERS_QUERY = gql`
 `;
 
 export const CREATE_TEAM_MUTATION = gql`
-    mutation CreateTeam($name: String!) {
-        createTeam(name: $name) {
+    mutation CreateTeam($name: String!, $description: String) {
+        createTeam(name: $name, description: $description) {
             ok
             errors {
                 path
@@ -52,7 +66,7 @@ export const CREATE_TEAM_MUTATION = gql`
 
 export const UPDATE_TEAM_MUTATION = gql`
     mutation UpdateTeam($teamId: Int!, $option: String!, $value: String!) {
-        updateTeam(teamId: teamId!, option: $option, value: $value) {
+        updateTeam(teamId: $teamId, option: $option, value: $value) {
             ok
             errors {
                 path

@@ -3,8 +3,12 @@ export default (sequelize, DataTypes) => {
         'message',
         {
             text: DataTypes.STRING,
+            pinned: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
             forwarded: {
-                type: DataTypes.Boolean,
+                type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
             // type: {

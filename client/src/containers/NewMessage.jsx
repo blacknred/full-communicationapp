@@ -41,9 +41,12 @@ class NewChannelMessage extends React.Component {
                     text,
                 },
             });
-            this.setState({ text: '', isFullFormOpen: false });
+            this.setState({
+                text: '',
+                isFullFormOpen: false,
+            });
         } catch (err) {
-            // return null;
+            // TODO:
         }
     }
 

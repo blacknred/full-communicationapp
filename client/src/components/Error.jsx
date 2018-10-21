@@ -23,7 +23,7 @@ const Error = ({ classes, text }) => (
 
 Error.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    text: Typography.string.isRequired,
+    text: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(Error);

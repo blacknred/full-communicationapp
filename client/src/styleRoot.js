@@ -4,10 +4,10 @@ import {
     createMuiTheme,
 } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import {
-    grey, red, blue, blueGrey,
-} from '@material-ui/core/colors';
+import { grey } from '@material-ui/core/colors';
 import { CssBaseline } from '@material-ui/core';
+
+import colors from './colors';
 
 const styles = {
     appFrame: {
@@ -21,40 +21,7 @@ const styles = {
 };
 
 const IS_NIGHT_MODE = false;
-const COLOR_MODE = 'ocean';
-
-const colors = {
-    browny: {
-        light: {
-            main: '#473544',
-            secondary: red[400],
-        },
-        dark: {
-            main: '#473544',
-            secondary: red[400],
-        },
-    },
-    ocean: {
-        light: {
-            main: '#484d6b',
-            secondary: blue[400],
-        },
-        dark: {
-            main: '#484d6b',
-            secondary: blue[400],
-        },
-    },
-    green_day: {
-        light: {
-            main: blueGrey[800],
-            secondary: '#009688',
-        },
-        dark: {
-            main: blueGrey[800],
-            secondary: '#009688',
-        },
-    },
-};
+const COLOR_MODE = 2;
 
 const lightTheme = createMuiTheme({
     palette: {
@@ -88,6 +55,7 @@ const darkTheme = createMuiTheme({
 
 const StyleRoot = (Component) => {
     function styleRoot(props) {
+        console.log('pt', props);
         return (
             <MuiThemeProvider theme={IS_NIGHT_MODE ? darkTheme : lightTheme}>
                 <CssBaseline />

@@ -1,10 +1,29 @@
 export default `
+    input FileData {
+        size: Int!
+        name: String!
+        path: String!
+        type: String!
+        thumb: String
+        description: String
+    }
+    
+    type File {
+        size: Int!
+        name: String!
+        path: String!
+        type: String!
+        thumb: String
+        description: String
+    }
+
     type Message {
         id: Int!
         text: String
-        sender: User!
-        channel: Channel!
+        pinned: Boolean!
+        forwarded: Boolean!
         created_at: String!
+        sender: User!
         files: [File!]
     }
 
@@ -17,8 +36,8 @@ export default `
     }
 
     type Mutation {
-        createMessage(channelId: Int!, text: String, files: [File!], forwarded: Boolean=false): Boolean!
-        updateMessage(messageId: Int!, newText: String, newFiles: [File!]): Boolean!
+        createMessage(channelId: Int!, text: String, files: [FileData!]=[], forwarded: Boolean=false): Boolean!
+        updateMessage(messageId: Int!, newText: String, newFiles: [FileData!]): Boolean!
         deleteMessage(messageId: Int!, adminAccess: Boolean=false): Boolean!
     }
 `;

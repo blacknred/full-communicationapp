@@ -31,11 +31,13 @@ export const refreshTokens = async ({ refreshToken, models }) => {
     } catch (err) {
         return {};
     }
-    console.log('userId', userId);
+    console.log('authenticated user id: ', userId);
 
     if (!userId) return {};
 
-    const user = await models.User.findOne({ where: { id: userId }, raw: true });
+    const user = await models.User.findOne({
+        where: { id: userId }, raw: true,
+    });
 
     if (!user) return {};
 
@@ -64,11 +66,12 @@ export const checkAuth = async (models, req, res, next) => {
             const { user } = jwt.verify(token, SECRET);
             req.user = user;
             /*
-            in case of successful authentication set up
-            online status of current user id with ONLINE_TIMESPAN
+            in case of successful authentication set up online status
+            of current user id with date and ONLINE_TIMESPAN
             */
             const onlineStatus = `user_${user.id}_online`;
-            redisClient.set(onlineStatus, 1);
+            redisClient.set(onlineStatus, (new Date()).getTime());
+            // Math.floor((new Date()).getTime() / 1000)
             redisClient.expire(onlineStatus, ONLINE_TIMESPAN);
         } catch (err) {
             const refreshToken = req.headers['x-refresh-token'];

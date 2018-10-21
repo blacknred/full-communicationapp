@@ -21,27 +21,33 @@ class Login extends React.Component {
         this.setState({ [name]: value });
     }
 
-    onSubmitHandler = async (e) => {
-        e.preventDefault();
+    onSubmitHandler = async () => {
         const { history, mutate } = this.props;
         const { email, password } = this.state;
-        const res = await mutate({
-            variables: { email, password },
-        });
-        const {
-            ok, token, refreshToken, errors,
-        } = res.data.login;
-        if (ok) {
-            localStorage.setItem('token', token);
-            localStorage.setItem('refreshToken', refreshToken);
-            wsLink.subscriptionClient.tryReconnect();
-            history.push('/teams');
-        } else {
-            const err = {};
-            errors.forEach(({ path, message }) => {
-                err[`${path}Error`] = message;
+        try {
+            const {
+                data: {
+                    login: {
+                        ok, token, refreshToken, errors,
+                    },
+                },
+            } = await mutate({
+                variables: { email, password },
             });
-            this.setState({ errors: err });
+            if (ok) {
+                localStorage.setItem('token', token);
+                localStorage.setItem('refreshToken', refreshToken);
+                wsLink.subscriptionClient.tryReconnect();
+                history.push('/teams');
+            } else {
+                const err = {};
+                errors.forEach(({ path, message }) => {
+                    err[`${path}Error`] = message;
+                });
+                this.setState({ errors: err });
+            }
+        } catch (err) {
+            // TODO:
         }
     }
 

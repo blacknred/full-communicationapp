@@ -9,6 +9,13 @@ export default {
     User: {
         online: async ({ id }) => !!await redisClient.getAsync(`user_${id}_online`),
     },
+    Query: {
+        getCurrentUser: requiresAuth.createResolver(
+            (parent, args, { models, user }) => models.User.findOne({
+                where: { id: user.id }, raw: true,
+            }),
+        ),
+    },
     Mutation: {
         register: async (parent, args, { models }) => {
             try {
@@ -30,14 +37,13 @@ export default {
                 const user = await models.User.findOne({
                     where: { email }, raw: true,
                 });
-                console.log('user', user);
                 if (!user) {
                     return {
                         ok: false,
                         errors: [
                             {
                                 path: 'email',
-                                message: 'Wrong email',
+                                message: 'Email not in use',
                             },
                         ],
                     };

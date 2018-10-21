@@ -1,32 +1,61 @@
+import redisClient from '../../redis';
 import formateErrors from '../../formateErrors';
-import { requiresAuth } from '../../permissions';
+import { requiresTeamAccess, requiresTeamAdminAccess } from '../../permissions';
 
 export default {
+    Channel: {
+        updatesCount: async ({ id }, args, { models, user }) => {
+            const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
+            const [{ count }] = await models.sequelize.query(
+                `select count(*) from messages as m
+                join channels as c on m.channel_id = c.id
+                where c.id = :channelId and m.created_at > to_timestamp(:lastVisit)`,
+                {
+                    replacements: { channelId: id, lastVisit },
+                    model: models.Message,
+                    raw: true,
+                },
+            );
+            return 15; // count;
+        },
+        participantsCount: async ({ id, private: isPrivate }, args, { models }) => {
+            // in case of private channel get restricted users count
+            if (isPrivate) {
+                return models.PrivateChannelMember.count({
+                    where: { id },
+                });
+            }
+            // otherway get count of users have allready posted in channel
+            return models.Message.aggregate('user_id', 'count', {
+                where: { channelId: id },
+                distinct: true,
+            });
+            // return models.Message.count({
+            //     where: { channelId: id },
+            //     distinct: true,
+            //     col: 'user_id',
+            //     // group: {}
+            // });
+        },
+    },
     Mutation: {
-        getOrCreateChannel: requiresAuth.createResolver(
+        getOrCreateChannel: requiresTeamAccess.createResolver(
             async (parent, { teamId, members }, { models, user }) => {
                 try {
-                    // check if user is member of the team
-                    const member = await models.TeamMember.findOne(
-                        { where: { teamId, userId: user.id } },
-                        { raw: true },
-                    );
-                    if (!member) throw new Error('Not Authorized');
-
                     // check if dm channel already exists with these members
                     // return if does
                     const allMembers = [...members, user.id];
                     const [data, result] = await models.sequelize.query(
                         `select c.id, c.name
-                    from channels as c, private_channel_members pc 
-                    where pc.channel_id = c.id
-                    and c.dm = true
-                    and c.private = true
-                    and c.team_id = ${teamId}
-                    group by c.id, c.name 
-                    having array_agg(pc.user_id) @> Array[${allMembers.join(',')}]
-                    and count(pc.user_id) = ${allMembers.length};
-                    `,
+                        from channels as c, private_channel_members pc 
+                        where pc.channel_id = c.id
+                        and c.dm = true
+                        and c.private = true
+                        and c.team_id = ${teamId}
+                        group by c.id, c.name 
+                        having array_agg(pc.user_id) @> Array[${allMembers.join(',')}]
+                        and count(pc.user_id) = ${allMembers.length};
+                        `,
                         { raw: true },
                     );
                     console.log(data, result);
@@ -72,25 +101,9 @@ export default {
                 }
             },
         ),
-        createChannel: requiresAuth.createResolver(
+        createChannel: requiresTeamAdminAccess.createResolver(
             async (parent, args, { models, user }) => {
                 try {
-                    // check if user is admin of the team
-                    const member = await models.TeamMember
-                        .findOne(
-                            { where: { teamId: args.teamId, userId: user.id } },
-                            { raw: true },
-                        );
-                    if (!member.admin) {
-                        return {
-                            ok: false,
-                            errors: [{
-                                path: 'name',
-                                message: 'The operation needs team admin rights',
-                            }],
-                        };
-                    }
-
                     // create a common non dm channel
                     // in case of private channel set allowed members
                     const channel = await models.sequelize
@@ -123,45 +136,21 @@ export default {
                 }
             },
         ),
-        updateChannel: requiresAuth.createResolver(
-            async (parent, { channelId, option, value }, { models, user }) => {
+        updateChannel: requiresTeamAdminAccess.createResolver(
+            async (parent, { channelId, option, value }, { models }) => {
                 try {
-                    // check if user has the team admin rights
-                    const isAdmin = await models.sequelize
-                        .query(
-                            `select * from team_members as tm
-                            join teams as t on t.id = tm.team_id
-                            join channels as c on c.team_id = t.id
-                            where c.id = :channelId and tm.userId = : userId
-                            and tm.admin = true and`,
-                            {
-                                replacements: { channelId, userId: user.id },
-                                model: models.TeamMember,
-                                raw: true,
-                            },
-                        );
-                    if (!isAdmin) {
-                        return {
-                            ok: false,
-                            errors: [{
-                                message: 'The operation needs team admin rights',
-                            }],
-                        };
-                    }
-
                     // update the channel
-                    const updatedChannel = await models.sequelise
-                        .query(
-                            `update channels
+                    const updatedChannel = await models.sequelise.query(
+                        `update channels
                             set :option = :value
                             where id = :channelId
                             `,
-                            {
-                                replacements: { option, value, channelId },
-                                model: models.Channel,
-                                raw: true,
-                            },
-                        );
+                        {
+                            replacements: { option, value, channelId },
+                            model: models.Channel,
+                            raw: true,
+                        },
+                    );
 
                     return {
                         ok: true,
@@ -175,28 +164,12 @@ export default {
                 }
             },
         ),
-        deleteChannel: requiresAuth.createResolver(
-            async (parent, { channelId }, { models, user }) => {
+        deleteChannel: requiresTeamAdminAccess.createResolver(
+            async (parent, { channelId }, { models }) => {
                 try {
-                    // check if user has the team admin rights
-                    const isAdmin = await models.sequelize
-                        .query(
-                            `select * from team_members as tm
-                            join teams as t on t.id = tm.team_id
-                            join channels as c on c.team_id = t.id
-                            where c.id = :channelId and tm.userId = : userId
-                            and tm.admin = true and`,
-                            {
-                                replacements: { channelId, userId: user.id },
-                                model: models.TeamMember,
-                                raw: true,
-                            },
-                        );
-                    if (!isAdmin) return false;
-
                     // delete the channel, private channel members, channel messages
                     await models.sequelize.transaction(async (transaction) => {
-                        await models.Messages.destroy(
+                        await models.Message.destroy(
                             { where: { channelId } },
                             { transaction },
                         );
@@ -204,12 +177,38 @@ export default {
                             { where: { channelId } },
                             { transaction },
                         );
-                        await models.Channels.destroy(
+                        await models.Channel.destroy(
                             { where: { id: channelId } },
                             { transaction },
                         );
                     });
 
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            },
+        ),
+        starChannel: requiresTeamAccess.createResolver(
+            async (parent, { channelId }, { models, user }) => {
+                try {
+                    // add new row on starred_channels
+                    await models.StarredChannel.create({
+                        channelId, userId: user.id,
+                    });
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            },
+        ),
+        unstarChannel: requiresTeamAccess.createResolver(
+            async (parent, { channelId }, { models, user }) => {
+                try {
+                    // remove row from starred_channels
+                    await models.StarredChannel.destroy({
+                        where: { channelId, userId: user.id },
+                    });
                     return true;
                 } catch (err) {
                     return false;

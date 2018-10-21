@@ -65,7 +65,7 @@ const NewMessageForm = ({
     );
     return (
         <React.Fragment>
-            <Divider />
+            <Divider light />
             <Toolbar className={classes.toolbar}>
                 {
                     !isFullFormOpen && (
@@ -103,7 +103,6 @@ const NewMessageForm = ({
                         />
                     )
                 }
-
             </Toolbar>
         </React.Fragment>
     );

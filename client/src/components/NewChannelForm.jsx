@@ -15,6 +15,8 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
+import MembersMultiSelect from './MembersMultiSelect';
+
 const styles = theme => ({
     form: {
         marginTop: theme.spacing.unit * 2,
@@ -22,16 +24,22 @@ const styles = theme => ({
     },
 });
 
-const AddChannelForm = ({
-    classes, width, open, channelName, nameError, isPrivate,
+const NewChannelForm = ({
+    classes, width, open, name, nameError, isPrivate, isCreating,
     onChange, onSubmit, onClose,
 }) => (
     <Dialog
         open={open}
         fullScreen={isWidthDown('sm', width)}
-        onClose={() => onClose('isAddChannelModalOpen')}
+        onClose={onClose}
     >
-        <DialogTitle>Add new channel</DialogTitle>
+        <DialogTitle>
+            {
+                isCreating
+                    ? 'Add new channel'
+                    : 'Update channel'
+            }
+        </DialogTitle>
         <DialogContent>
             <TextField
                 autoFocus
@@ -42,7 +50,7 @@ const AddChannelForm = ({
                 label="Channel name"
                 autoComplete="name"
                 className={classes.form}
-                defaultValue={channelName}
+                defaultValue={name}
                 error={!!nameError}
                 helperText={nameError}
                 onChange={onChange}
@@ -59,14 +67,12 @@ const AddChannelForm = ({
                 label="Make channel private"
             />
             {
-                isPrivate && (
-                    // TODO: select teammates and update members in upper container state
-                )
+                isPrivate && <MembersMultiSelect />
             }
         </DialogContent>
         <DialogActions>
             <Button
-                onClick={() => onClose('isAddChannelModalOpen')}
+                onClick={onClose}
                 children="Cansel"
             />
             <Button
@@ -74,18 +80,19 @@ const AddChannelForm = ({
                 variant="raised"
                 color="primary"
                 onClick={onSubmit}
-                children="Create Channel"
-                disabled={channelName.length === 0}
+                children={`${isCreating ? 'Create' : 'Update'} Channel`}
+                disabled={name.length === 0}
             />
         </DialogActions>
     </Dialog>
 );
 
-AddChannelForm.propTypes = {
+NewChannelForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
-    channelName: PropTypes.string.isRequired,
+    isCreating: PropTypes.bool,
+    name: PropTypes.string.isRequired,
     nameError: PropTypes.string.isRequired,
     isPrivate: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -93,4 +100,4 @@ AddChannelForm.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(AddChannelForm);
+export default compose(withStyles(styles), withWidth())(NewChannelForm);

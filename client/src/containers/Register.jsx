@@ -21,22 +21,26 @@ class Register extends React.Component {
         this.setState({ [name]: value });
     }
 
-    onSubmitHandler = async (e) => {
-        e.preventDefault();
+    onSubmitHandler = async () => {
         const { history, mutate } = this.props;
         const { username, email, password } = this.state;
-        const res = await mutate({
-            variables: { username, email, password },
-        });
-        const { ok, errors } = res.data.register;
-        if (ok) {
-            history.push('/login');
-        } else {
-            const err = {};
-            errors.forEach(({ path, message }) => {
-                err[`${path}Error`] = message;
+        try {
+            const {
+                data: { register: { ok, errors } },
+            } = await mutate({
+                variables: { username, email, password },
             });
-            this.setState({ errors: err });
+            if (ok) {
+                history.push('/login');
+            } else {
+                const err = {};
+                errors.forEach(({ path, message }) => {
+                    err[`${path}Error`] = message;
+                });
+                this.setState({ errors: err });
+            }
+        } catch (err) {
+            // TODO:
         }
     }
 

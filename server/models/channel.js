@@ -2,7 +2,16 @@ export default (sequelize, DataTypes) => {
     const Channel = sequelize.define(
         'channel',
         {
-            name: DataTypes.STRING,
+            name: {
+                type: DataTypes.STRING,
+                validate: {
+                    isAlphanumeric: {
+                        args: true,
+                        msg: 'The name can only contain letters and numbers',
+                    },
+                },
+            },
+            description: DataTypes.STRING,
             private: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
@@ -23,6 +32,13 @@ export default (sequelize, DataTypes) => {
         });
         Channel.belongsToMany(models.User, {
             through: models.PrivateChannelMember,
+            foreignKey: {
+                name: 'channelId',
+                field: 'channel_id',
+            },
+        });
+        Channel.belongsToMany(models.User, {
+            through: 'starred_channels',
             foreignKey: {
                 name: 'channelId',
                 field: 'channel_id',

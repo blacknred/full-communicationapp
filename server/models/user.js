@@ -18,6 +18,15 @@ export default (sequelize, DataTypes) => {
                     },
                 },
             },
+            fullname: {
+                type: DataTypes.STRING,
+                validate: {
+                    isAlpha: {
+                        args: true,
+                        msg: 'The fullname can only contain letters',
+                    },
+                },
+            },
             email: {
                 type: DataTypes.STRING,
                 unique: true,
@@ -57,6 +66,13 @@ export default (sequelize, DataTypes) => {
         });
         User.belongsToMany(models.Channel, {
             through: models.PrivateChannelMember,
+            foreignKey: {
+                name: 'userId',
+                field: 'user_id',
+            },
+        });
+        User.belongsToMany(models.Channel, {
+            through: 'starred_channels',
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',

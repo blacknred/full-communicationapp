@@ -5,7 +5,14 @@ export default (sequelize, DataTypes) => {
             name: {
                 type: DataTypes.STRING,
                 unique: true,
+                validate: {
+                    isAlphanumeric: {
+                        args: true,
+                        msg: 'The name can only contain letters and numbers',
+                    },
+                },
             },
+            description: DataTypes.STRING,
         },
     );
 

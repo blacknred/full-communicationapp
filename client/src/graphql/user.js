@@ -1,5 +1,15 @@
 import gql from 'graphql-tag';
 
+export const GET_CURRENT_USER_QUERY = gql`
+    {
+        getCurrentUser {
+            id
+            username
+            email
+        }
+    }
+`;
+
 export const REGISTER_MUTATION = gql`
     mutation Register($username: String!, $email: String!, $password: String!) {
         register(username: $username, email: $email, password: $password) {
@@ -39,7 +49,7 @@ export const UPDATE_USER_MUTATION = gql`
 `;
 
 export const DELETE_USER_MUTATION = gql`
-    mutation DeleteUser() {
-        deleteUser()
+    mutation DeleteUser {
+        deleteUser
     }
 `;

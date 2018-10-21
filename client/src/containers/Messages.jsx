@@ -55,15 +55,7 @@ class Messages extends React.Component {
                 ? <Loading small />
                 : (
                     <FileUpload
-                        style={{
-                            gridColumn: 3,
-                            gridRow: 2,
-                            paddingLeft: '20px',
-                            paddingRight: '20px',
-                            display: 'flex',
-                            flexDirection: 'column-reverse',
-                            overflowY: 'auto',
-                        }}
+                        style={{ flex: 1 }}
                         channelId={channelId}
                         disableClick
                     >

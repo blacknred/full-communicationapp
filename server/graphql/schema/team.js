@@ -2,9 +2,13 @@ export default `
     type Team {
         id: Int!
         name: String!
+        description: String
         admin: User!
         channels: [Channel!]!
-        directMessageMembers: [User!]!        
+        starredChannels: [Channel!]
+        directMessageMembers: [User!]!
+        updatesCount: Int!
+        membersCount: Int!
     }
 
     type Query {
@@ -24,7 +28,7 @@ export default `
     }
 
     type Mutation {
-        createTeam(name: String!): TeamResponse!
+        createTeam(name: String!, description: String): TeamResponse!
         addTeamMember(teamId: Int!, email: String!): VoidResponse!
         updateTeam(teamId: Int!, option: String!, value: String!): TeamResponse!
         deleteTeam(teamId: Int!): Boolean!

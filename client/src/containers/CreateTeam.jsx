@@ -19,28 +19,27 @@ class CreateTeam extends React.Component {
         this.setState({ [name]: value });
     }
 
-    onSubmitHandler = async (e) => {
-        e.preventDefault();
-        const { mutate, history } = this.props;
+    onSubmitHandler = async () => {
         const { name } = this.state;
-        let res = null;
+        const { mutate, history } = this.props;
         try {
-            res = await mutate({
+            const {
+                data: { createTeam: { ok, errors, team } },
+            } = await mutate({
                 variables: { name },
             });
+            if (ok) {
+                history.push(`/teams/${team.id}`);
+            } else {
+                const err = {};
+                errors.forEach(({ path, message }) => {
+                    err[`${path}Error`] = message;
+                });
+                this.setState({ errors: err });
+            }
         } catch (err) {
             history.push('/login');
-            return;
-        }
-        const { ok, errors, team } = res.data.createTeam;
-        if (ok) {
-            history.push(`/teams/${team.id}`);
-        } else {
-            const err = {};
-            errors.forEach(({ path, message }) => {
-                err[`${path}Error`] = message;
-            });
-            this.setState({ errors: err });
+            // TODO:
         }
     }
 

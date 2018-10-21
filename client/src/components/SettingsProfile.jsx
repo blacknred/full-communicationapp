@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import {
     List,
+    Divider,
     ListItem,
     ListItemText,
     ListSubheader,
@@ -16,12 +17,9 @@ const styles = theme => ({
     },
 });
 
-const SettingsContent = ({ classes }) => (
-    <List className={classes.root}>
-        <ListSubheader>Ui</ListSubheader>
-        <ListItem>
-            <ListItemText primary="App color" />
-        </ListItem>
+const SettingsProfile = ({ classes }) => (
+    <List>
+        <Divider light />
         <ListSubheader>Profile</ListSubheader>
         <ListItem>
             <ListItemText primary="Update user" />
@@ -29,18 +27,11 @@ const SettingsContent = ({ classes }) => (
         <ListItem>
             <ListItemText primary="Delete user" />
         </ListItem>
-        <ListSubheader>Own Teams</ListSubheader>
-        <ListItem>
-            <ListItemText primary="Update team" />
-        </ListItem>
-        <ListItem>
-            <ListItemText primary="Delete team" />
-        </ListItem>
     </List>
 );
 
-SettingsContent.propTypes = {
+SettingsProfile.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
 };
 
-export default withStyles(styles)(SettingsContent);
+export default withStyles(styles)(SettingsProfile);

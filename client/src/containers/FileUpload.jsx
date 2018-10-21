@@ -28,10 +28,10 @@ const FileUpload = ({
 
 FileUpload.propTypes = {
     children: PropTypes.element.isRequired,
-    disableClick: PropTypes.bool.isRequired,
+    disableClick: PropTypes.bool,
     channelId: PropTypes.number.isRequired,
     mutate: PropTypes.func.isRequired,
-    style: PropTypes.shape().isRequired,
+    style: PropTypes.shape(),
 };
 
 export default graphql(CREATE_FILE_MESSAGE_MUTATION)(FileUpload);

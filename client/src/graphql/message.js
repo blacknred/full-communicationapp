@@ -5,29 +5,35 @@ export const GET_MESSAGES_QUERY = gql`
         getMessages(channelId: $channelId) {
             id
             text
+            pinned
+            forwarded
+            created_at
             sender {
                 username
             }
-            files
-            created_at
+            files {
+                size
+                name
+                path
+            }
         }
     }
 `;
 
 export const CREATE_MESSAGE_MUTATION = gql`
-    mutation($channelId: Int!, $text: String!) {
-        createMessage(channelId: $channelId, text: $text)
+    mutation($channelId: Int!, $text: String!, $forwarded: Boolean=false) {
+        createMessage(channelId: $channelId, text: $text, forwarded: $forwarded)
     }
 `;
 
 export const CREATE_FILE_MESSAGE_MUTATION = gql`
-    mutation($channelId: Int!, $files: [File!], $forwarded: Boolean=false) {
+    mutation($channelId: Int!, $files: [FileData!], $forwarded: Boolean=false) {
         createMessage(channelId: $channelId, files: $files, forwarded: $forwarded)
     }
 `;
 
 export const UPDATE_MESSAGE_MUTATION = gql`
-    mutation($messageId: Int!, newText: String, $newFiles: [File!]) {
+    mutation($messageId: Int!, $newText: String, $newFiles: [FileData!]) {
         editMessage(messageId: $messageId, newText: $newText, newFiles: $newFiles)
     }
 `;
@@ -46,7 +52,11 @@ export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
             sender {
                 username
             }
-            files
+            files {
+                size
+                name
+                path
+            }
             created_at
         }
     }

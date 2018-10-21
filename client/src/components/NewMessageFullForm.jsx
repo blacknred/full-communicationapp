@@ -73,9 +73,6 @@ const NewMessageFullForm = ({
             <IconButton>
                 <InsertChart />
             </IconButton>
-            <IconButton>
-                <AttachFile />
-            </IconButton>
         </Toolbar>
         <DialogActions>
             <Button

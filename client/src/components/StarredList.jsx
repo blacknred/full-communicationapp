@@ -6,14 +6,12 @@ import {
     List,
     Chip,
     Icon,
-    Tooltip,
     ListItem,
-    IconButton,
     ListItemText,
     ListItemIcon,
     ListSubheader,
 } from '@material-ui/core';
-import { AddCircleOutline, Lock } from '@material-ui/icons';
+import { Star, Lock } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -21,40 +19,40 @@ const styles = theme => ({
         color: theme.palette.grey[400],
     },
     iconRoot: {
+        color: 'inherit',
         width: '0.7em',
         margin: 0,
-        color: 'inherit',
     },
     chip: {
         height: 20,
     },
+    subheader: {
+        display: 'flex',
+        alignItems: 'center',
+    },
     selected: {
         backgroundColor: `${theme.palette.primary.light}!important`,
     },
-    subheader: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        paddingRight: theme.spacing.unit,
-    },
 });
 
-const ChannelsList = ({
-    classes, isOwner, teamId, channels, onToggle, channelId,
+const StarredList = ({
+    classes, teamId, channels, channelId,
 }) => {
-    const channelsList = channels.map(ch => (
+    const starredList = channels.map(ch => (
         <ListItem
+            key={`starred-${ch.id}`}
             button
             component={Link}
-            key={`channel-${ch.id}`}
             to={`/teams/${teamId}/${ch.id}`}
             className={classes.listItem}
             classes={{ selected: classes.selected }}
             selected={channelId === ch.id}
         >
             <ListItemIcon className={classes.iconRoot}>
-                {ch.private ? <Lock /> : <Icon children="#" />}
+                {ch.private ? <Lock /> : <Icon children={<b>#</b>} />}
             </ListItemIcon>
             <ListItemText
+                inset
                 primary={ch.name}
                 primaryTypographyProps={{
                     color: 'inherit',
@@ -75,43 +73,28 @@ const ChannelsList = ({
     return (
         <List
             subheader={(
-                <ListSubheader
-                    color="inherit"
-                    className={classes.subheader}
-                >
-                    {`CHANNELS (${channels.length})`}
-                    {
-                        isOwner && (
-                            <Tooltip title="Add new channel">
-                                <IconButton
-                                    color="inherit"
-                                    onClick={() => onToggle('isAddChannelModalOpen')}
-                                >
-                                    <AddCircleOutline />
-                                </IconButton>
-                            </Tooltip>
-                        )
-                    }
+                <ListSubheader color="inherit" className={classes.subheader}>
+                    <Star className={classes.iconRoot} />
+                    &nbsp;
+                    {`STARRED (${channels.length})`}
                 </ListSubheader>
             )}
         >
-            {channelsList}
+            {starredList}
         </List>
     );
 };
 
-ChannelsList.propTypes = {
+StarredList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     teamId: PropTypes.number.isRequired,
-    isOwner: PropTypes.bool.isRequired,
     channels: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
         private: PropTypes.bool.isRequired,
         updatesCount: PropTypes.number.isRequired,
     })).isRequired,
-    onToggle: PropTypes.func.isRequired,
     channelId: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(ChannelsList);
+export default withStyles(styles)(StarredList);
