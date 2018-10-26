@@ -32,7 +32,7 @@ const styles = theme => ({
         },
     },
     drawerPaperMobile: {
-        minWidth: '100vw',
+        // minWidth: '100vw',
         flexDirection: 'row',
         '&>div:last-of-type': {
             minWidth: TEAM_DRAWER_WIDTH,
@@ -53,16 +53,18 @@ const SidebarContent = ({
 }) => {
     const drawerContent = (
         <React.Fragment>
-            <TeamsList
-                teams={teams}
-                ctxTeams={ctxTeams}
-                currentTeamId={team.id}
-                isFullModeOpen={isFullTeamsModeOpen}
-                searchText={searchText}
-                onToggle={onToggle}
-                onChange={onChange}
-                onUpdateCtxTeams={onUpdateCtxTeams}
-            />
+            <Hidden only="xs">
+                <TeamsList
+                    teams={teams}
+                    ctxTeams={ctxTeams}
+                    currentTeamId={team.id}
+                    isFullModeOpen={isFullTeamsModeOpen}
+                    searchText={searchText}
+                    onToggle={onToggle}
+                    onChange={onChange}
+                    onUpdateCtxTeams={onUpdateCtxTeams}
+                />
+            </Hidden>
             { /* eslint-disable */}
             <div
                 className={classes.actionsDrawer}
@@ -71,8 +73,8 @@ const SidebarContent = ({
             >
                 { /* eslint-enable */}
                 <TeamHeader
-                    teamName={team.name}
-                    admin={team.admin}
+                    team={team}
+                    onToggle={onToggle}
                 />
                 {
                     team.starredChannels.length > 0 && (

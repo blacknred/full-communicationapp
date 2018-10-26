@@ -5,19 +5,17 @@ import { withRouter } from 'react-router-dom';
 import { Mutation, Query } from 'react-apollo';
 
 import {
-    GET_TEAMS_QUERY,
     GET_TEAM_MEMBERS_QUERY,
     ADD_TEAM_MEMBER_MUTATION,
 } from '../graphql/team';
-import { CREATE_CHANNEL_MUTATION } from '../graphql/channel';
 
 import Settings from './Settings';
-import SidebarContent from '../components/SidebarContent';
-import NewChannelForm from '../components/NewChannelForm';
+import TeamsSidebarContent from '../components/TeamSidebar';
+import NewChannel from './NewChannel';
 import InvitePeopleForm from '../components/InvitePeopleForm';
 import SearchTeamMembersForm from '../components/SearchTeamMembersForm';
 
-class Sidebar extends React.Component {
+class TeamsSidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -27,13 +25,11 @@ class Sidebar extends React.Component {
             isAddChannelModalOpen: false,
             isInvitePeopleModalOpen: false,
             isSearchTeamMembersModalOpen: false,
-            channelName: '',
-            isPrivate: false,
-            errors: {},
-            email: '',
-            members: [],
-            searchText: '',
             ctxTeams: [],
+
+            email: '',
+            searchText: '',
+            errors: {},
         };
     }
 
@@ -58,13 +54,13 @@ class Sidebar extends React.Component {
         const {
             updateQuery, teams, teamIndex, channelIndex,
         } = this.props;
-        updateQuery(() => {
-            // reset updates' count for current team and channel
-            teams[teamIndex].updatesCount = 0;
-            teams[teamIndex].channels[channelIndex].updatesCount = 0;
-            console.log('updates resetted');
-            return { getTeams: teams };
-        });
+        // updateQuery(() => {
+        //     // reset updates' count for current team and channel
+        //     teams[teamIndex].updatesCount = 0;
+        //     teams[teamIndex].channels[channelIndex].updatesCount = 0;
+        //     console.log('updates resetted');
+        //     return { getTeams: teams };
+        // });
     }
 
     onUpdateCtxTeamsHandler = (team) => {
@@ -77,73 +73,14 @@ class Sidebar extends React.Component {
     onToggleHandler = (target) => {
         this.setState(prevState => ({
             [target]: !prevState[target],
-            channelName: '',
-            isPrivate: false,
             errors: {},
             email: '',
         }));
     }
 
     onChangeHandler = (e) => {
-        const { name } = e.target;
-        let { value } = e.target;
-        if (name === 'isPrivate') value = value === 'true';
+        const { name, value } = e.target;
         this.setState({ [name]: value });
-    }
-
-    onCreateChannelSubmitHandler = async (handler) => {
-        const { team, teamIndex, history } = this.props;
-        const { channelName, isPrivate, members } = this.state;
-        try {
-            const res = await handler({
-                variables: {
-                    teamId: team.id,
-                    name: channelName,
-                    private: isPrivate,
-                    members,
-                },
-                optimisticResponse: {
-                    createChannel: {
-                        __typename: 'Mutation',
-                        ok: true,
-                        channel: {
-                            __typename: 'Channel',
-                            id: -1,
-                            name: channelName,
-                            private: isPrivate,
-                            dm: members.length > 0,
-                            updatesCount: 0,
-                            participantsCount: 1,
-                        },
-                        errors: {
-                            __typename: 'Error',
-                            path: null,
-                            message: null,
-                        },
-                    },
-                },
-                update: (store, { data: { createChannel } }) => {
-                    const { ok, channel } = createChannel;
-                    if (!ok) return;
-                    const data = store.readQuery({ query: GET_TEAMS_QUERY });
-                    data.getTeams[teamIndex].channels.push(channel);
-                    store.writeQuery({ query: GET_TEAMS_QUERY, data });
-                },
-            });
-            const { ok, channel, errors } = res.data.createChannel;
-            if (ok) {
-                this.setState({ isAddChannelModalOpen: false });
-                history.push(`/teams/${team.id}/${channel.id}`);
-            } else {
-                const err = {};
-                errors.forEach(({ path, message }) => {
-                    err[`${path}Error`] = message;
-                });
-                this.setState({ errors: err });
-            }
-        } catch (err) {
-            // TODO:
-        }
     }
 
     onAddTeamMemberSubmitHandler = async (handler) => {
@@ -174,18 +111,18 @@ class Sidebar extends React.Component {
 
     render() {
         const {
-            teams, team, isOwner, channelId,
+            teams, team, isOwner, channelId, teamIndex,
         } = this.props;
         const {
             isSidebarOpen, isFullTeamsModeOpen, isAddChannelModalOpen,
             isInvitePeopleModalOpen, isSearchTeamMembersModalOpen,
-            isSettingsModalOpen, channelName, searchText, email,
-            isPrivate, ctxTeams, errors: { nameError, emailError },
+            isSettingsModalOpen, searchText, email,
+            ctxTeams, errors: { emailError },
         } = this.state;
         const searchedTeams = teams.filter(({ name }) => name.indexOf(searchText) !== -1);
         return (
             <React.Fragment>
-                <SidebarContent
+                <TeamsSidebarContent
                     teams={searchedTeams}
                     ctxTeams={ctxTeams}
                     team={team}
@@ -202,24 +139,13 @@ class Sidebar extends React.Component {
                     open={isSettingsModalOpen}
                     onClose={() => this.onToggleHandler('isSettingsModalOpen')}
                 />
-                <Mutation
-                    mutation={CREATE_CHANNEL_MUTATION}
-                    ignoreResults
-                >
-                    {createChannel => (
-                        <NewChannelForm
-                            open={isAddChannelModalOpen}
-                            isCreating
-                            mode="create"
-                            name={channelName}
-                            nameError={nameError || ''}
-                            isPrivate={isPrivate}
-                            onChange={this.onChangeHandler}
-                            onSubmit={() => this.onCreateChannelSubmitHandler(createChannel)}
-                            onClose={() => this.onToggleHandler('isAddChannelModalOpen')}
-                        />
-                    )}
-                </Mutation>
+                <NewChannel
+                    open={isAddChannelModalOpen}
+                    channel={null}
+                    teamId={team.id}
+                    teamIndex={teamIndex}
+                    onClose={() => this.onToggleHandler('isAddChannelModalOpen')}
+                />
 
 
                 {/*  */}
@@ -272,7 +198,7 @@ class Sidebar extends React.Component {
     }
 }
 
-Sidebar.propTypes = {
+TeamsSidebar.propTypes = {
     teams: PropTypes.arrayOf(PropTypes.shape).isRequired,
     team: PropTypes.shape({
         id: PropTypes.number.isRequired,
@@ -284,4 +210,4 @@ Sidebar.propTypes = {
     updateQuery: PropTypes.func.isRequired,
 };
 
-export default withRouter(Sidebar);
+export default withRouter(TeamsSidebar);

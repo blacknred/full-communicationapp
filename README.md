@@ -3,13 +3,13 @@
 
 ## Architecture
 
-| Name       | Container            | Stack                        | Ports |
-|------------|----------------------|------------------------------|-------|
-| Web client | messenger-web-client | GraphQL, React, Router, Mobx | 4001  |
-| Server     | messenger-server     | Node, Express, GraphQL       | 4000  |
-| DB         | messenger-db         | Postgres                     | 5432  |
-| Redis      | messenger-redis      | Redis                        | 6379  |
-| Storage    | messenger-storage    | Node, Koa                    | 4004  |
+| Name       | Container            | Stack                  | Ports |
+|------------|----------------------|------------------------|-------|
+| Web client | messenger-web-client | React, Mobx, GraphQL   | 4001  |
+| Server     | messenger-server     | Node, Express, GraphQL | 4000  |
+| DB         | messenger-db         | Postgres               | 5432  |
+| Redis      | messenger-redis      | Redis                  | 6379  |
+| Storage    | messenger-storage    | Node, Koa              | 4004  |
 
 #### Web client - http://localhost:4001
 
@@ -19,7 +19,7 @@
 | /login                      | login page                                |
 | /register                   | register page                             |
 | /settings                   | settings page                             |
-| /new-team                   | team creating page                        |
+| /new                        | team creating page                        |
 | /teams/:teamId?/:channelId? | renders teams, channels, messages of user |
 
 #### Server - http://localhost:4000

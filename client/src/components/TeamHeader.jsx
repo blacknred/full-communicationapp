@@ -29,12 +29,14 @@ const styles = theme => ({
 });
 
 const TeamHeader = ({
-    classes, teamName, admin: { username, online },
+    team: {
+        name, description, membersCount, admin: { username, online },
+    }, classes, onToggle,
 }) => (
     <List>
         <ListItem>
             <ListItemText
-                primary={teamName.charAt(0).toUpperCase() + teamName.substr(1)}
+                primary={name.charAt(0).toUpperCase() + name.substr(1)}
                 secondary={(
                     <Toolbar
                         disableGutters
@@ -44,7 +46,7 @@ const TeamHeader = ({
                         <ListItemIcon>
                             {
                                 online
-                                    ? <RadioButtonChecked fontSize="small"/>
+                                    ? <RadioButtonChecked fontSize="small" />
                                     : <RadioButtonUnchecked fontSize="small" />
                             }
                         </ListItemIcon>
@@ -64,21 +66,32 @@ const TeamHeader = ({
                 }}
             />
             {/* <ListItemSecondaryAction> */}
-                <IconButton>
-                    <Settings />
-                </IconButton>
+            <IconButton>
+                <Settings />
+            </IconButton>
             {/* </ListItemSecondaryAction> */}
+        </ListItem>
+        <ListItem>
+            <ListItemText
+                primary={`${membersCount} members`}
+                secondary={description}
+            />
         </ListItem>
     </List>
 );
 
 TeamHeader.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    teamName: PropTypes.string.isRequired,
-    admin: PropTypes.shape({
-        username: PropTypes.string.isRequired,
-        online: PropTypes.bool.isRequired,
+    team: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        description: PropTypes.any,
+        membersCount: PropTypes.number.isRequired,
+        admin: PropTypes.shape({
+            username: PropTypes.string.isRequired,
+            online: PropTypes.bool.isRequired,
+        }).isRequired,
     }).isRequired,
+    onToggle: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(TeamHeader);

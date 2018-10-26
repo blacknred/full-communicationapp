@@ -8,6 +8,9 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+    root: {
+
+    },
     linear: {
         padding: theme.spacing.unit / 2,
         top: 0,
@@ -26,21 +29,26 @@ const styles = theme => ({
 });
 
 const Loading = ({ classes, up, small }) => (
-    up ? (
-        <LinearProgress
-            className={classes.linear}
-            color="secondary"
-        />
-    ) : (
-        <div className={classes.circularRoot}>
-            <CircularProgress
-                className={classes.circular}
-                size={small ? 35 : 50}
-                color="secondary"
-                thickness={7}
-            />
-        </div>
-    )
+    <div className={classes.root}>
+        {
+            up
+                ? (
+                    <LinearProgress
+                        className={classes.linear}
+                        color="secondary"
+                    />
+                ) : (
+                    <div className={classes.circularRoot}>
+                        <CircularProgress
+                            className={classes.circular}
+                            size={small ? 35 : 50}
+                            color="secondary"
+                            thickness={7}
+                        />
+                    </div>
+                )
+        }
+    </div>
 );
 
 Loading.propTypes = {

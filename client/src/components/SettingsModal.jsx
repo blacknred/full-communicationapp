@@ -24,7 +24,7 @@ function Transition(props) {
     return <Slide direction="up" {...props} />;
 }
 
-const SettingsWrapper = ({
+const SettingsModal = ({
     classes, width, open, children, onClose,
 }) => (
     <Dialog
@@ -47,7 +47,7 @@ const SettingsWrapper = ({
     </Dialog>
 );
 
-SettingsWrapper.propTypes = {
+SettingsModal.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     children: PropTypes.node.isRequired,
     width: PropTypes.string.isRequired,
@@ -55,4 +55,4 @@ SettingsWrapper.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(SettingsWrapper);
+export default compose(withStyles(styles), withWidth())(SettingsModal);

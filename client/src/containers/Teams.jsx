@@ -5,29 +5,28 @@ import { Query } from 'react-apollo';
 import decode from 'jwt-decode';
 import { Redirect } from 'react-router-dom';
 
-import StyleRoot from '../styleRoot';
 import ChannelHeader from './ChannelHeader';
 import Messages from './Messages';
 import NewMessage from './NewMessage';
-import ContentWrapper from '../components/ContentWrapper';
-import Error from '../components/Error';
+import AppWrapper from '../components/AppWrapper';
+import Notification from '../components/Notification';
 import Loading from '../components/Loading';
-import Sidebar from './Sidebar';
+import Sidebar from './TeamsSidebar';
 
 import { GET_TEAMS_QUERY } from '../graphql/team';
-
 
 const Teams = ({ match: { params: { teamId, channelId } } }) => (
     <Query
         query={GET_TEAMS_QUERY}
-        fetchPolicy="network-only"
+    // fetchPolicy="network-only" // "no-cache"
     >
         {({
             loading, error, data, updateQuery,
         }) => {
-            if (loading || !data) return <Loading />;
-            if (error) return <Error text={error} />;
+            if (loading || data) return <Loading />;
+            if (error) return <Notification text={error} />;
             const { getTeams } = data;
+            // console.log(getTeams);
             if (!getTeams.length) return <Redirect to="/new-team" />;
 
             const teamIdInt = parseInt(teamId, 10);
@@ -42,7 +41,7 @@ const Teams = ({ match: { params: { teamId, channelId } } }) => (
             const isChannelStarred = findIndex(team.starredChannels, ['id', channel.id]) > -1;
 
             return (
-                <React.Fragment>
+                <AppWrapper>
                     <Sidebar
                         team={team}
                         teams={getTeams}
@@ -57,9 +56,10 @@ const Teams = ({ match: { params: { teamId, channelId } } }) => (
                     />
                     {
                         channel && (
-                            <ContentWrapper>
+                            <React.Fragment>
                                 <ChannelHeader
                                     channel={channel}
+                                    teamId={team.id}
                                     teamIndex={teamIdX}
                                     isOwner={isTeamOwner}
                                     isStarred={isChannelStarred}
@@ -69,13 +69,13 @@ const Teams = ({ match: { params: { teamId, channelId } } }) => (
                                     channelId={channel.id}
                                     placeholder={channel.name}
                                 />
-                            </ContentWrapper>
+                            </React.Fragment>
                         )
                     }
-                </React.Fragment>
+                    <Notification />
+                </AppWrapper>
             );
-        }
-        }
+        }}
     </Query>
 );
 
@@ -86,4 +86,4 @@ Teams.propTypes = {
     }).isRequired,
 };
 
-export default StyleRoot(Teams);
+export default Teams;

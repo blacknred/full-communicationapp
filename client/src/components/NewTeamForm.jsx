@@ -8,9 +8,8 @@ import {
     TextField,
     Typography,
 } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
-
 import People from '@material-ui/icons/People';
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     layout: {
@@ -41,13 +40,11 @@ const styles = theme => ({
             marginBottom: theme.spacing.unit * 3,
         },
     },
-    submit: {
-        // margin: `${theme.spacing.unit * 2}px 0`,
-    },
 });
 
-const CreateTeamForm = ({
-    classes, name, errors: { nameError }, onChange, onSubmit,
+const NewTeamForm = ({
+    classes, name, description, onChange, onSubmit,
+    errors: { nameError, descriptionError },
 }) => (
     <main className={classes.layout}>
         <Paper className={classes.paper}>
@@ -69,6 +66,16 @@ const CreateTeamForm = ({
                     helperText={nameError}
                     onChange={onChange}
                 />
+                <TextField
+                    fullWidth
+                    id="description"
+                    name="description"
+                    label="Team description"
+                    defaultValue={description}
+                    error={!!descriptionError}
+                    helperText={descriptionError}
+                    onChange={onChange}
+                />
                 <Button
                     type="submit"
                     fullWidth
@@ -84,14 +91,16 @@ const CreateTeamForm = ({
     </main>
 );
 
-CreateTeamForm.propTypes = {
+NewTeamForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
     errors: PropTypes.shape({
         nameError: PropTypes.string,
+        descriptionError: PropTypes.string,
     }).isRequired,
     onChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(CreateTeamForm);
+export default withStyles(styles)(NewTeamForm);

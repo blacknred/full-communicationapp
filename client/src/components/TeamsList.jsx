@@ -175,7 +175,11 @@ const TeamsList = ({
                 >
                     <Tooltip title={isFullModeOpen ? 'Decreese panel' : 'Enlarge panel'}>
                         <Avatar className={classes.button}>
-                            {isFullModeOpen ? <FullscreenExit /> : <Fullscreen />}
+                            {
+                                isFullModeOpen
+                                    ? <FullscreenExit color="secondary" />
+                                    : <Fullscreen color="secondary" />
+                            }
                         </Avatar>
                     </Tooltip>
                     {
@@ -196,7 +200,7 @@ const TeamsList = ({
                 >
                     <Tooltip title="Settings">
                         <Avatar className={classes.button}>
-                            <Settings />
+                            <Settings color="secondary" />
                         </Avatar>
                     </Tooltip>
                     {

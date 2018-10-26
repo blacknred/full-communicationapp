@@ -3,13 +3,14 @@ import { graphql } from 'react-apollo';
 
 import { CREATE_TEAM_MUTATION } from '../graphql/team';
 
-import CreateTeamForm from '../components/CreateTeamForm';
+import NewTeamForm from '../components/NewTeamForm';
 
-class CreateTeam extends React.Component {
+class NewTeam extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             name: '',
+            description: '',
             errors: {},
         };
     }
@@ -20,13 +21,13 @@ class CreateTeam extends React.Component {
     }
 
     onSubmitHandler = async () => {
-        const { name } = this.state;
+        const { name, description } = this.state;
         const { mutate, history } = this.props;
         try {
             const {
                 data: { createTeam: { ok, errors, team } },
             } = await mutate({
-                variables: { name },
+                variables: { name, description },
             });
             if (ok) {
                 history.push(`/teams/${team.id}`);
@@ -44,11 +45,9 @@ class CreateTeam extends React.Component {
     }
 
     render() {
-        const { name, errors } = this.state;
         return (
-            <CreateTeamForm
-                name={name}
-                errors={errors}
+            <NewTeamForm
+                {...this.state}
                 onChange={this.onChangeHandler}
                 onSubmit={this.onSubmitHandler}
             />
@@ -56,4 +55,4 @@ class CreateTeam extends React.Component {
     }
 }
 
-export default graphql(CREATE_TEAM_MUTATION)(CreateTeam);
+export default graphql(CREATE_TEAM_MUTATION)(NewTeam);

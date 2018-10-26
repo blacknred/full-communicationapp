@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { inject, observer } from 'mobx-react';
 import { graphql, compose, Mutation } from 'react-apollo';
-
-import Error from '../components/Error';
 import Loading from '../components/Loading';
 
 import SettingsUi from '../components/SettingsUi';
 import SettingsTeams from '../components/SettingsTeams';
-import SettingsWrapper from '../components/SettingsWrapper';
+import SettingsModal from '../components/SettingsModal';
 import SettingsProfile from '../components/SettingsProfile';
 import OnDeleteWarningForm from '../components/OnDeleteWarningForm';
 
@@ -32,9 +31,6 @@ class Settings extends React.Component {
 
             ctxTeamId: null,
             ctxTeamName: '',
-
-            isNightMode: false,
-            appColor: 0,
         };
     }
 
@@ -52,10 +48,12 @@ class Settings extends React.Component {
     render() {
         const {
             isTeamDeleteWarningFormOpen, isProfileDeleteWarningFormOpen,
-            ctxTeamName, isNightMode, appColor,
+            ctxTeamName,
         } = this.state;
         const {
-            open, onClose, getCurrentUserQuery, getTeamsQuery,
+            store: {
+                isNightMode, appColor, toggleNightMode, changeAppColor,
+            }, open, onClose, getCurrentUserQuery, getTeamsQuery,
         } = this.props;
 
         if (getCurrentUserQuery.loading || getTeamsQuery.loading) {
@@ -63,21 +61,20 @@ class Settings extends React.Component {
         }
         if (getCurrentUserQuery.error || getTeamsQuery.error) {
             return (
-                <Error text={getCurrentUserQuery.error
-                    || getTeamsQuery.error}
-                />
+                null
             );
         }
 
         return (
-            <SettingsWrapper
+            <SettingsModal
                 open={open}
                 onClose={onClose}
             >
                 <SettingsUi
                     appColor={appColor}
                     isNightMode={isNightMode}
-                    onChange={this.onUpdateHandler}
+                    onNightModeChange={toggleNightMode}
+                    onAppColorChange={changeAppColor}
                 />
                 <Mutation
                     mutation={UPDATE_USER_MUTATION}
@@ -130,7 +127,7 @@ class Settings extends React.Component {
                         />
                     )}
                 </Mutation>
-            </SettingsWrapper>
+            </SettingsModal>
         );
     }
 }
@@ -145,4 +142,4 @@ Settings.propTypes = {
 export default compose(
     graphql(GET_CURRENT_USER_QUERY, { name: 'getCurrentUserQuery' }),
     graphql(GET_TEAMS_QUERY, { name: 'getTeamsQuery' }),
-)(Settings);
+)(inject('store')(observer(Settings)));

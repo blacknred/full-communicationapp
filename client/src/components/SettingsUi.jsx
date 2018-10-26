@@ -27,7 +27,8 @@ const styles = {
 };
 
 const SettingsUi = ({
-    classes, appColor, isNightMode, onChange,
+    classes, appColor, isNightMode, onNightModeChange,
+    onAppColorChange,
 }) => (
     <List>
         <ListSubheader>Ui</ListSubheader>
@@ -41,7 +42,7 @@ const SettingsUi = ({
                     disableUnderline
                     variant="outlined"
                     value={appColor}
-                    onChange={({ target: { name, value } }) => onChange(name, value)}
+                    onChange={({ target }) => onAppColorChange(target.value)}
                     inputProps={{
                         name: 'appColor',
                         id: 'app-color',
@@ -74,7 +75,7 @@ const SettingsUi = ({
             <ListItemText primary="Night mode" />
             <ListItemSecondaryAction>
                 <Switch
-                    onChange={() => onChange('isNightMode', !isNightMode)}
+                    onChange={onNightModeChange}
                     checked={isNightMode}
                 />
             </ListItemSecondaryAction>
@@ -86,7 +87,8 @@ SettingsUi.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     appColor: PropTypes.number.isRequired,
     isNightMode: PropTypes.bool.isRequired,
-    onChange: PropTypes.func.isRequired,
+    onNightModeChange: PropTypes.func.isRequired,
+    onAppColorChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(SettingsUi);

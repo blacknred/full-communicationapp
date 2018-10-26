@@ -6,6 +6,7 @@ import {
     Switch,
     Dialog,
     Button,
+    Toolbar,
     TextField,
     DialogTitle,
     DialogContent,
@@ -25,8 +26,8 @@ const styles = theme => ({
 });
 
 const NewChannelForm = ({
-    classes, width, open, name, nameError, isPrivate, isCreating,
-    onChange, onSubmit, onClose,
+    classes, width, open, name, description, private: isPrivate,
+    isUpdate, errors: { nameError }, onChange, onSubmit, onClose,
 }) => (
     <Dialog
         open={open}
@@ -34,19 +35,15 @@ const NewChannelForm = ({
         onClose={onClose}
     >
         <DialogTitle>
-            {
-                isCreating
-                    ? 'Add new channel'
-                    : 'Update channel'
-            }
+            {`${isUpdate ? 'Update the' : 'Add new'} channel`}
         </DialogTitle>
         <DialogContent>
             <TextField
                 autoFocus
                 required
                 fullWidth
-                id="channelName"
-                name="channelName"
+                id="name"
+                name="name"
                 label="Channel name"
                 autoComplete="name"
                 className={classes.form}
@@ -55,17 +52,30 @@ const NewChannelForm = ({
                 helperText={nameError}
                 onChange={onChange}
             />
-            <FormControlLabel
-                control={(
-                    <Switch
-                        checked={isPrivate}
-                        name="isPrivate"
-                        onChange={onChange}
-                        value={(!isPrivate).toString()}
-                    />
-                )}
-                label="Make channel private"
+            <TextField
+                fullWidth
+                id="description"
+                name="description"
+                label="Channel description"
+                className={classes.form}
+                defaultValue={description}
+                onChange={onChange}
             />
+            <Toolbar disableGutters>
+                <FormControlLabel
+                    control={(
+                        <Switch
+                            checked={isPrivate}
+                            name="private"
+                            onChange={onChange}
+                            disabled={isUpdate}
+                            value={(!isPrivate).toString()}
+                        />
+                    )}
+                    label="Make channel private"
+                />
+            </Toolbar>
+
             {
                 isPrivate && <MembersMultiSelect />
             }
@@ -80,7 +90,7 @@ const NewChannelForm = ({
                 variant="raised"
                 color="primary"
                 onClick={onSubmit}
-                children={`${isCreating ? 'Create' : 'Update'} Channel`}
+                children={`${isUpdate ? 'Update' : 'Create'} Channel`}
                 disabled={name.length === 0}
             />
         </DialogActions>
@@ -91,10 +101,13 @@ NewChannelForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
-    isCreating: PropTypes.bool,
+    isUpdate: PropTypes.bool,
     name: PropTypes.string.isRequired,
-    nameError: PropTypes.string.isRequired,
-    isPrivate: PropTypes.bool.isRequired,
+    description: PropTypes.string,
+    errors: PropTypes.shape({
+        nameError: PropTypes.string,
+    }).isRequired,
+    private: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,

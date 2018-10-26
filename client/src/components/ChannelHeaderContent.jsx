@@ -56,7 +56,7 @@ const ChannelHeader = ({
     channel: {
         name, description, private: isPrivate, participantsCount,
     }, isMenuOpen, searchText, isMobileSearchOpen, isOwner, isStarred,
-    onToggle, onChange, onSearchSubmit, onStar, classes, isDrawerOpen,
+    classes, isDrawerOpen, onToggle, onChange, onSearchSubmit, onStar,
 }) => {
     const searchBtn = (
         <IconButton onClick={() => onToggle('isMobileSearchOpen')}>
@@ -93,7 +93,7 @@ const ChannelHeader = ({
             <Hidden smUp>
                 <MoreVert />
             </Hidden>
-            <Hidden mdDown>
+            <Hidden only="xs">
                 <MoreHoriz />
             </Hidden>
         </IconButton>
@@ -166,7 +166,7 @@ const ChannelHeader = ({
                     className={classes.appBar}
                 >
                     <Toolbar>
-                        <Hidden smUp>
+                        <Hidden mdUp>
                             {isMobileSearchOpen && searchBtn}
                             {isMobileSearchOpen ? searchBlock : (
                                 <React.Fragment>
@@ -199,19 +199,20 @@ const ChannelHeader = ({
                             {!isMobileSearchOpen && searchBtn}
                             {!isMobileSearchOpen && channelMenuBtn}
                         </Hidden>
-                        <Hidden mdDown>
+                        <Hidden smDown>
                             <ListItemText
                                 color="secondary"
                                 className={classes.title}
                                 primary={`#${name}`}
                                 secondary={`${participantsCount} participants -
-                                ${isPrivate ? 'private' : 'public'} access
-                                ${!description && ' - add description'}`}
+                                ${isPrivate ? 'private' : 'public'} access - 
+                                ${description || 'no description'}`}
                                 primaryTypographyProps={{
                                     noWrap: true,
                                     variant: 'title',
                                 }}
                                 secondaryTypographyProps={{
+                                    noWrap: true,
                                     variant: 'body1',
                                 }}
                             />
@@ -221,7 +222,7 @@ const ChannelHeader = ({
                                     {isStarred ? <Star /> : <StarBorder />}
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title={`${isDrawerOpen ? 'Hide' : 'open'} panel`}>
+                            <Tooltip title={`${isDrawerOpen ? 'Hide' : 'Open'} panel`}>
                                 <IconButton onClick={() => onToggle('isDrawerOpen')}>
                                     {isDrawerOpen ? <ViewHeadline /> : <VerticalSplit />}
                                 </IconButton>

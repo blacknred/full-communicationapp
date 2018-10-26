@@ -1,14 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { observer, inject } from 'mobx-react';
 
-import NotificationContent from '../components/NotificationContent';
+import NotificationContent from '../components/Notification';
 
 class Notification extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false,
+            open: true,
+            text: ',ljkhljhkl',
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { text } = nextProps;
+        this.setState({ text });
     }
 
     onCloseHandler = (event, reason) => {
@@ -17,12 +24,10 @@ class Notification extends React.Component {
     };
 
     render() {
-        const { open } = this.state;
-        const { text } = this.props;
+        const { store } = this.props;
         return (
             <NotificationContent
-                open={open}
-                text={text}
+                {...this.state}
                 onClose={this.onCloseHandler}
             />
         );
@@ -30,7 +35,7 @@ class Notification extends React.Component {
 }
 
 Notification.propTypes = {
-    text: PropTypes.string.isRequired,
+    text: PropTypes.string,
 };
 
-export default Notification;
+export default inject('store')(observer(Notification));
