@@ -19,6 +19,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
     listItem: {
         color: theme.palette.grey[400],
+        paddingRight: theme.spacing.unit * 2,
     },
     iconRoot: {
         width: '0.7em',
@@ -26,7 +27,7 @@ const styles = theme => ({
         color: 'inherit',
     },
     chip: {
-        height: 20,
+        height: theme.spacing.unit * 3,
     },
     selected: {
         backgroundColor: `${theme.palette.primary.light}!important`,
@@ -35,11 +36,12 @@ const styles = theme => ({
         display: 'flex',
         justifyContent: 'space-between',
         paddingRight: theme.spacing.unit,
+        backgroundColor: theme.palette.primary.main,
     },
 });
 
 const ChannelsList = ({
-    classes, isOwner, teamId, channels, onToggle, channelId,
+    classes, isOwner, teamId, channels, onClick, onNewChannelToggle, channelId,
 }) => {
     const channelsList = channels.map(ch => (
         <ListItem
@@ -50,6 +52,7 @@ const ChannelsList = ({
             className={classes.listItem}
             classes={{ selected: classes.selected }}
             selected={channelId === ch.id}
+            onClick={onClick}
         >
             <ListItemIcon className={classes.iconRoot}>
                 {ch.private ? <Lock /> : <Icon children="#" />}
@@ -85,7 +88,7 @@ const ChannelsList = ({
                             <Tooltip title="Add new channel">
                                 <IconButton
                                     color="inherit"
-                                    onClick={() => onToggle('isAddChannelModalOpen')}
+                                    onClick={onNewChannelToggle}
                                 >
                                     <AddCircleOutline />
                                 </IconButton>
@@ -110,7 +113,8 @@ ChannelsList.propTypes = {
         private: PropTypes.bool.isRequired,
         updatesCount: PropTypes.number.isRequired,
     })).isRequired,
-    onToggle: PropTypes.func.isRequired,
+    onClick: PropTypes.func.isRequired,
+    onNewChannelToggle: PropTypes.func.isRequired,
     channelId: PropTypes.number.isRequired,
 };
 

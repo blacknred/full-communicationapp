@@ -4,7 +4,7 @@ import { requiresAuth, requiresTeamAdminAccess } from '../../permissions';
 
 export default {
     Team: {
-        admin: ({ id }, args, { models }) => models.sequelize.query(
+        admin: ({ id }, _, { models }) => models.sequelize.query(
             `select u.id, u.username from users as u
             join team_members as tm on u.id = tm.user_id
             where tm.team_id = ? and tm.admin = true`,
@@ -14,7 +14,7 @@ export default {
                 raw: true,
             },
         ).then(users => users[0]),
-        channels: ({ id }, args, { models, user }) => models.sequelize
+        channels: ({ id }, _, { models, user }) => models.sequelize
             .query(
                 `select distinct on (id) * from channels as c 
                 left outer join private_channel_members as pcm
@@ -29,7 +29,7 @@ export default {
                     raw: true,
                 },
             ),
-        starredChannels: ({ id }, args, { models, user }) => models.sequelize
+        starredChannels: ({ id }, _, { models, user }) => models.sequelize
             .query(
                 `select distinct on (id) * from channels as c 
                 left outer join starred_channels as sc on c.id = sc.channel_id
@@ -40,7 +40,7 @@ export default {
                     raw: true,
                 },
             ),
-        directMessageMembers: ({ id }, args, { models, user }) => models.sequelize
+        directMessageMembers: ({ id }, _, { models, user }) => models.sequelize
             .query(
                 `select distinct on (u.id) u.id, u.username from users as u
                 join direct_messages as dm
@@ -53,28 +53,27 @@ export default {
                     raw: true,
                 },
             ),
-        updatesCount: async ({ id }, args, { models, user }) => (15),
-        // {
-        //     const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
-        //     const [{ count }] = await models.sequelize.query(
-        //         `select count(*) from messages as m
-        //         join channels as c on m.channel_id = c.id
-        //         join teams as t on c.team_id = t.id
-        //         where t.id = :teamId and m.created_at > to_timestamp(:lastVisit)`,
-        //         {
-        //             replacements: { teamId: id, lastVisit },
-        //             model: models.Message,
-        //             raw: true,
-        //         },
-        //     );
-        //     return count;
-        // },
-        membersCount: ({ id }, args, { models }) => models.TeamMember
+        updatesCount: async ({ id }, _, { models, user }) => {
+            const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
+            const [{ count }] = await models.sequelize.query(
+                `select count(*) from messages as m
+                join channels as c on m.channel_id = c.id
+                join teams as t on c.team_id = t.id
+                where t.id = :teamId and m.created_at > to_timestamp(:lastVisit)`,
+                {
+                    replacements: { teamId: id, lastVisit },
+                    model: models.Message,
+                    raw: true,
+                },
+            );
+            return 15; // count
+        },
+        membersCount: ({ id }, _, { models }) => models.TeamMember
             .count({ where: { teamId: id } }),
     },
     Query: {
         getTeams: requiresAuth.createResolver(
-            (parent, args, { models, user }) => models.sequelize.query(
+            (_, __, { models, user }) => models.sequelize.query(
                 `select * from teams as t
                 join team_members as tm on t.id = tm.team_id
                 where tm.user_id = ?`,
@@ -86,7 +85,7 @@ export default {
             ),
         ),
         getTeamMembers: requiresAuth.createResolver(
-            (parent, { teamId }, { models }) => models.sequelize.query(
+            (_, { teamId }, { models }) => models.sequelize.query(
                 `select * from users as u
                 join team_member as tm on tm.user_id = u.id
                 where tm.team_id = ?`,
@@ -100,7 +99,7 @@ export default {
     },
     Mutation: {
         createTeam: requiresAuth.createResolver(
-            async (parent, args, { models, user }) => {
+            async (_, args, { models, user }) => {
                 try {
                     const res = await models.sequelize
                         .transaction(async (transaction) => {
@@ -145,7 +144,7 @@ export default {
             },
         ),
         addTeamMember: requiresTeamAdminAccess.createResolver(
-            async (parent, { email, teamId }, { models }) => {
+            async (_, { teamId, email }, { models }) => {
                 try {
                     // check if new member is a valid user
                     const isValidUser = await models.User.findOne({
@@ -199,7 +198,7 @@ export default {
             },
         ),
         updateTeam: requiresTeamAdminAccess.createResolver(
-            async (parent, { teamId, option, value }, { models }) => {
+            async (_, { teamId, option, value }, { models }) => {
                 try {
                     // TODO: update the team
                     const updatedTeam = await models.sequelise
@@ -228,7 +227,7 @@ export default {
             },
         ),
         deleteTeam: requiresTeamAdminAccess.createResolver(
-            async (parent, { teamId }, { models }) => {
+            async (_, { teamId }, { models }) => {
                 try {
                     // TODO: delete the team
                     await models.Teams.destroy({ where: { id: teamId } });

@@ -79,7 +79,7 @@ const NewTeamForm = ({
                 <Button
                     type="submit"
                     fullWidth
-                    variant="raised"
+                    variant="contained"
                     color="primary"
                     className={classes.submit}
                     onClick={onSubmit}

@@ -41,7 +41,7 @@ export default {
     Mutation: {
         createMessage: requiresTeamAccess.createResolver(
             requiresPrivateChannelAccess.createResolver(
-                async (parent, { files, ...restArgs }, { models, user }) => {
+                async (_, { files, ...restArgs }, { models, user }) => {
                     try {
                         // create a new message
                         // create entries for related files if needed
@@ -85,7 +85,7 @@ export default {
             ),
         ),
         updateMessage: requiresMessageFullAccess.createResolver(
-            async (parent, { messageId, newText, newFiles }, { models }) => {
+            async (_, { messageId, newText, newFiles }, { models }) => {
                 try {
                     // update the text if provided
                     if (newText) {
@@ -119,7 +119,7 @@ export default {
             },
         ),
         deleteMessage: requiresMessageFullAccess.createResolver(
-            async (parent, { messageId }, { models, user }) => {
+            async (_, { messageId }, { models, user }) => {
                 try {
                     // delete the message
                     await models.Message.destroy({

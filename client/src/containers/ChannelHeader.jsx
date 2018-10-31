@@ -6,7 +6,7 @@ import { compose, graphql } from 'react-apollo';
 
 import NewChannel from './NewChannel';
 import OnDeleteWarningForm from '../components/OnDeleteWarningForm';
-import ChannelHeaderContent from '../components/ChannelHeaderContent';
+import ChannelHeaderContent from '../components/ChannelHeader';
 
 import {
     STAR_CHANNEL_MUTATION,
@@ -78,7 +78,6 @@ class ChannelHeader extends React.Component {
             });
         } catch (err) {
             // TODO:
-            
         }
     }
 

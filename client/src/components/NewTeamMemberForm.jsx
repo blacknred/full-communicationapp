@@ -21,13 +21,13 @@ const styles = theme => ({
     },
 });
 
-const InvitePeopleForm = ({
+const NewTeamMemberForm = ({
     classes, width, open, email, emailError, onClose, onChange, onSubmit,
 }) => (
     <Dialog
         open={open}
         fullScreen={isWidthDown('sm', width)}
-        onClose={() => onClose('isInvitePeopleModalOpen')}
+        onClose={onClose}
     >
         <DialogTitle>Add people to your team</DialogTitle>
         <DialogContent>
@@ -48,12 +48,12 @@ const InvitePeopleForm = ({
         </DialogContent>
         <DialogActions>
             <Button
-                onClick={() => onClose('isInvitePeopleModalOpen')}
+                onClick={onClose}
                 children="Cansel"
             />
             <Button
                 type="submit"
-                variant="raised"
+                variant="contained"
                 color="primary"
                 onClick={onSubmit}
                 children="Invite"
@@ -63,7 +63,7 @@ const InvitePeopleForm = ({
     </Dialog>
 );
 
-InvitePeopleForm.propTypes = {
+NewTeamMemberForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
@@ -74,4 +74,4 @@ InvitePeopleForm.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(InvitePeopleForm);
+export default compose(withStyles(styles), withWidth())(NewTeamMemberForm);

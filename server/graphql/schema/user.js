@@ -1,4 +1,10 @@
 export default `
+    enum UserUpdateOptions {
+        username
+        fullname
+        email
+    }
+
     type User {
         id: Int!
         username: String!
@@ -26,7 +32,7 @@ export default `
     type Mutation {
         register(username: String!, email: String!, password: String!): UserResponse!
         login(email: String!, password: String!): LoginResponse!
-        updateUser(option: String!, value: String!): UserResponse!
+        updateUser(option: UserUpdateOptions!, value: String!): UserResponse!
         deleteUser: Boolean!
     }
 `;

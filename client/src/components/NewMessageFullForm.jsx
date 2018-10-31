@@ -81,7 +81,7 @@ const NewMessageFullForm = ({
             />
             <Button
                 type="submit"
-                variant="raised"
+                variant="contained"
                 color="primary"
                 onClick={onSubmit}
                 children="Send"

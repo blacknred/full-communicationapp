@@ -17,6 +17,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
     listItem: {
         color: theme.palette.grey[400],
+        paddingRight: theme.spacing.unit * 2,
     },
     iconRoot: {
         color: 'inherit',
@@ -24,7 +25,7 @@ const styles = theme => ({
         margin: 0,
     },
     chip: {
-        height: 20,
+        height: theme.spacing.unit * 3,
     },
     subheader: {
         display: 'flex',
@@ -73,7 +74,9 @@ const StarredList = ({
     return (
         <List
             subheader={(
-                <ListSubheader color="inherit" className={classes.subheader}>
+                <ListSubheader
+                color="inherit" 
+                className={classes.subheader}>
                     <Star className={classes.iconRoot} />
                     &nbsp;
                     {`STARRED (${channels.length})`}

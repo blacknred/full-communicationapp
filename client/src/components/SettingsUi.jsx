@@ -85,7 +85,7 @@ const SettingsUi = ({
 
 SettingsUi.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    appColor: PropTypes.number.isRequired,
+    appColor: PropTypes.string.isRequired,
     isNightMode: PropTypes.bool.isRequired,
     onNightModeChange: PropTypes.func.isRequired,
     onAppColorChange: PropTypes.func.isRequired,

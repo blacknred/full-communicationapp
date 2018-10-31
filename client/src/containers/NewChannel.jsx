@@ -17,9 +17,11 @@ class NewChannel extends React.Component {
         this.state = {
             isUpdate: false,
             id: null,
+
             name: '',
             description: '',
             private: false,
+
             errors: {},
             members: [],
         };
@@ -92,6 +94,15 @@ class NewChannel extends React.Component {
             const { ok, channel, errors } = res.data.createChannel;
             if (ok) {
                 onClose();
+                this.setState({
+                    isUpdate: false,
+                    id: null,
+                    name: '',
+                    description: '',
+                    private: false,
+                    errors: {},
+                    members: [],
+                });
                 history.push(`/teams/${teamId}/${channel.id}`);
             } else {
                 const err = {};

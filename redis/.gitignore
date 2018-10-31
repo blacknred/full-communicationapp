@@ -1,2 +1,1 @@
-redis-data/*
-!redis-data/.gitkeep
+redis-data

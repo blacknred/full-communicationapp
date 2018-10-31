@@ -87,7 +87,7 @@ const NewChannelForm = ({
             />
             <Button
                 type="submit"
-                variant="raised"
+                variant="contained"
                 color="primary"
                 onClick={onSubmit}
                 children={`${isUpdate ? 'Update' : 'Create'} Channel`}

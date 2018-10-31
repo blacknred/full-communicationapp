@@ -30,8 +30,8 @@ const styles = theme => ({
     },
 });
 
-const LastMentionedMembersList = ({
-    classes, isOwner, teamId, users, onToggle,
+const MembersList = ({
+    classes, isOwner, teamId, users, onInviteToggle, onMembersToggle,
 }) => {
     const membersList = users.map(user => (
         <ListItem
@@ -68,7 +68,7 @@ const LastMentionedMembersList = ({
                     <Tooltip title="Find Member">
                         <IconButton
                             color="inherit"
-                            onClick={() => onToggle('isSearchTeamMembersModalOpen')}
+                            onClick={onMembersToggle}
                         >
                             <AddCircleOutline />
                         </IconButton>
@@ -83,7 +83,7 @@ const LastMentionedMembersList = ({
                         key="invite-people"
                         button
                         color="secondary"
-                        onClick={() => onToggle('isInvitePeopleModalOpen')}
+                        onClick={onInviteToggle}
                     >
                         <ListItemText
                             primary="+ Invite People"
@@ -99,7 +99,7 @@ const LastMentionedMembersList = ({
     );
 };
 
-LastMentionedMembersList.propTypes = {
+MembersList.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     teamId: PropTypes.number.isRequired,
     isOwner: PropTypes.bool.isRequired,
@@ -108,7 +108,8 @@ LastMentionedMembersList.propTypes = {
         username: PropTypes.string.isRequired,
         online: PropTypes.bool.isRequired,
     })).isRequired,
-    onToggle: PropTypes.func.isRequired,
+    onInviteToggle: PropTypes.func.isRequired,
+    onMembersToggle: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(LastMentionedMembersList);
+export default withStyles(styles)(MembersList);

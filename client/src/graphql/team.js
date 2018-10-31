@@ -90,6 +90,12 @@ export const DELETE_TEAM_MUTATION = gql`
 
 export const ADD_TEAM_MEMBER_MUTATION = gql`
     mutation AddTeamMember($teamId: Int!, $email: String!) {
-        addTeamMember(teamId: $teamId, email: $email)
+        addTeamMember(teamId: $teamId, email: $email) {
+            ok
+            errors {
+                path
+                message
+            }
+        }
     }
 `;

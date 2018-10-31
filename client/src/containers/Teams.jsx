@@ -23,11 +23,11 @@ const Teams = ({ match: { params: { teamId, channelId } } }) => (
         {({
             loading, error, data, updateQuery,
         }) => {
-            if (loading || data) return <Loading />;
+            if (loading || !data) return <Loading />;
             if (error) return <Notification text={error} />;
             const { getTeams } = data;
             // console.log(getTeams);
-            if (!getTeams.length) return <Redirect to="/new-team" />;
+            if (!getTeams.length) return <Redirect to="/new" />;
 
             const teamIdInt = parseInt(teamId, 10);
             const teamIdX = teamIdInt ? findIndex(getTeams, ['id', teamIdInt]) : 0;

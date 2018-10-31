@@ -11,13 +11,13 @@ export default {
     },
     Query: {
         getCurrentUser: requiresAuth.createResolver(
-            (parent, args, { models, user }) => models.User.findOne({
+            (_, __, { models, user }) => models.User.findOne({
                 where: { id: user.id }, raw: true,
             }),
         ),
     },
     Mutation: {
-        register: async (parent, args, { models }) => {
+        register: async (_, args, { models }) => {
             try {
                 const user = await models.User.create(args);
                 return {
@@ -31,7 +31,7 @@ export default {
                 };
             }
         },
-        login: async (parent, { email, password }, { models }) => {
+        login: async (_, { email, password }, { models }) => {
             try {
                 // is user exist
                 const user = await models.User.findOne({
@@ -81,7 +81,7 @@ export default {
             }
         },
         updateUser: requiresAuth.createResolver(
-            async (parent, { option, value }, { models, user }) => {
+            async (_, { option, value }, { models, user }) => {
                 try {
                     // TODO: update user
                     const updatedUser = await models.sequelise
@@ -109,7 +109,7 @@ export default {
             },
         ),
         deleteUser: requiresAuth.createResolver(
-            async (parent, args, { models, user }) => {
+            async (_, __, { models, user }) => {
                 try {
                     // TODO: delete user
                     await models.User.destroy({ where: { id: user.id } });

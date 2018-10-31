@@ -4,7 +4,7 @@ import { requiresTeamAccess, requiresTeamAdminAccess } from '../../permissions';
 
 export default {
     Channel: {
-        updatesCount: async ({ id }, args, { models, user }) => {
+        updatesCount: async ({ id }, _, { models, user }) => {
             const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
             const [{ count }] = await models.sequelize.query(
                 `select count(*) from messages as m
@@ -18,7 +18,7 @@ export default {
             );
             return 15; // count;
         },
-        participantsCount: async ({ id, private: isPrivate }, args, { models }) => {
+        participantsCount: async ({ id, private: isPrivate }, _, { models }) => {
             // in case of private channel get restricted users count
             if (isPrivate) {
                 return models.PrivateChannelMember.count({
@@ -40,7 +40,7 @@ export default {
     },
     Mutation: {
         getOrCreateChannel: requiresTeamAccess.createResolver(
-            async (parent, { teamId, members }, { models, user }) => {
+            async (_, { teamId, members }, { models, user }) => {
                 try {
                     // check if dm channel already exists with these members
                     // return if does
@@ -102,7 +102,7 @@ export default {
             },
         ),
         createChannel: requiresTeamAdminAccess.createResolver(
-            async (parent, args, { models, user }) => {
+            async (_, args, { models, user }) => {
                 try {
                     // create a common non dm channel
                     // in case of private channel set allowed members
@@ -137,7 +137,7 @@ export default {
             },
         ),
         updateChannel: requiresTeamAdminAccess.createResolver(
-            async (parent, { channelId, option, value }, { models }) => {
+            async (_, { channelId, option, value }, { models }) => {
                 try {
                     // update the channel
                     const updatedChannel = await models.sequelise.query(
@@ -165,7 +165,7 @@ export default {
             },
         ),
         deleteChannel: requiresTeamAdminAccess.createResolver(
-            async (parent, { channelId }, { models }) => {
+            async (_, { channelId }, { models }) => {
                 try {
                     // delete the channel, private channel members, channel messages
                     await models.sequelize.transaction(async (transaction) => {
@@ -190,7 +190,7 @@ export default {
             },
         ),
         starChannel: requiresTeamAccess.createResolver(
-            async (parent, { channelId }, { models, user }) => {
+            async (_, { channelId }, { models, user }) => {
                 try {
                     // add new row on starred_channels
                     await models.StarredChannel.create({
@@ -203,7 +203,7 @@ export default {
             },
         ),
         unstarChannel: requiresTeamAccess.createResolver(
-            async (parent, { channelId }, { models, user }) => {
+            async (_, { channelId }, { models, user }) => {
                 try {
                     // remove row from starred_channels
                     await models.StarredChannel.destroy({

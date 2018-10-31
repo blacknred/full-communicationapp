@@ -7,26 +7,23 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = {
     root: {
-
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     linear: {
-        padding: theme.spacing.unit / 2,
-        top: 0,
-        left: 0,
-        right: 0,
+        alignSelf: 'start',
+        width: '100%',
         zIndex: 11111,
-    },
-    circularRoot: {
-        flex: 1,
-        display: 'flex',
     },
     circular: {
         alignSelf: 'center',
         margin: '0 auto',
     },
-});
+};
 
 const Loading = ({ classes, up, small }) => (
     <div className={classes.root}>
@@ -38,14 +35,12 @@ const Loading = ({ classes, up, small }) => (
                         color="secondary"
                     />
                 ) : (
-                    <div className={classes.circularRoot}>
-                        <CircularProgress
-                            className={classes.circular}
-                            size={small ? 35 : 50}
-                            color="secondary"
-                            thickness={7}
-                        />
-                    </div>
+                    <CircularProgress
+                        className={classes.circular}
+                        size={small ? 35 : 50}
+                        color="secondary"
+                        thickness={7}
+                    />
                 )
         }
     </div>

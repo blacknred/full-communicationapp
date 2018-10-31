@@ -1,4 +1,9 @@
 export default `
+    enum TeamUpdateOptions {
+        name
+        description
+    }
+
     type Team {
         id: Int!
         name: String!
@@ -30,7 +35,7 @@ export default `
     type Mutation {
         createTeam(name: String!, description: String): TeamResponse!
         addTeamMember(teamId: Int!, email: String!): VoidResponse!
-        updateTeam(teamId: Int!, option: String!, value: String!): TeamResponse!
+        updateTeam(teamId: Int!, option: TeamUpdateOptions!, value: String!): TeamResponse!
         deleteTeam(teamId: Int!): Boolean!
     }
 `;

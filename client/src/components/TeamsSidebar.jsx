@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
+    List,
     Slide,
     Drawer,
     Hidden,
@@ -12,34 +13,26 @@ import { withStyles } from '@material-ui/core/styles';
 import TeamsList from './TeamsList';
 import TeamHeader from './TeamHeader';
 import StarredList from './StarredList';
+import MembersList from './MembersList';
 import ChannelsList from './ChannelsList';
-import LastMentionedMembersList from './LastMentionedMembersList';
 
 const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-const TEAM_DRAWER_WIDTH = 290;
+const TEAM_DRAWER_WIDTH = 300;
 
 const styles = theme => ({
     drawerPaper: {
         flexDirection: 'row',
         maxHeight: '100vh',
         height: '100vh',
-        overflow: 'hidden',
         position: 'relative',
         border: 0,
-        '&>div:last-of-type': {
-            width: TEAM_DRAWER_WIDTH,
-        },
     },
     drawerPaperMobile: {
-        // minWidth: '100vw',
         flexDirection: 'row',
-        '&>div:last-of-type': {
-            minWidth: TEAM_DRAWER_WIDTH,
-            width: '100%',
-        },
     },
-    actionsDrawer: {
+    teamDrawer: {
+        width: TEAM_DRAWER_WIDTH,
         overflowY: 'auto',
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
@@ -47,58 +40,66 @@ const styles = theme => ({
 });
 
 const SidebarContent = ({
-    classes, teams, team, isOwner, isOpen, isFullTeamsModeOpen,
-    searchText, channelId, ctxTeams, onChange, onToggle,
-    onUpdateCtxTeams,
+    classes, teams, team, isOwner, isMobileOpen,
+    searchText, channelId, ctxTeams, isFullTeamsOpen, isTeamMenuOpen,
+    onChange, onUpdateCtxTeams, onMobileOpenToggle, onFullTeamsToggle,
+    onSettingsToggle, onTeamMenuToggle, onNewChannelToggle,
+    onInvitePeopleToggle, onTeamMembersToggle, onTeamDeleteToggle,
 }) => {
     const drawerContent = (
         <React.Fragment>
-            <Hidden only="xs">
+            <Hidden only={isFullTeamsOpen ? null : 'xs'}>
                 <TeamsList
                     teams={teams}
                     ctxTeams={ctxTeams}
-                    currentTeamId={team.id}
-                    isFullModeOpen={isFullTeamsModeOpen}
                     searchText={searchText}
-                    onToggle={onToggle}
+                    currentTeamId={team.id}
+                    isFullOpen={isFullTeamsOpen}
                     onChange={onChange}
+                    onSettingsToggle={onSettingsToggle}
                     onUpdateCtxTeams={onUpdateCtxTeams}
+                    onFullTeamsToggle={onFullTeamsToggle}
                 />
             </Hidden>
-            { /* eslint-disable */}
-            <div
-                className={classes.actionsDrawer}
-                onClick={() => onToggle('isSidebarOpen')}
-                role="navigation"
-            >
-                { /* eslint-enable */}
-                <TeamHeader
-                    team={team}
-                    onToggle={onToggle}
-                />
-                {
-                    team.starredChannels.length > 0 && (
-                        <StarredList
-                            teamId={team.id}
-                            channels={team.starredChannels}
-                            channelId={channelId}
-                        />
-                    )
-                }
-                <ChannelsList
-                    teamId={team.id}
-                    channels={team.channels}
-                    isOwner={isOwner}
-                    onToggle={onToggle}
-                    channelId={channelId}
-                />
-                <LastMentionedMembersList
-                    teamId={team.id}
-                    isOwner={isOwner}
-                    users={team.directMessageMembers}
-                    onToggle={onToggle}
-                />
-            </div>
+            <Hidden only={isFullTeamsOpen ? 'xs' : null}>
+                <List
+                    disablePadding
+                    className={classes.teamDrawer}
+                >
+                    <TeamHeader
+                        team={team}
+                        isMenuOpen={isTeamMenuOpen}
+                        onMenuToggle={onTeamMenuToggle}
+                        onTeamsToggle={onFullTeamsToggle}
+                        onDeleteToggle={onTeamDeleteToggle}
+                    />
+                    {
+                        team.starredChannels.length > 0 && (
+                            <StarredList
+                                teamId={team.id}
+                                channels={team.starredChannels}
+                                channelId={channelId}
+                            />
+                        )
+                    }
+                    <ChannelsList
+                        teamId={team.id}
+                        channels={team.channels}
+                        isOwner={isOwner}
+                        onClick={onMobileOpenToggle}
+                        onNewChannelToggle={onNewChannelToggle}
+                        channelId={channelId}
+                    />
+                    <MembersList
+                        teamId={team.id}
+                        isOwner={isOwner}
+                        users={team.directMessageMembers}
+                        onInviteToggle={onInvitePeopleToggle}
+                        onMembersToggle={onTeamMembersToggle}
+                    />
+                </List>
+            </Hidden>
+
         </React.Fragment>
     );
 
@@ -107,9 +108,9 @@ const SidebarContent = ({
             <Hidden mdUp>
                 <SwipeableDrawer
                     anchor="left"
-                    open={isOpen}
-                    onOpen={() => onToggle('isSidebarOpen')}
-                    onClose={() => onToggle('isSidebarOpen')}
+                    open={isMobileOpen}
+                    onOpen={onMobileOpenToggle}
+                    onClose={onMobileOpenToggle}
                     classes={{ paper: classes.drawerPaperMobile }}
                     disableBackdropTransition={!iOS}
                     disableDiscovery={iOS}
@@ -147,11 +148,19 @@ SidebarContent.propTypes = {
     searchText: PropTypes.string.isRequired,
     channelId: PropTypes.number.isRequired,
     isOwner: PropTypes.bool.isRequired,
-    isOpen: PropTypes.bool.isRequired,
-    isFullTeamsModeOpen: PropTypes.bool.isRequired,
-    onToggle: PropTypes.func.isRequired,
+    isMobileOpen: PropTypes.bool.isRequired,
+    isTeamMenuOpen: PropTypes.bool.isRequired,
+    isFullTeamsOpen: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     onUpdateCtxTeams: PropTypes.func.isRequired,
+    onMobileOpenToggle: PropTypes.func.isRequired,
+    onFullTeamsToggle: PropTypes.func.isRequired,
+    onSettingsToggle: PropTypes.func.isRequired,
+    onTeamMenuToggle: PropTypes.func.isRequired,
+    onNewChannelToggle: PropTypes.func.isRequired,
+    onInvitePeopleToggle: PropTypes.func.isRequired,
+    onTeamMembersToggle: PropTypes.func.isRequired,
+    onTeamDeleteToggle: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(SidebarContent);

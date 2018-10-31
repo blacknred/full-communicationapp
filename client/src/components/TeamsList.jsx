@@ -55,8 +55,8 @@ const styles = theme => ({
 });
 
 const TeamsList = ({
-    classes, width, teams, ctxTeams, currentTeamId, searchText,
-    isFullModeOpen, onChange, onToggle, onUpdateCtxTeams,
+    classes, width, teams, ctxTeams, currentTeamId, searchText, isFullOpen,
+    onChange, onFullTeamsToggle, onUpdateCtxTeams, onSettingsToggle,
 }) => {
     const doUpdateCtxTeams = teams.length > 10;
     const teamsSearch = (
@@ -80,7 +80,7 @@ const TeamsList = ({
             <Divider />
         </ListItem>
     );
-    const teamsList = (isFullModeOpen ? teams : ctxTeams)
+    const teamsList = (isFullOpen ? teams : ctxTeams)
         .map(({ id, name, updatesCount }) => (
             <ListItem
                 button
@@ -90,9 +90,9 @@ const TeamsList = ({
                 selected={id === currentTeamId}
                 classes={{ selected: classes.selected }}
                 onClick={() => {
-                    if (isFullModeOpen) {
+                    if (isFullOpen) {
                         if (isWidthDown('sm', width)) {
-                            onToggle('isFullTeamsModeOpen');
+                            onFullTeamsToggle();
                         }
                         if (doUpdateCtxTeams) {
                             onUpdateCtxTeams({ id, name, updatesCount });
@@ -120,7 +120,7 @@ const TeamsList = ({
                         )
                 }
                 {
-                    isFullModeOpen && (
+                    isFullOpen && (
                         <ListItemText
                             primary={
                                 name.charAt(0).toUpperCase()
@@ -142,13 +142,13 @@ const TeamsList = ({
                 disablePadding
                 className={classes.list}
             >
-                {isFullModeOpen && teamsSearch}
+                {isFullOpen && teamsSearch}
                 {teamsList}
                 <ListItem
                     key="link-newteam"
                     button
                     component={Link}
-                    to="/new-team"
+                    to="/new"
                 >
                     <Tooltip title="Create new team">
                         <Avatar className={classes.button}>
@@ -156,7 +156,7 @@ const TeamsList = ({
                         </Avatar>
                     </Tooltip>
                     {
-                        isFullModeOpen && (
+                        isFullOpen && (
                             <ListItemText
                                 primary="New team"
                                 primaryTypographyProps={{
@@ -171,19 +171,19 @@ const TeamsList = ({
                 <ListItem
                     button
                     key="expand-teams-list"
-                    onClick={() => onToggle('isFullTeamsModeOpen')}
+                    onClick={onFullTeamsToggle}
                 >
-                    <Tooltip title={isFullModeOpen ? 'Decreese panel' : 'Enlarge panel'}>
+                    <Tooltip title={isFullOpen ? 'Decreese panel' : 'Enlarge panel'}>
                         <Avatar className={classes.button}>
                             {
-                                isFullModeOpen
-                                    ? <FullscreenExit color="secondary" />
-                                    : <Fullscreen color="secondary" />
+                                isFullOpen
+                                    ? <FullscreenExit />
+                                    : <Fullscreen />
                             }
                         </Avatar>
                     </Tooltip>
                     {
-                        isFullModeOpen && (
+                        isFullOpen && (
                             <ListItemText
                                 primary="Hide panel"
                                 primaryTypographyProps={{
@@ -196,15 +196,15 @@ const TeamsList = ({
                 <ListItem
                     button
                     key="link-settings"
-                    onClick={() => onToggle('isSettingsModalOpen')}
+                    onClick={onSettingsToggle}
                 >
                     <Tooltip title="Settings">
                         <Avatar className={classes.button}>
-                            <Settings color="secondary" />
+                            <Settings />
                         </Avatar>
                     </Tooltip>
                     {
-                        isFullModeOpen && (
+                        isFullOpen && (
                             <ListItemText
                                 primary="Settings"
                                 primaryTypographyProps={{
@@ -234,9 +234,10 @@ TeamsList.propTypes = {
     })).isRequired,
     searchText: PropTypes.string.isRequired,
     currentTeamId: PropTypes.number.isRequired,
-    isFullModeOpen: PropTypes.bool.isRequired,
-    onToggle: PropTypes.func.isRequired,
+    isFullOpen: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
+    onFullTeamsToggle: PropTypes.func.isRequired,
+    onSettingsToggle: PropTypes.func.isRequired,
     onUpdateCtxTeams: PropTypes.func.isRequired,
 };
 
