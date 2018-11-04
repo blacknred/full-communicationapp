@@ -21,9 +21,10 @@ export default `
         getTeamMembers(teamId: Int!): [User!]
     }
 
-    type VoidResponse {
+    type MemberResponse {
         ok: Boolean!
         errors: [Error!]
+        status: String
     }
 
     type TeamResponse {
@@ -34,7 +35,7 @@ export default `
 
     type Mutation {
         createTeam(name: String!, description: String): TeamResponse!
-        addTeamMember(teamId: Int!, email: String!): VoidResponse!
+        addTeamMember(teamId: Int!, email: String!): MemberResponse!
         updateTeam(teamId: Int!, option: TeamUpdateOptions!, value: String!): TeamResponse!
         deleteTeam(teamId: Int!): Boolean!
     }

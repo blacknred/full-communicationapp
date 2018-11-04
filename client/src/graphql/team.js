@@ -96,6 +96,7 @@ export const ADD_TEAM_MEMBER_MUTATION = gql`
                 path
                 message
             }
+            status
         }
     }
 `;

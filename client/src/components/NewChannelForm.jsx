@@ -16,7 +16,7 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
-import MembersMultiSelect from './MembersMultiSelect';
+import MembersMultiSelect from './MembersSelectForm';
 
 const styles = theme => ({
     form: {

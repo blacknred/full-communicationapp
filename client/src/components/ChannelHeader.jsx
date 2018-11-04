@@ -190,7 +190,7 @@ const ChannelHeader = ({
                                         )}
                                         primaryTypographyProps={{
                                             noWrap: true,
-                                            variant: 'title',
+                                            variant: 'h6',
                                             color: 'textSecondary',
                                         }}
                                     />
@@ -209,11 +209,11 @@ const ChannelHeader = ({
                                 ${description || 'no description'}`}
                                 primaryTypographyProps={{
                                     noWrap: true,
-                                    variant: 'title',
+                                    variant: 'h6',
                                 }}
                                 secondaryTypographyProps={{
                                     noWrap: true,
-                                    variant: 'body1',
+                                    variant: 'body2',
                                 }}
                             />
                             {searchBlock}

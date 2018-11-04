@@ -30,8 +30,8 @@ export default `
     }
 
     type Mutation {
-        register(username: String!, email: String!, password: String!): UserResponse!
-        login(email: String!, password: String!): LoginResponse!
+        register(username: String!, email: String!, password: String!, teamToken: String): UserResponse!
+        login(email: String!, password: String!, teamToken: String): LoginResponse!
         updateUser(option: UserUpdateOptions!, value: String!): UserResponse!
         deleteUser: Boolean!
     }

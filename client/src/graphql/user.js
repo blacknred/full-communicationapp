@@ -11,8 +11,8 @@ export const GET_CURRENT_USER_QUERY = gql`
 `;
 
 export const REGISTER_MUTATION = gql`
-    mutation Register($username: String!, $email: String!, $password: String!) {
-        register(username: $username, email: $email, password: $password) {
+    mutation Register($username: String!, $email: String!, $password: String!, $teamToken: String) {
+        register(username: $username, email: $email, password: $password, teamToken: $teamToken) {
             ok
             errors {
                 path
@@ -23,8 +23,8 @@ export const REGISTER_MUTATION = gql`
 `;
 
 export const LOGIN_MUTATION = gql`
-    mutation Login($email: String!, $password: String!) {
-        login(email: $email, password: $password) {
+    mutation Login($email: String!, $password: String!, $teamToken: String) {
+        login(email: $email, password: $password, teamToken: $teamToken) {
             ok
             token
             refreshToken

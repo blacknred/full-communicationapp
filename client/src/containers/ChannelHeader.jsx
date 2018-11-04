@@ -100,7 +100,7 @@ class ChannelHeader extends React.Component {
     }
 
     render() {
-        console.log(this.props);
+        // console.log(this.props);
         const {
             starChannelMutation, unstarChannelMutation, deleteChannelMutation,
             channel, teamId, teamIndex, isOwner,

@@ -144,7 +144,7 @@ const Menu = ({ selectProps, innerProps, children }) => (
 );
 
 
-const MembersMultiSelectForm = ({
+const MembersSelectForm = ({
     classes, members, history, currentTeamId = 1,
 }) => {
     const selectStyles = {
@@ -180,9 +180,9 @@ const MembersMultiSelectForm = ({
     );
 };
 
-MembersMultiSelectForm.propTypes = {
+MembersSelectForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     members: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
 };
 
-export default withStyles(styles)(withRouter(MembersMultiSelectForm));
+export default withStyles(styles)(withRouter(MembersSelectForm));

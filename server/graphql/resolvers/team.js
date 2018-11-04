@@ -1,4 +1,6 @@
 import redisClient from '../../redis';
+import emailTransporter from '../../email';
+import { createInviteToken } from '../../auth';
 import formateErrors from '../../formateErrors';
 import { requiresAuth, requiresTeamAdminAccess } from '../../permissions';
 
@@ -66,7 +68,7 @@ export default {
                     raw: true,
                 },
             );
-            return 15; // count
+            return count;
         },
         membersCount: ({ id }, _, { models }) => models.TeamMember
             .count({ where: { teamId: id } }),
@@ -101,6 +103,20 @@ export default {
         createTeam: requiresAuth.createResolver(
             async (_, args, { models, user }) => {
                 try {
+                    // check if team with this name exists
+                    const isExist = await models.Team.findOne({
+                        where: { name: args.name },
+                        raw: true,
+                    });
+                    if (isExist) {
+                        return {
+                            ok: false,
+                            errors: [{
+                                path: 'name',
+                                message: 'The team with this name allready exists',
+                            }],
+                        };
+                    }
                     const res = await models.sequelize
                         .transaction(async (transaction) => {
                             // create a new team
@@ -146,38 +162,70 @@ export default {
         addTeamMember: requiresTeamAdminAccess.createResolver(
             async (_, { teamId, email }, { models }) => {
                 try {
-                    // check if new member is a valid user
-                    const isValidUser = await models.User.findOne({
-                        where: { email }, raw: true,
-                    });
-                    if (!isValidUser) {
+                    // check if valid email
+                    if (!/\S+@\S+/.test(email)) {
                         return {
                             ok: false,
                             errors: [{
                                 path: 'email',
-                                message: 'The email is not in use',
+                                message: 'Not valid url',
                             }],
                         };
                     }
 
-                    // check if user is allready the team member
+                    // check if new member is a valid user
+                    // if not, create short lived token -
+                    // an invitation to the team and send it by email
+                    const isValidUser = await models.User.findOne({
+                        where: { email }, raw: true,
+                    });
+                    if (!isValidUser) {
+                        const team = await models.Team.findOne({
+                            where: { id: teamId }, raw: true,
+                        });
+                        const token = createInviteToken({ teamId, email });
+                        await emailTransporter.sendMail({
+                            from: 'swoy-inviteservice@gmail.com',
+                            to: email,
+                            subject: `Invitation to team ${team.name}`,
+                            html: `
+                            <div>
+                            <h1><i>Hello</i> from SWOY corporate messenger</h1>
+                            <h2>You have received invitation to the team ${team.name}.</h2>
+                            <p>
+                            Just use the link to continue.<br />
+                            (This link will expire in 1 day.)
+                            </p>
+                            <a href="http://localhost:4000/login?token=${token}&email=${email}">
+                            <b>INVITATION LINK</b>
+                            </a>
+                            </div>
+                            `,
+                        });
+                        return {
+                            ok: true,
+                            status: 'Ivitation was send',
+                        };
+                    }
+
+                    // check if user is already the team member
                     const isMember = await models.sequelize
                         .query(
                             `select * from team_members as tm
                             join users as u on u.id = tm.user_id
-                            where u.email = ?`,
+                            where u.email = ? limit 1`,
                             {
                                 replacements: [email],
                                 model: models.TeamMember,
                                 raw: true,
                             },
                         );
-                    if (isMember) {
+                    if (isMember.length) {
                         return {
                             ok: false,
                             errors: [{
                                 path: 'email',
-                                message: 'The user allready in a team',
+                                message: 'The user allready in the team',
                             }],
                         };
                     }
@@ -188,7 +236,10 @@ export default {
                         teamId,
                     });
 
-                    return { ok: true };
+                    return {
+                        ok: true,
+                        status: 'New member was added',
+                    };
                 } catch (err) {
                     return {
                         ok: false,

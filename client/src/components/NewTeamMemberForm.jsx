@@ -16,8 +16,7 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 const styles = theme => ({
     form: {
         marginTop: theme.spacing.unit * 2,
-        minWidth: 300,
-        width: '100%', // Fix IE11 issue.
+        width: 450,
     },
 });
 
@@ -37,6 +36,7 @@ const NewTeamMemberForm = ({
                 fullWidth
                 id="email"
                 name="email"
+                type="email"
                 label="User's email"
                 autoComplete="email"
                 className={classes.form}

@@ -56,9 +56,8 @@ const styles = theme => ({
 
 const TeamsList = ({
     classes, width, teams, ctxTeams, currentTeamId, searchText, isFullOpen,
-    onChange, onFullTeamsToggle, onUpdateCtxTeams, onSettingsToggle,
+    onChange, onFullTeamsToggle, onSettingsToggle,
 }) => {
-    const doUpdateCtxTeams = teams.length > 10;
     const teamsSearch = (
         <ListItem>
             <Input
@@ -90,13 +89,8 @@ const TeamsList = ({
                 selected={id === currentTeamId}
                 classes={{ selected: classes.selected }}
                 onClick={() => {
-                    if (isFullOpen) {
-                        if (isWidthDown('sm', width)) {
-                            onFullTeamsToggle();
-                        }
-                        if (doUpdateCtxTeams) {
-                            onUpdateCtxTeams({ id, name, updatesCount });
-                        }
+                    if (isFullOpen && isWidthDown('sm', width)) {
+                        onFullTeamsToggle();
                     }
                 }}
             >
@@ -238,7 +232,6 @@ TeamsList.propTypes = {
     onChange: PropTypes.func.isRequired,
     onFullTeamsToggle: PropTypes.func.isRequired,
     onSettingsToggle: PropTypes.func.isRequired,
-    onUpdateCtxTeams: PropTypes.func.isRequired,
 };
 
 export default compose(withStyles(styles), withWidth())(TeamsList);

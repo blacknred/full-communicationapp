@@ -40,7 +40,7 @@ services:
     container_name: messenger-server
     build: ./server
     ports:
-      - '4000:3000'
+      - '4001:3000'
     volumes:
       - './server:/usr/src/app'
       - './server/package.json:/usr/src/package.json'
@@ -51,6 +51,8 @@ services:
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
       - REDIS_PASSWORD=default-password
+      - GMAIL_USER=
+      - GMAIL_PASSWORD=
     depends_on:
       - db
       - redis
@@ -62,7 +64,7 @@ services:
     container_name: messenger-web-client
     build: ./client
     ports:
-      - '4001:3000'
+      - '4000:3000'
     volumes:
       - './client:/usr/src/app'
       - '/usr/src/app/node_modules'

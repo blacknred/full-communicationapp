@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import redisClient from '../../redis';
 import formateErrors from '../../formateErrors';
 import { requiresAuth } from '../../permissions';
-import { createTokens, SECRET2 } from '../../auth';
+import { createTokens, SECRET2, checkInviteToken } from '../../auth';
 
 export default {
     User: {
@@ -17,9 +17,21 @@ export default {
         ),
     },
     Mutation: {
-        register: async (_, args, { models }) => {
+        register: async (_, { teamToken, ...args }, { models }) => {
             try {
+                // create user
                 const user = await models.User.create(args);
+
+                // if there is team invite token, create new member
+                if (teamToken) {
+                    const { teamId, email } = checkInviteToken(teamToken);
+                    if (teamId && email === args.email) {
+                        await models.TeamMember.create({
+                            userId: user.id,
+                            teamId,
+                        });
+                    }
+                }
                 return {
                     ok: true,
                     user,
@@ -31,9 +43,9 @@ export default {
                 };
             }
         },
-        login: async (_, { email, password }, { models }) => {
+        login: async (_, { email, password, teamToken }, { models }) => {
             try {
-                // is user exist
+                // is user exists
                 const user = await models.User.findOne({
                     where: { email }, raw: true,
                 });
@@ -61,6 +73,17 @@ export default {
                             },
                         ],
                     };
+                }
+
+                // if there is team invite token, create new member
+                if (teamToken) {
+                    const { teamId, email: tokenEmail } = checkInviteToken(teamToken);
+                    if (teamId && tokenEmail === email) {
+                        await models.TeamMember.create({
+                            userId: user.id,
+                            teamId,
+                        });
+                    }
                 }
 
                 // create token

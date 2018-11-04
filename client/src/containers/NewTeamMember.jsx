@@ -27,7 +27,7 @@ class NewTeamMember extends React.Component {
         const { teamId, mutate, onClose } = this.props;
         try {
             const {
-                data: { addTeamMember: { ok, errors } },
+                data: { addTeamMember: { ok, errors, status } },
             } = await mutate({
                 variables: {
                     teamId,
@@ -40,6 +40,8 @@ class NewTeamMember extends React.Component {
                     email: '',
                     errors: {},
                 });
+                // TODO:
+                console.log(status);
             } else {
                 const err = {};
                 errors.forEach(({ path, message }) => {

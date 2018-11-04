@@ -19,9 +19,8 @@ const styles = theme => ({
         color: theme.palette.grey[400],
         paddingRight: theme.spacing.unit * 2,
     },
-    iconRoot: {
+    icon: {
         color: 'inherit',
-        width: '0.7em',
         margin: 0,
     },
     chip: {
@@ -49,11 +48,19 @@ const StarredList = ({
             classes={{ selected: classes.selected }}
             selected={channelId === ch.id}
         >
-            <ListItemIcon className={classes.iconRoot}>
-                {ch.private ? <Lock /> : <Icon children={<b>#</b>} />}
+            <ListItemIcon className={classes.icon}>
+                {
+                    ch.private
+                        ? <Lock fontSize="small" />
+                        : (
+                            <Icon
+                                children={<b>#</b>}
+                                fontSize="small"
+                            />
+                        )
+                }
             </ListItemIcon>
             <ListItemText
-                inset
                 primary={ch.name}
                 primaryTypographyProps={{
                     color: 'inherit',
@@ -75,9 +82,9 @@ const StarredList = ({
         <List
             subheader={(
                 <ListSubheader
-                color="inherit" 
-                className={classes.subheader}>
-                    <Star className={classes.iconRoot} />
+                    color="inherit"
+                    className={classes.subheader}>
+                    <Star className={classes.icon} />
                     &nbsp;
                     {`STARRED (${channels.length})`}
                 </ListSubheader>

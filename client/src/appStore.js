@@ -16,7 +16,7 @@ class AppStore {
     constructor() {
         const { isnightmode, appcolor, isautogifs } = localStorage;
         this.isNightMode = isnightmode === 'true';
-        this.appColor = appcolor || 0;
+        this.appColor = parseInt(appcolor, 10) || 0;
         this.isAutoGifs = isautogifs === 'true';
     }
 

@@ -40,11 +40,11 @@ const styles = theme => ({
 });
 
 const SidebarContent = ({
-    classes, teams, team, isOwner, isMobileOpen,
-    searchText, channelId, ctxTeams, isFullTeamsOpen, isTeamMenuOpen,
-    onChange, onUpdateCtxTeams, onMobileOpenToggle, onFullTeamsToggle,
-    onSettingsToggle, onTeamMenuToggle, onNewChannelToggle,
-    onInvitePeopleToggle, onTeamMembersToggle, onTeamDeleteToggle,
+    classes, teams, team, isOwner, isMobileOpen, searchText, channelId,
+    ctxTeams, isFullTeamsOpen, isTeamMenuOpen, onChange, onMobileOpenToggle,
+    onFullTeamsToggle, onSettingsToggle, onTeamMenuToggle, onNewChannelToggle,
+    onInvitePeopleToggle, onTeamMembersToggle, onTeamUpdateToggle,
+    onTeamDeleteToggle,
 }) => {
     const drawerContent = (
         <React.Fragment>
@@ -57,7 +57,6 @@ const SidebarContent = ({
                     isFullOpen={isFullTeamsOpen}
                     onChange={onChange}
                     onSettingsToggle={onSettingsToggle}
-                    onUpdateCtxTeams={onUpdateCtxTeams}
                     onFullTeamsToggle={onFullTeamsToggle}
                 />
             </Hidden>
@@ -71,6 +70,7 @@ const SidebarContent = ({
                         isMenuOpen={isTeamMenuOpen}
                         onMenuToggle={onTeamMenuToggle}
                         onTeamsToggle={onFullTeamsToggle}
+                        onUpdateToggle={onTeamUpdateToggle}
                         onDeleteToggle={onTeamDeleteToggle}
                     />
                     {
@@ -99,7 +99,6 @@ const SidebarContent = ({
                     />
                 </List>
             </Hidden>
-
         </React.Fragment>
     );
 
@@ -152,7 +151,6 @@ SidebarContent.propTypes = {
     isTeamMenuOpen: PropTypes.bool.isRequired,
     isFullTeamsOpen: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
-    onUpdateCtxTeams: PropTypes.func.isRequired,
     onMobileOpenToggle: PropTypes.func.isRequired,
     onFullTeamsToggle: PropTypes.func.isRequired,
     onSettingsToggle: PropTypes.func.isRequired,
@@ -160,6 +158,7 @@ SidebarContent.propTypes = {
     onNewChannelToggle: PropTypes.func.isRequired,
     onInvitePeopleToggle: PropTypes.func.isRequired,
     onTeamMembersToggle: PropTypes.func.isRequired,
+    onTeamUpdateToggle: PropTypes.func.isRequired,
     onTeamDeleteToggle: PropTypes.func.isRequired,
 };
 

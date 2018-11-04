@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import decode from 'jwt-decode';
 
-import Teams from './containers/Teams';
+import Home from './containers/Home';
 import Login from './containers/Login';
 import NewTeam from './containers/NewTeam';
 import Register from './containers/Register';
@@ -49,7 +49,7 @@ const Index = () => (
             <Route path="/login" exact component={Login} />
             <Route path="/register" exact component={Register} />
             <PrivateRoute path="/new" exact component={NewTeam} />
-            <PrivateRoute path="/teams/:teamId?/:channelId?" exact component={Teams} />
+            <PrivateRoute path="/teams/:teamId?/:channelId?" exact component={Home} />
             <Redirect to="/teams/" />
         </Switch>
     </BrowserRouter>

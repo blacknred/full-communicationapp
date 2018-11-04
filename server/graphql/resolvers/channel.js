@@ -16,7 +16,7 @@ export default {
                     raw: true,
                 },
             );
-            return 15; // count;
+            return count;
         },
         participantsCount: async ({ id, private: isPrivate }, _, { models }) => {
             // in case of private channel get restricted users count

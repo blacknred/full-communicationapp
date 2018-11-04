@@ -29,7 +29,6 @@ const styles = theme => ({
         alignItems: 'center',
     },
     icon: {
-        width: '0.7em',
         margin: 0,
         color: theme.palette.secondary.main,
     },
@@ -42,7 +41,7 @@ const TeamHeader = ({
     team: {
         name, description, membersCount, admin: { username, online },
     }, classes, isMenuOpen, onMenuToggle, onTeamsToggle,
-    onDeleteToggle,
+    onUpdateToggle, onDeleteToggle,
 }) => {
     const teamMenu = (
         <Collapse in={isMenuOpen}>
@@ -60,10 +59,7 @@ const TeamHeader = ({
                 </ListItem>
                 <ListItem
                     button
-                    onClick={() => {
-                        // onToggle('isChannelUpdateFormOpen');
-                        onMenuToggle();
-                    }}
+                    onClick={onUpdateToggle}
                 >
                     <ListItemText
                         primary="Update Team"
@@ -99,7 +95,7 @@ const TeamHeader = ({
     );
     return (
         <List>
-            <ListItem>
+            <ListItem button>
                 <ListItemText
                     primary={(
                         <React.Fragment>
@@ -110,7 +106,7 @@ const TeamHeader = ({
                         </React.Fragment>
                     )}
                     primaryTypographyProps={{
-                        variant: 'title',
+                        variant: 'h5',
                         color: 'inherit',
                         noWrap: true,
                         className: classes.flex,
@@ -140,8 +136,8 @@ const TeamHeader = ({
                 <ListItemIcon className={classes.icon}>
                     {
                         online
-                            ? <RadioButtonChecked />
-                            : <RadioButtonUnchecked />
+                            ? <RadioButtonChecked fontSize="small" />
+                            : <RadioButtonUnchecked fontSize="small" />
                     }
                 </ListItemIcon>
                 <ListItemText
@@ -180,6 +176,7 @@ TeamHeader.propTypes = {
     isMenuOpen: PropTypes.bool.isRequired,
     onMenuToggle: PropTypes.func.isRequired,
     onTeamsToggle: PropTypes.func.isRequired,
+    onUpdateToggle: PropTypes.func.isRequired,
     onDeleteToggle: PropTypes.func.isRequired,
 };
 

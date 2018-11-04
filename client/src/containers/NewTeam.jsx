@@ -30,7 +30,7 @@ class NewTeam extends React.Component {
                 variables: { name, description },
             });
             if (ok) {
-                history.push(`/teams/${team.id}`);
+                history.push(`/teams/${team.id}/1`);
             } else {
                 const err = {};
                 errors.forEach(({ path, message }) => {

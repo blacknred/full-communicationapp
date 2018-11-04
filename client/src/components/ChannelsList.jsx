@@ -21,8 +21,7 @@ const styles = theme => ({
         color: theme.palette.grey[400],
         paddingRight: theme.spacing.unit * 2,
     },
-    iconRoot: {
-        width: '0.7em',
+    icon: {
         margin: 0,
         color: 'inherit',
     },
@@ -54,8 +53,12 @@ const ChannelsList = ({
             selected={channelId === ch.id}
             onClick={onClick}
         >
-            <ListItemIcon className={classes.iconRoot}>
-                {ch.private ? <Lock /> : <Icon children="#" />}
+            <ListItemIcon className={classes.icon}>
+                {
+                    ch.private
+                        ? <Lock fontSize="small" />
+                        : <Icon children="#" fontSize="small" />
+                }
             </ListItemIcon>
             <ListItemText
                 primary={ch.name}

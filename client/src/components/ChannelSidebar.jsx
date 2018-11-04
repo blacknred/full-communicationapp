@@ -9,12 +9,6 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-import TeamsList from './TeamsList';
-import TeamHeader from './TeamHeader';
-import StarredList from './StarredList';
-import ChannelsList from './ChannelsList';
-import LastMentionedMembersList from './LastMentionedMembersList';
-
 const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 const TEAM_DRAWER_WIDTH = 310;

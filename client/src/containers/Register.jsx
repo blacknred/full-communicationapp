@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import * as qs from 'query-string';
 import { graphql } from 'react-apollo';
 
 import { REGISTER_MUTATION } from '../graphql/user';
@@ -12,8 +14,17 @@ class Register extends React.Component {
             username: '',
             email: '',
             password: '',
+            teamToken: null,
             errors: {},
         };
+    }
+
+    componentDidMount() {
+        const { location: { search } } = this.props;
+        if (search) {
+            const { token, email = '' } = qs.parse(search);
+            this.setState({ teamToken: token, email });
+        }
     }
 
     onChangeHandler = (e) => {
@@ -23,12 +34,16 @@ class Register extends React.Component {
 
     onSubmitHandler = async () => {
         const { history, mutate } = this.props;
-        const { username, email, password } = this.state;
+        const {
+            username, email, password, teamToken,
+        } = this.state;
         try {
             const {
                 data: { register: { ok, errors } },
             } = await mutate({
-                variables: { username, email, password },
+                variables: {
+                    username, email, password, teamToken,
+                },
             });
             if (ok) {
                 history.push('/login');
@@ -45,6 +60,7 @@ class Register extends React.Component {
     }
 
     render() {
+        const { location: { search } } = this.props;
         const {
             username, email, password, errors,
         } = this.state;
@@ -54,11 +70,18 @@ class Register extends React.Component {
                 email={email}
                 password={password}
                 errors={errors}
+                token={search}
                 onChange={this.onChangeHandler}
                 onSubmit={this.onSubmitHandler}
             />
         );
     }
 }
+
+Register.propTypes = {
+    location: PropTypes.shape({
+        search: PropTypes.string,
+    }).isRequired,
+};
 
 export default graphql(REGISTER_MUTATION)(Register);

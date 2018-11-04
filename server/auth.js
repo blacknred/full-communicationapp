@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { pick } from 'lodash';
 import jwt from 'jsonwebtoken';
 
 import redisClient from './redis';
@@ -9,13 +9,13 @@ export const SECRET2 = process.env.TOKEN_SECRET_2 || 'insecure-secret2';
 
 export const createTokens = async ({ user, refreshTokenSecret }) => {
     const createToken = jwt.sign(
-        { user: _.pick(user, ['id', 'username']) },
+        { user: pick(user, ['id', 'username']) },
         SECRET,
         { expiresIn: '1h' },
     );
 
     const createRefreshToken = jwt.sign(
-        { user: _.pick(user, 'id', 'username') },
+        { user: pick(user, 'id', 'username') },
         refreshTokenSecret,
         { expiresIn: '7d' },
     );
@@ -100,4 +100,19 @@ export const checkAuth2 = async (models, token, refreshToken) => {
         }
     }
     return curUser;
+};
+
+export const createInviteToken = credentials => jwt.sign(
+    { credentials },
+    SECRET,
+    { expiresIn: '1d' },
+);
+
+export const checkInviteToken = (token) => {
+    try {
+        const { credentials } = jwt.verify(token, SECRET);
+        return credentials;
+    } catch (e) {
+        return null;
+    }
 };

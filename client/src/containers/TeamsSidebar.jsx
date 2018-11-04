@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// import { withRouter } from 'react-router-dom';
 import { observer } from 'mobx-react';
-import { uniqBy, remove } from 'lodash';
 import { compose, graphql } from 'react-apollo';
+import { uniqBy, findIndex, remove } from 'lodash';
 
 import {
     GET_TEAMS_QUERY,
@@ -15,7 +14,7 @@ import Settings from './Settings';
 import NewChannel from './NewChannel';
 import NewTeamMember from './NewTeamMember';
 import TeamsSidebarContent from '../components/TeamsSidebar';
-import SearchTeamMembersForm from '../components/SearchTeamMembersForm';
+import MembersSelectForm from '../components/MembersSelectForm';
 import OnDeleteWarningForm from '../components/OnDeleteWarningForm';
 
 class TeamsSidebar extends React.Component {
@@ -29,6 +28,7 @@ class TeamsSidebar extends React.Component {
             isAddChannelModalOpen: false,
             isInvitePeopleModalOpen: false,
             isTeamMembersModalOpen: false,
+            isTeamUpdateFormOpen: false,
             isTeamDeleteWarningFormOpen: false,
             searchText: '',
             ctxTeams: [],
@@ -36,9 +36,8 @@ class TeamsSidebar extends React.Component {
     }
 
     componentDidMount() {
-        const { teams, team } = this.props;
-        this.onResetUpdatesCount();
         // set context teams for teams sidebar
+        const { teams, team } = this.props;
         let teamsWithUpdates = teams.sort((a, b) => b.updatesCount - a.updatesCount);
         teamsWithUpdates = teamsWithUpdates.slice(0, 9);
         const ctxTeams = uniqBy([team, ...teamsWithUpdates], 'id');
@@ -46,30 +45,20 @@ class TeamsSidebar extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { team, channelId } = this.props;
-        if (nextProps.channelId !== channelId || nextProps.team.id !== team.id) {
-            this.onResetUpdatesCount();
+        // update context teams for teams sidebar
+        const { team: newTeam } = nextProps;
+        const { teams, team: oldTeam } = this.props;
+        if (newTeam.id !== oldTeam.id) {
+            let { ctxTeams } = this.state;
+            if (teams.length > 10) {
+                ctxTeams = ctxTeams.slice(0, 9);
+                ctxTeams = uniqBy([newTeam, ...ctxTeams], o => o.id);
+            } else {
+                const teamIdX = findIndex(ctxTeams, { id: newTeam.id });
+                ctxTeams.splice(teamIdX, 1, newTeam);
+            }
+            this.setState({ ctxTeams });
         }
-    }
-
-    onResetUpdatesCount = () => {
-        const {
-            updateQuery, teams, teamIndex, channelIndex,
-        } = this.props;
-        // updateQuery(() => {
-        //     // reset updates' count for current team and channel
-        //     teams[teamIndex].updatesCount = 0;
-        //     teams[teamIndex].channels[channelIndex].updatesCount = 0;
-        //     console.log('updates resetted');
-        //     return { getTeams: teams };
-        // });
-    }
-
-    onUpdateCtxTeamsHandler = (team) => {
-        let { ctxTeams } = this.state;
-        ctxTeams = ctxTeams.slice(0, 9);
-        ctxTeams = uniqBy([team, ...ctxTeams], 'id');
-        this.setState({ ctxTeams });
     }
 
     onToggleHandler = (target) => {
@@ -110,7 +99,7 @@ class TeamsSidebar extends React.Component {
         const {
             isMobileOpen, isFullTeamsOpen, isAddChannelModalOpen, isTeamMenuOpen,
             isInvitePeopleModalOpen, isTeamMembersModalOpen, isSettingsModalOpen,
-            isTeamDeleteWarningFormOpen,
+            isTeamUpdateFormOpen, isTeamDeleteWarningFormOpen,
             searchText, ctxTeams,
         } = this.state;
         const searchedTeams = teams.filter(({ name }) => name.indexOf(searchText) !== -1);
@@ -127,7 +116,6 @@ class TeamsSidebar extends React.Component {
                     isTeamMenuOpen={isTeamMenuOpen}
                     isFullTeamsOpen={isFullTeamsOpen}
                     onChange={this.onChangeHandler}
-                    onUpdateCtxTeams={this.onUpdateCtxTeamsHandler}
                     onMobileOpenToggle={() => this.onToggleHandler('isMobileOpen')}
                     onTeamMenuToggle={() => this.onToggleHandler('isTeamMenuOpen')}
                     onFullTeamsToggle={() => this.onToggleHandler('isFullTeamsOpen')}
@@ -135,6 +123,7 @@ class TeamsSidebar extends React.Component {
                     onNewChannelToggle={() => this.onToggleHandler('isAddChannelModalOpen')}
                     onTeamMembersToggle={() => this.onToggleHandler('isTeamMembersModalOpen')}
                     onInvitePeopleToggle={() => this.onToggleHandler('isInvitePeopleModalOpen')}
+                    onTeamUpdateToggle={() => this.onToggleHandler('isTeamUpdateFormOpen')}
                     onTeamDeleteToggle={() => this.onToggleHandler('isTeamDeleteWarningFormOpen')}
                 />
                 <Settings
@@ -163,35 +152,30 @@ class TeamsSidebar extends React.Component {
                     onClose={() => this.onToggleHandler('isInvitePeopleModalOpen')}
                 />
 
-                {/*  */}
 
-                {/* {
-                    isTeamMembersModalOpen && (
-                        <Query
-                            query={GET_TEAM_MEMBERS_QUERY}
-                            variables={{ teamId: team.id }}
-                        >
-                            {({ loading, error, data }) => {
-                                if (loading || error) return null;
-                                return (
-                                    <SearchTeamMembersForm
-                                        open={isTeamMembersModalOpen}
-                                        currentTeamId={team.id}
-                                        onChange={this.onChangeHandler}
-                                        onClose={() => this.onToggleHandler('isTeamMembersModalOpen')}
-                                        members={
-                                            data.teamMembers.map(member => ({
-                                                value: member.id,
-                                                label: member.username,
-                                                online: member.online,
-                                            }))
-                                        }
-                                    />
-                                );
-                            }}
-                        </Query>
-                    )
-                } */}
+                {/* <Query
+                    query={GET_TEAM_MEMBERS_QUERY}
+                    variables={{ teamId: team.id }}
+                >
+                    {({ loading, error, data }) => {
+                        if (loading || error) return null;
+                        return (
+                            <MembersSelectForm
+                                open={isTeamMembersModalOpen}
+                                currentTeamId={team.id}
+                                onChange={this.onChangeHandler}
+                                onClose={() => this.onToggleHandler('isTeamMembersModalOpen')}
+                                members={
+                                    data.teamMembers.map(member => ({
+                                        value: member.id,
+                                        label: member.username,
+                                        online: member.online,
+                                    }))
+                                }
+                            />
+                        );
+                    }}
+                </Query> */}
             </React.Fragment>
         );
     }
@@ -204,9 +188,7 @@ TeamsSidebar.propTypes = {
     }).isRequired,
     isOwner: PropTypes.bool.isRequired,
     teamIndex: PropTypes.number.isRequired,
-    channelIndex: PropTypes.number.isRequired,
     channelId: PropTypes.number.isRequired,
-    updateQuery: PropTypes.func.isRequired,
     deleteTeamMutation: PropTypes.func.isRequired,
 };
 
