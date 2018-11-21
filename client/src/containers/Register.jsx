@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as qs from 'query-string';
 import { graphql } from 'react-apollo';
+import { observer, inject } from 'mobx-react';
 
 import { REGISTER_MUTATION } from '../graphql/user';
 
@@ -27,16 +28,17 @@ class Register extends React.Component {
         }
     }
 
-    onChangeHandler = (e) => {
-        const { name, value } = e.target;
+    onChangeHandler = ({ target: { name, value } }) => {
         this.setState({ [name]: value });
     }
 
     onSubmitHandler = async () => {
-        const { history, mutate } = this.props;
         const {
             username, email, password, teamToken,
         } = this.state;
+        const {
+            history, mutate, store: { createNotification },
+        } = this.props;
         try {
             const {
                 data: { register: { ok, errors } },
@@ -55,7 +57,7 @@ class Register extends React.Component {
                 this.setState({ errors: err });
             }
         } catch (err) {
-            // TODO:
+            createNotification(err.message);
         }
     }
 
@@ -84,4 +86,6 @@ Register.propTypes = {
     }).isRequired,
 };
 
-export default graphql(REGISTER_MUTATION)(Register);
+export default graphql(REGISTER_MUTATION)(
+    inject('store')(observer(Register)),
+);

@@ -18,5 +18,6 @@ module.exports = {
         "localStorage": 1,
         "navigator": 1,
         "FormData": 1,
+        "Audio": 1,
     }
 };

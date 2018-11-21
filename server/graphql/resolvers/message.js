@@ -1,6 +1,7 @@
 import { withFilter } from 'graphql-subscriptions';
 
 import pubsub from '../../pubsub';
+
 import {
     requiresTeamAccess,
     requiresPrivateChannelAccess,
@@ -13,13 +14,11 @@ const CHANNEL_MESSAGE_REMOVED = 'CHANNEL_MESSAGE_REMOVED';
 
 export default {
     Message: {
-        sender: ({ user, userId }, args, { models }) => {
+        sender: ({ user, userId }, _, { models }) => {
             if (user) return user;
-            return models.User.findOne({
-                where: { id: userId }, raw: true,
-            });
+            return models.User.findById(userId);
         },
-        files: ({ id }, args, { models }) => models.File.findAll(
+        files: ({ id }, _, { models }) => models.File.findAll(
             { where: { messageId: id } },
             { raw: true },
         ),
@@ -27,7 +26,7 @@ export default {
     Query: {
         getMessages: requiresTeamAccess.createResolver(
             requiresPrivateChannelAccess.createResolver(
-                async (parent, { channelId }, { models }) => models.Message
+                async (_, { channelId }, { models }) => models.Message
                     .findAll(
                         {
                             order: [['created_at', 'ASC']],
@@ -63,19 +62,14 @@ export default {
                             });
 
                         // put new message in pubsub
-                        const asyncFunc = async () => {
-                            const currentUser = await models.User.findOne({
-                                where: { id: user.id }, raw: true,
-                            });
-                            pubsub.publish(CHANNEL_MESSAGE_CREATED, {
-                                channelId: restArgs.channelId,
-                                channelMessagesUpdated: {
-                                    ...message.dataValues,
-                                    user: currentUser.dataValues,
-                                },
-                            });
-                        };
-                        asyncFunc();
+                        const currentUser = await models.User.findById(user.id);
+                        await pubsub.publish(CHANNEL_MESSAGE_CREATED, {
+                            channelId: restArgs.channelId,
+                            channelMessagesUpdates: {
+                                ...message.dataValues,
+                                user: currentUser.dataValues,
+                            },
+                        });
 
                         return true;
                     } catch (err) {
@@ -106,7 +100,7 @@ export default {
                     // TODO: update message in pubsub
                     // pubsub.publish(CHANNEL_MESSAGE_UPDATED, {
                     //     messageId,
-                    //     channelMessagesUpdated: {
+                    //     channelMessagesUpdates: {
                     //         ...message.dataValues,
                     //         user: currentUser.dataValues,
                     //     },
@@ -130,7 +124,7 @@ export default {
                         // TODO: remove message from pubsub
                         // pubsub.publish(CHANNEL_MESSAGE_REMOVED, {
                         //     messageId,
-                        //     channelMessagesUpdated: {
+                        //     channelMessagesUpdates: {
                         //         messageId,
                         //     },
                         // });
@@ -145,11 +139,11 @@ export default {
         ),
     },
     Subscription: {
-        channelMessagesUpdated: {
+        channelMessagesUpdates: {
             resolve: (payload, args, context, info) => {
                 // Manipulate and return the new value
-                console.log('new payload', payload, args, context, info);
-                return payload.channelMessagesUpdated;
+                console.log('new payload', payload.channelMessagesUpdates);
+                return payload.channelMessagesUpdates;
             },
             subscribe: requiresTeamAccess.createResolver(
                 withFilter(

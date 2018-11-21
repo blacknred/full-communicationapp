@@ -8,7 +8,7 @@ export default [
             secondary: red[400],
         },
         dark: {
-            main: '#4d384a',
+            main: 'rgb(53, 39, 51)',
             secondary: red[400],
         },
     },
@@ -19,7 +19,7 @@ export default [
             secondary: blue[400],
         },
         dark: {
-            main: '#484d6b',
+            main: 'rgb(50, 53, 74)',
             secondary: blue[400],
         },
     },
@@ -30,7 +30,7 @@ export default [
             secondary: '#009688',
         },
         dark: {
-            main: blueGrey[800],
+            main: 'rgb(38, 49, 55)',
             secondary: '#009688',
         },
     },

@@ -7,8 +7,10 @@ export const GET_MESSAGES_QUERY = gql`
             text
             pinned
             forwarded
+            announcement
             created_at
             sender {
+                id
                 username
             }
             files {
@@ -46,10 +48,15 @@ export const DELETE_MESSAGE_MUTATION = gql`
 
 export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
     subscription($channelId: Int!) {
-        channelMessagesUpdated(channelId: $channelId) {
+        channelMessagesUpdates(channelId: $channelId) {
             id
             text
+            pinned
+            forwarded
+            announcement
+            created_at
             sender {
+                id
                 username
             }
             files {
@@ -57,7 +64,6 @@ export const CHANNEL_MESSAGES_SUBSCRIPTION = gql`
                 name
                 path
             }
-            created_at
         }
     }
 `;

@@ -6,13 +6,17 @@ export default `
 
     type Channel {
         id: Int!
+        dm: Boolean!
         name: String!
         description: String
         private: Boolean!
-        dm: Boolean!
-        users: [User!]!
+        starred: Boolean!
         updatesCount: Int!
-        participantsCount: Int!
+        membersCount: Int!
+    }
+
+    type Query {
+        getChannelMembers(channelId: Int!): [User!]
     }
 
     type ChannelResponse {
@@ -21,17 +25,10 @@ export default `
         errors: [Error!]
     }
 
-    type DMChannelResponse {
-        ok: Boolean!
-        errors: [Error!]
-        id: Int!
-        name: String!
-    }
-
     type Mutation {
-        createChannel(teamId: Int!, name: String!, private: Boolean=false, description: String, members: [Int!]=[]): ChannelResponse!
-        getOrCreateChannel(teamId: Int!, members: [Int!]!): DMChannelResponse!
-        updateChannel(channelId: Int!, option: ChannelUpdateOptions!, value: String!): ChannelResponse!
+        createChannel(teamId: Int!, name: String!, private: Boolean!=false, description: String, members: [Int!]=[]): ChannelResponse!
+        createDMChannel(teamId: Int!, members: [Int!]!): ChannelResponse!
+        updateChannel(channelId: Int!, name: String!, private: Boolean!=false, description: String, members: [Int!]=[]): ChannelResponse!
         deleteChannel(channelId: Int!): Boolean!
         starChannel(channelId: Int!): Boolean!
         unstarChannel(channelId: Int!): Boolean!

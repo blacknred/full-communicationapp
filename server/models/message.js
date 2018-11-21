@@ -11,6 +11,10 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
+            announcement: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
             // type: {
             //     type: DataTypes.ENUM,
             //     values: ['channel', 'direct'],

@@ -7,26 +7,42 @@ class AppStore {
 
     appColor = null;
 
-    isNightMode = null;
+    isSoundsOn = true;
 
-    isAutoGifs = null;
+    isNightMode = false;
+
+    isAutoGifs = true;
 
     isTeamsSidebarOpen = true;
 
+    isChannelSidebarOpen = false;
+
     constructor() {
-        const { isnightmode, appcolor, isautogifs } = localStorage;
+        const {
+            isnightmode, appcolor, isautogifs, issoundson,
+        } = localStorage;
         this.isNightMode = isnightmode === 'true';
         this.appColor = parseInt(appcolor, 10) || 0;
         this.isAutoGifs = isautogifs === 'true';
+        this.isSoundsOn = issoundson === 'true';
     }
 
     toggleTeamsSidebar = () => {
-        this.isTeamSidebarOpen = !this.isTeamSidebarOpen;
+        this.isTeamsSidebarOpen = !this.isTeamsSidebarOpen;
+    }
+
+    toggleChannelSidebar = () => {
+        this.isChannelSidebarOpen = !this.isChannelSidebarOpen;
     }
 
     toggleNightMode = () => {
         this.isNightMode = !this.isNightMode;
         localStorage.setItem('isnightmode', this.isNightMode);
+    }
+
+    toggleSoundsOn = () => {
+        this.isSoundsOn = !this.isSoundsOn;
+        localStorage.setItem('issoundson', this.isSoundsOn);
     }
 
     toggleAutoGifs = () => {
@@ -53,19 +69,23 @@ class AppStore {
 }
 
 decorate(AppStore, {
-    isNightMode: observable,
     appColor: observable,
     notification: observable,
     searchText: observable,
     isAutoGifs: observable,
-    isTeamSidebarOpen: observable,
+    isNightMode: observable,
+    isSoundsOn: observable,
+    isTeamsSidebarOpen: observable,
+    isChannelSidebarOpen: observable,
     toggleNightMode: action,
     changeAppColor: action,
     createNotification: action,
     removeNotification: action,
     updateSearchText: action,
     toggleTeamsSidebar: action,
+    toggleChannelSidebar: action,
     toggleAutoGifs: action,
+    toggleSoundsOn: action,
 });
 
 export default AppStore;

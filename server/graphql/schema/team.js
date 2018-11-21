@@ -10,8 +10,7 @@ export default `
         description: String
         admin: User!
         channels: [Channel!]!
-        starredChannels: [Channel!]
-        directMessageMembers: [User!]!
+        directMessageMembers: [User!]
         updatesCount: Int!
         membersCount: Int!
     }

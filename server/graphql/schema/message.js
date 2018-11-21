@@ -22,13 +22,14 @@ export default `
         text: String
         pinned: Boolean!
         forwarded: Boolean!
+        announcement: Boolean!
         created_at: String!
         sender: User!
         files: [File!]
     }
 
     type Subscription {
-        channelMessagesUpdated(channelId: Int!): Message!
+        channelMessagesUpdates(channelId: Int!): Message!
     }
 
     type Query {

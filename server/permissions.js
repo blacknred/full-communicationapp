@@ -57,8 +57,8 @@ export const requiresTeamAdminAccess = createResolver(
                 `select * from team_members as tm
                 join teams as t on t.id = tm.team_id
                 join channels as c on c.team_id = t.id
-                where c.id = :channelId and tm.userId = : userId
-                and tm.admin = true and`,
+                where c.id = :channelId and tm.user_id = :userId
+                and tm.admin = true`,
                 {
                     replacements: { channelId, userId: user.id },
                     model: models.TeamMember,
@@ -83,7 +83,7 @@ export const requiresPrivateChannelAccess = createResolver(
         });
         if (channel.private) {
             const isMember = await models.PrivateChannelMember.findOne({
-                where: { channelId, userId: user.id },
+                where: { channelId, user_id: user.id },
                 raw: true,
             });
             if (!isMember) {

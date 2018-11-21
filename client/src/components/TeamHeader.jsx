@@ -15,8 +15,7 @@ import {
     Apps,
     ArrowDropUp,
     ArrowDropDown,
-    RadioButtonChecked,
-    RadioButtonUnchecked,
+    FiberManualRecord,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -30,7 +29,6 @@ const styles = theme => ({
     },
     icon: {
         margin: 0,
-        color: theme.palette.secondary.main,
     },
     dense: {
         paddingTop: 0,
@@ -134,26 +132,15 @@ const TeamHeader = ({
             </ListItem>
             <ListItem className={classes.dense}>
                 <ListItemIcon className={classes.icon}>
-                    {
-                        online
-                            ? <RadioButtonChecked fontSize="small" />
-                            : <RadioButtonUnchecked fontSize="small" />
-                    }
+                    <FiberManualRecord
+                        fontSize="small"
+                        color={online ? 'secondary' : 'disabled'}
+                    />
                 </ListItemIcon>
                 <ListItemText
-                    secondary={(
-                        <React.Fragment>
-                            {/* {
-                                online
-                                    ? <RadioButtonChecked className={classes.icon} />
-                                    : <RadioButtonUnchecked className={classes.icon} />
-                            } */}
-                            {username}
-                        </React.Fragment>
-                    )}
+                    secondary={username}
                     secondaryTypographyProps={{
                         color: 'inherit',
-                        // className: classes.flex,
                     }}
                 />
             </ListItem>

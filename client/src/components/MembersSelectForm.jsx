@@ -1,70 +1,45 @@
 import React from 'react';
 import Select from 'react-select';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 
 import {
+    Chip,
     Paper,
     MenuItem,
     TextField,
     Typography,
+    ListItemIcon,
+    ListItemText,
 } from '@material-ui/core';
+import { Cancel, FiberManualRecord } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     form: {
-        marginTop: theme.spacing.unit * 2,
-        minWidth: 300,
-        width: '100%', // Fix IE11 issue.
-    },
-    // root: {
-    //     flexGrow: 1,
-    //     height: 250,
-    // },
-    input: {
+        padding: theme.spacing.unit,
         display: 'flex',
-        padding: 0,
+        cursor: 'pointer',
     },
-    // valueContainer: {
-    //     display: 'flex',
-    //     flexWrap: 'wrap',
-    //     flex: 1,
-    //     alignItems: 'center',
-    // },
     noOptionsMessage: {
-        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+        padding: theme.spacing.unit * 2,
     },
-    // singleValue: {
-    //     fontSize: 16,
-    // },
-    // placeholder: {
-    //     position: 'absolute',
-    //     left: 2,
-    //     fontSize: 16,
-    // },
+    chip: {
+        margin: theme.spacing.unit / 2,
+    },
     paper: {
-        position: 'absolute',
-        zIndex: 1,
         marginTop: theme.spacing.unit,
-        left: 0,
-        right: 0,
-    },
-    divider: {
-        height: theme.spacing.unit * 2,
     },
 });
-
-// react select components
 
 const inputComponent = ({ inputRef, ...props }) => (
     <div ref={inputRef} {...props} />
 );
-
 const Control = ({
     selectProps, innerProps, innerRef, children,
 }) => (
     <TextField
         fullWidth
+        variant="outlined"
         InputProps={{
             inputComponent,
             inputProps: {
@@ -77,62 +52,6 @@ const Control = ({
         {...selectProps.textFieldProps}
     />
 );
-
-const NoOptionsMessage = ({ selectProps, innerProps, children }) => (
-    <Typography
-        color="textSecondary"
-        className={selectProps.classes.noOptionsMessage}
-        {...innerProps}
-    >
-        {children}
-    </Typography>
-);
-
-
-// react select components
-
-
-const Option = ({
-    innerRef, isFocused, isSelected, innerProps, history, children,
-}) => (
-    <MenuItem
-        onClick={() => history.push('')} // withRouter() 
-        buttonRef={innerRef}
-        selected={isFocused}
-        // component={Link}
-        // to={`/teams/${innerProps.currentTeamId}/user/${innerProps.adresat}`}
-        style={{ fontWeight: isSelected ? 500 : 400 }}
-        {...innerProps}
-    >
-        {children}
-    </MenuItem>
-);
-
-const Placeholder = ({ selectProps, innerProps, children }) => (
-    <Typography
-        color="textSecondary"
-        className={selectProps.classes.placeholder}
-        {...innerProps}
-    >
-        {children}
-    </Typography>
-);
-
-const SingleValue = ({ selectProps, innerProps, children }) => (
-    <Typography
-        className={selectProps.classes.singleValue}
-        {...innerProps}
-    >
-        {children}
-    </Typography>
-);
-
-const ValueContainer = ({ selectProps, children }) => (
-    <div className={selectProps.classes.valueContainer}>
-        {children}
-    </div>
-);
-
 const Menu = ({ selectProps, innerProps, children }) => (
     <Paper
         square
@@ -142,47 +61,90 @@ const Menu = ({ selectProps, innerProps, children }) => (
         {children}
     </Paper>
 );
-
+const Placeholder = ({ innerProps }) => (
+    <Typography
+        color="textSecondary"
+        variant="subtitle1"
+        {...innerProps}
+        children="Type the username..."
+    />
+);
+const NoOptionsMessage = ({ selectProps, innerProps }) => (
+    <Typography
+        color="textSecondary"
+        className={selectProps.classes.noOptionsMessage}
+        {...innerProps}
+        children="No members"
+    />
+);
+const MultiValue = ({ selectProps, removeProps, children }) => (
+    <Chip
+        tabIndex={-1}
+        label={children}
+        className={selectProps.classes.chip}
+        onDelete={removeProps.onClick}
+        deleteIcon={<Cancel {...removeProps} />}
+    />
+);
+const Option = ({ isFocused, innerProps, data }) => (
+    <MenuItem
+        selected={isFocused}
+        {...innerProps}
+    >
+        <ListItemIcon>
+            <FiberManualRecord
+                fontSize="small"
+                color={data.online ? 'secondary' : 'disabled'}
+            />
+        </ListItemIcon>
+        <ListItemText inset primary={data.label} />
+    </MenuItem>
+);
 
 const MembersSelectForm = ({
-    classes, members, history, currentTeamId = 1,
-}) => {
-    const selectStyles = {
-        input: base => ({
-            ...base,
-            color: '#fff',
-            '& input': {
-                font: 'inherit',
+    classes, options = [], members, onChange,
+}) => (
+    <Select
+        isMulti
+        autoFocus
+        classes={classes}
+        components={{
+            Placeholder,
+            NoOptionsMessage,
+            MultiValue,
+            Option,
+            Menu,
+            Control,
+        }}
+        closeMenuOnSelect={false}
+        onChange={arr => onChange({
+            target: {
+                name: 'members',
+                value: arr.map(m => m.value),
             },
-        }),
-    };
-    return (
-        <Select
-            // className="basic-single"
-            // classNamePrefix="select"
-            autoFocus
-            menuIsOpen
-            options={members}
-            onChange={opt => history.push(`/teams/${currentTeamId}/user/${opt.value}`)}
-            placeholder="Type the username"
-            styles={selectStyles}
-            classes={classes}
-            components={{
-                Control,
-                Menu,
-                NoOptionsMessage,
-                Option,
-                // Placeholder,
-                // SingleValue,
-                // ValueContainer,
-            }}
-        />
-    );
-};
+        })}
+        options={
+            options.map(m => ({
+                value: m.id,
+                label: m.username,
+                online: m.online,
+            }))
+        }
+        defaultValue={
+            members.map(m => ({
+                value: m.id,
+                label: m.username,
+                online: m.online,
+            }))
+        }
+    />
+);
 
 MembersSelectForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    members: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
+    onChange: PropTypes.func.isRequired,
+    options: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+    members: PropTypes.arrayOf(PropTypes.shape().isRequired),
 };
 
-export default withStyles(styles)(withRouter(MembersSelectForm));
+export default withStyles(styles)(MembersSelectForm);

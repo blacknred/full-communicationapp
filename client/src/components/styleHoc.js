@@ -26,6 +26,9 @@ const StyleRoot = Component => inject('store')(observer(
                     main: colors[appColor].light.secondary,
                 },
             },
+            typography: {
+                useNextVariants: true,
+            },
         });
         const darkTheme = createMuiTheme({
             palette: {
@@ -39,6 +42,9 @@ const StyleRoot = Component => inject('store')(observer(
                 secondary: {
                     main: colors[appColor].dark.secondary,
                 },
+            },
+            typography: {
+                useNextVariants: true,
             },
         });
         return (

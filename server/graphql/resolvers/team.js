@@ -1,8 +1,12 @@
+import {
+    requiresAuth,
+    requiresTeamAccess,
+    requiresTeamAdminAccess,
+} from '../../permissions';
 import redisClient from '../../redis';
 import emailTransporter from '../../email';
 import { createInviteToken } from '../../auth';
 import formateErrors from '../../formateErrors';
-import { requiresAuth, requiresTeamAdminAccess } from '../../permissions';
 
 export default {
     Team: {
@@ -18,30 +22,42 @@ export default {
         ).then(users => users[0]),
         channels: ({ id }, _, { models, user }) => models.sequelize
             .query(
-                `select distinct on (id) * from channels as c 
+                `select distinct on (id) *,
+                case
+                when sc.channel_id is not null and sc.user_id = :userId
+                then true else false
+                end as starred
+                from channels as c
                 left outer join private_channel_members as pcm
                 on c.id = pcm.channel_id
-                left outer join starred_channels as sc on c.id = sc.channel_id
+                left outer join starred_channels as sc
+                on c.id = sc.channel_id
                 where c.team_id = :teamId
-                and (c.private = false or pcm.user_id = :userId)
-                and sc.channel_id is null`,
+                and (c.private = false or pcm.user_id = :userId)`,
                 {
                     replacements: { teamId: id, userId: user.id },
                     model: models.Channel,
                     raw: true,
                 },
             ),
-        starredChannels: ({ id }, _, { models, user }) => models.sequelize
-            .query(
-                `select distinct on (id) * from channels as c 
-                left outer join starred_channels as sc on c.id = sc.channel_id
-                where c.team_id = :teamId and sc.user_id = :userId`,
-                {
-                    replacements: { teamId: id, userId: user.id },
-                    model: models.Channel,
-                    raw: true,
-                },
-            ),
+        // `select distinct on (id) * from channels as c
+        //     left outer join private_channel_members as pcm
+        //     on c.id = pcm.channel_id
+        //     left outer join starred_channels as sc on c.id = sc.channel_id
+        //     where c.team_id = :teamId
+        //     and (c.private = false or pcm.user_id = :userId)
+        //     and sc.channel_id is null`,
+        // starredChannels: ({ id }, _, { models, user }) => models.sequelize
+        //     .query(
+        //         `select distinct on (id) * from channels as c
+        //         left outer join starred_channels as sc on c.id = sc.channel_id
+        //         where c.team_id = :teamId and sc.user_id = :userId`,
+        //         {
+        //             replacements: { teamId: id, userId: user.id },
+        //             model: models.Channel,
+        //             raw: true,
+        //         },
+        //     ),
         directMessageMembers: ({ id }, _, { models, user }) => models.sequelize
             .query(
                 `select distinct on (u.id) u.id, u.username from users as u
@@ -86,10 +102,10 @@ export default {
                 },
             ),
         ),
-        getTeamMembers: requiresAuth.createResolver(
+        getTeamMembers: requiresTeamAccess.createResolver(
             (_, { teamId }, { models }) => models.sequelize.query(
                 `select * from users as u
-                join team_member as tm on tm.user_id = u.id
+                join team_members as tm on tm.user_id = u.id
                 where tm.team_id = ?`,
                 {
                     replacements: [teamId],
@@ -126,7 +142,7 @@ export default {
                             );
 
                             // create a 'general' public channel
-                            await models.Channel.create(
+                            const channel = await models.Channel.create(
                                 {
                                     name: 'general',
                                     private: false,
@@ -134,6 +150,14 @@ export default {
                                 },
                                 { transaction },
                             );
+
+                            // create announcement message in channel
+                            await models.Message.create({
+                                text: 'Channel was created!',
+                                userId: user.id,
+                                announcement: true,
+                                channelId: channel.dataValues.id,
+                            });
 
                             // create a team admin entry
                             await models.TeamMember.create(
@@ -180,9 +204,7 @@ export default {
                         where: { email }, raw: true,
                     });
                     if (!isValidUser) {
-                        const team = await models.Team.findOne({
-                            where: { id: teamId }, raw: true,
-                        });
+                        const team = await models.Team.findById(teamId);
                         const token = createInviteToken({ teamId, email });
                         await emailTransporter.sendMail({
                             from: 'swoy-inviteservice@gmail.com',
@@ -191,7 +213,8 @@ export default {
                             html: `
                             <div>
                             <h1><i>Hello</i> from SWOY corporate messenger</h1>
-                            <h2>You have received invitation to the team ${team.name}.</h2>
+                            <h2>You have received invitation to the team
+                            ${team.name.charAt(0).toUpperCase() + team.name.substr(1)}.</h2>
                             <p>
                             Just use the link to continue.<br />
                             (This link will expire in 1 day.)
@@ -204,7 +227,7 @@ export default {
                         });
                         return {
                             ok: true,
-                            status: 'Ivitation was send',
+                            status: 'Invitation was send',
                         };
                     }
 
@@ -213,9 +236,9 @@ export default {
                         .query(
                             `select * from team_members as tm
                             join users as u on u.id = tm.user_id
-                            where u.email = ? limit 1`,
+                            where u.email = :email and tm.team_id = :teamId`,
                             {
-                                replacements: [email],
+                                replacements: { email, teamId },
                                 model: models.TeamMember,
                                 raw: true,
                             },

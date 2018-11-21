@@ -33,6 +33,8 @@ const SettingsModal = ({
         onClose={onClose}
         TransitionComponent={Transition}
         fullWidth
+        scroll="body"
+        maxWidth="sm"
     >
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>

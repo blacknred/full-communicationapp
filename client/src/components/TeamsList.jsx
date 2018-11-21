@@ -41,6 +41,7 @@ const styles = theme => ({
     },
     button: {
         backgroundColor: theme.palette.primary.main,
+        color: 'inherit',
     },
     badge: {
         margin: 5,
@@ -55,8 +56,8 @@ const styles = theme => ({
 });
 
 const TeamsList = ({
-    classes, width, teams, ctxTeams, currentTeamId, searchText, isFullOpen,
-    onChange, onFullTeamsToggle, onSettingsToggle,
+    classes, width, teams, ctxTeams, teamId, searchText, isFullOpen,
+    onChange, onFullToggle, onSettingsToggle,
 }) => {
     const teamsSearch = (
         <ListItem>
@@ -86,11 +87,11 @@ const TeamsList = ({
                 component={Link}
                 key={`team-${id}`}
                 to={`/teams/${id}`}
-                selected={id === currentTeamId}
+                selected={id === teamId}
                 classes={{ selected: classes.selected }}
                 onClick={() => {
                     if (isFullOpen && isWidthDown('sm', width)) {
-                        onFullTeamsToggle();
+                        onFullToggle();
                     }
                 }}
             >
@@ -117,8 +118,7 @@ const TeamsList = ({
                     isFullOpen && (
                         <ListItemText
                             primary={
-                                name.charAt(0).toUpperCase()
-                                + name.substr(1)
+                                name.charAt(0).toUpperCase() + name.substr(1)
                             }
                             primaryTypographyProps={{
                                 color: 'inherit',
@@ -165,7 +165,7 @@ const TeamsList = ({
                 <ListItem
                     button
                     key="expand-teams-list"
-                    onClick={onFullTeamsToggle}
+                    onClick={onFullToggle}
                 >
                     <Tooltip title={isFullOpen ? 'Decreese panel' : 'Enlarge panel'}>
                         <Avatar className={classes.button}>
@@ -227,10 +227,10 @@ TeamsList.propTypes = {
         updatesCount: PropTypes.number.isRequired,
     })).isRequired,
     searchText: PropTypes.string.isRequired,
-    currentTeamId: PropTypes.number.isRequired,
+    teamId: PropTypes.number.isRequired,
     isFullOpen: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
-    onFullTeamsToggle: PropTypes.func.isRequired,
+    onFullToggle: PropTypes.func.isRequired,
     onSettingsToggle: PropTypes.func.isRequired,
 };
 

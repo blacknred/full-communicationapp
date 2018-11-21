@@ -15,25 +15,13 @@ export const GET_TEAMS_QUERY = gql`
             }
             channels {
                 id
+                dm
                 name
                 description
                 private
-                dm
+                starred
                 updatesCount
-                participantsCount
-            }
-            starredChannels {
-                id
-                name
-                description
-                private
-                dm
-                updatesCount
-            }
-            directMessageMembers {
-                id
-                username
-                online
+                membersCount
             }
         }
     }
@@ -59,6 +47,25 @@ export const CREATE_TEAM_MUTATION = gql`
             }
             team {
                 id
+                name
+                description
+                updatesCount
+                membersCount
+                admin {
+                    id
+                    username
+                    online
+                }
+                channels {
+                    id
+                    dm
+                    name
+                    description
+                    private
+                    starred
+                    updatesCount
+                    membersCount
+                }
             }
         }
     }

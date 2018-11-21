@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-    Slide,
     Drawer,
     Hidden,
     SwipeableDrawer,
@@ -19,32 +18,19 @@ const styles = theme => ({
         maxHeight: '100vh',
         height: '100vh',
         overflow: 'hidden',
-        position: 'relative',
-        border: 0,
-        '&>div:last-of-type': {
-            width: TEAM_DRAWER_WIDTH,
-        },
+        width: TEAM_DRAWER_WIDTH,
+        backgroundColor: theme.palette.background.default,
+        borderLeft: `1px solid ${theme.palette.divider}`,
     },
     drawerPaperMobile: {
-        // minWidth: '100vw',
         flexDirection: 'row',
-        '&>div:last-of-type': {
-            minWidth: TEAM_DRAWER_WIDTH,
-            width: '100%',
-        },
-    },
-    actionsDrawer: {
-        overflowY: 'auto',
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText,
+        width: TEAM_DRAWER_WIDTH,
     },
 });
 
-const ChannelSidebar = ({ classes, isOpen, onToggle }) => {
+const ChannelSidebar = ({ classes, open, onToggle }) => {
     const drawerContent = (
-        <React.Fragment>
-            <div />
-        </React.Fragment>
+        <div />
     );
 
     return (
@@ -52,9 +38,9 @@ const ChannelSidebar = ({ classes, isOpen, onToggle }) => {
             <Hidden mdUp>
                 <SwipeableDrawer
                     anchor="right"
-                    open={isOpen}
-                    onOpen={() => onToggle('isSidebarOpen')}
-                    onClose={() => onToggle('isSidebarOpen')}
+                    open={open}
+                    onOpen={onToggle}
+                    onClose={onToggle}
                     classes={{ paper: classes.drawerPaperMobile }}
                     disableBackdropTransition={!iOS}
                     disableDiscovery={iOS}
@@ -63,15 +49,18 @@ const ChannelSidebar = ({ classes, isOpen, onToggle }) => {
                 </SwipeableDrawer>
             </Hidden>
             <Hidden smDown implementation="css">
-                <Slide in direction="right">
-                    <Drawer
-                        variant="permanent"
-                        anchor="left"
-                        classes={{ paper: classes.drawerPaper }}
-                    >
-                        {drawerContent}
-                    </Drawer>
-                </Slide>
+                <Drawer
+                    variant="persistent"
+                    open={open}
+                    anchor="right"
+                    transitionDuration={0}
+                    PaperProps={{
+                        className: classes.drawerPaper,
+                        style: { position: open ? 'relative' : 'fixed' },
+                    }}
+                >
+                    {drawerContent}
+                </Drawer>
             </Hidden>
         </React.Fragment>
     );
@@ -79,7 +68,7 @@ const ChannelSidebar = ({ classes, isOpen, onToggle }) => {
 
 ChannelSidebar.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    isOpen: PropTypes.bool.isRequired,
+    open: PropTypes.bool.isRequired,
     onToggle: PropTypes.func.isRequired,
 };
 

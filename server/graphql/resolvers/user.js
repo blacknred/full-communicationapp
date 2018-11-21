@@ -11,9 +11,7 @@ export default {
     },
     Query: {
         getCurrentUser: requiresAuth.createResolver(
-            (_, __, { models, user }) => models.User.findOne({
-                where: { id: user.id }, raw: true,
-            }),
+            (_, __, { models, user }) => models.User.findById(user.id),
         ),
     },
     Mutation: {

@@ -12,7 +12,12 @@ import {
     ListSubheader,
     ListItemSecondaryAction,
 } from '@material-ui/core';
-import { Palette, Brightness2, Lens } from '@material-ui/icons';
+import {
+    Lens,
+    Palette,
+    Brightness2,
+    SurroundSound,
+} from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
 import colors from '../colors';
@@ -27,8 +32,8 @@ const styles = {
 };
 
 const SettingsUi = ({
-    classes, appColor, isNightMode, onNightModeChange,
-    onAppColorChange,
+    classes, appColor, isNightMode, isSoundsOn, onNightModeChange,
+    onAppColorChange, onSoundsOnChange,
 }) => (
     <List>
         <ListSubheader>Ui</ListSubheader>
@@ -80,6 +85,18 @@ const SettingsUi = ({
                 />
             </ListItemSecondaryAction>
         </ListItem>
+        <ListItem>
+            <ListItemIcon>
+                <SurroundSound />
+            </ListItemIcon>
+            <ListItemText primary="Sound" />
+            <ListItemSecondaryAction>
+                <Switch
+                    onChange={onSoundsOnChange}
+                    checked={isSoundsOn}
+                />
+            </ListItemSecondaryAction>
+        </ListItem>
     </List>
 );
 
@@ -87,8 +104,10 @@ SettingsUi.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     appColor: PropTypes.number.isRequired,
     isNightMode: PropTypes.bool.isRequired,
+    isSoundsOn: PropTypes.bool.isRequired,
     onNightModeChange: PropTypes.func.isRequired,
     onAppColorChange: PropTypes.func.isRequired,
+    onSoundsOnChange: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(SettingsUi);

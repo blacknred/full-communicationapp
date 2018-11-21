@@ -20,11 +20,11 @@ const styles = theme => ({
     },
 });
 
-const OnDeleteWarningForm = ({
-    classes, width, open, message, onSubmit, onClose,
+const DeleteWarningForm = ({
+    classes, width, message, onSubmit, onClose,
 }) => (
     <Dialog
-        open={open}
+        open
         disableBackdropClick
         fullScreen={isWidthDown('sm', width)}
         onClose={onClose}
@@ -51,13 +51,12 @@ const OnDeleteWarningForm = ({
     </Dialog>
 );
 
-OnDeleteWarningForm.propTypes = {
+DeleteWarningForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
-    open: PropTypes.bool.isRequired,
     message: PropTypes.string.isRequired,
     onSubmit: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(OnDeleteWarningForm);
+export default compose(withStyles(styles), withWidth())(DeleteWarningForm);

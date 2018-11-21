@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { inject, observer } from 'mobx-react';
 import { graphql, compose, Mutation } from 'react-apollo';
-import Loading from '../components/Loading';
 
+import Loading from '../components/Loading';
 import SettingsUi from '../components/SettingsUi';
 import SettingsTeams from '../components/SettingsTeams';
 import SettingsModal from '../components/SettingsModal';
 import SettingsProfile from '../components/SettingsProfile';
-import OnDeleteWarningForm from '../components/OnDeleteWarningForm';
+import OnDeleteWarningForm from '../components/DeleteWarningForm';
 
 import {
     GET_CURRENT_USER_QUERY,
@@ -52,7 +52,8 @@ class Settings extends React.Component {
         } = this.state;
         const {
             store: {
-                isNightMode, appColor, toggleNightMode, changeAppColor,
+                isNightMode, isSoundsOn, appColor,
+                toggleNightMode, toggleSoundsOn, changeAppColor,
             }, open, onClose, getCurrentUserQuery, getTeamsQuery,
         } = this.props;
 
@@ -73,7 +74,9 @@ class Settings extends React.Component {
                 <SettingsUi
                     appColor={appColor}
                     isNightMode={isNightMode}
+                    isSoundsOn={isSoundsOn}
                     onNightModeChange={toggleNightMode}
+                    onSoundsOnChange={toggleSoundsOn}
                     onAppColorChange={changeAppColor}
                 />
                 <Mutation
@@ -134,6 +137,7 @@ class Settings extends React.Component {
 
 Settings.propTypes = {
     open: PropTypes.bool.isRequired,
+    store: PropTypes.shape().isRequired,
     onClose: PropTypes.func.isRequired,
     getCurrentUserQuery: PropTypes.shape().isRequired,
     getTeamsQuery: PropTypes.shape().isRequired,

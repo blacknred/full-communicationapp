@@ -13,6 +13,9 @@ const styles = theme => ({
     close: {
         padding: theme.spacing.unit / 2,
     },
+    note: {
+        fontSize: '1em',
+    },
 });
 
 const Notification = inject('store')(observer(({
@@ -31,8 +34,11 @@ const Notification = inject('store')(observer(({
             open={!!notification}
             autoHideDuration={6000}
             onClose={onClose}
-            ContentProps={{ 'aria-describedby': 'note-id' }}
-            message={<span id="note-id">{notification}</span>}
+            ContentProps={{
+                'aria-describedby': 'note-id',
+                className: classes.note,
+            }}
+            message={notification}
             action={(
                 <IconButton
                     aria-label="Close"

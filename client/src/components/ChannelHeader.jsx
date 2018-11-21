@@ -14,6 +14,7 @@ import {
     Divider,
     MenuItem,
     IconButton,
+    ListItemIcon,
     ListItemText,
     InputAdornment,
 } from '@material-ui/core';
@@ -27,6 +28,7 @@ import {
     StarBorder,
     ViewHeadline,
     VerticalSplit,
+    FiberManualRecord,
 } from '@material-ui/icons';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -42,24 +44,42 @@ const styles = theme => ({
         height: 33,
         width: 33,
     },
+    icon: {
+        margin: '0 0 0 1em',
+        fontFamily: 'Roboto',
+    },
+    chatIcon: {
+        fontSize: '1em',
+        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.grey[500],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 4,
+    },
     title: {
         flex: 1,
         flexBasis: '90%',
+        padding: `0 ${theme.spacing.unit}px`,
     },
     search: {
         flex: 1,
-        flexBasis: theme.spacing.unit * 35,
+        flexBasis: 380,
+        marginLeft: theme.un
     },
 });
 
 const ChannelHeader = ({
     channel: {
-        name, description, private: isPrivate, participantsCount,
+        name, description, private: isPrivate, membersCount, dm, online = false,
     }, isMenuOpen, searchText, isMobileSearchOpen, isOwner, isStarred,
-    classes, isDrawerOpen, onToggle, onChange, onSearchSubmit, onStar,
+    classes, isChannelSidebarOpen, onChange, onSearchSubmit, onStar,
+    onMobileSearchToggle, onMenuToggle, onTeamsSidebarToggle, teamName,
+    onChannelSidebarToggle, onChannelUpdateToggle, onChannelDeleteToggle,
 }) => {
+    const isDefault = name === 'general';
     const searchBtn = (
-        <IconButton onClick={() => onToggle('isMobileSearchOpen')}>
+        <IconButton onClick={onMobileSearchToggle}>
             {isMobileSearchOpen ? <ArrowBack /> : <Search />}
         </IconButton>
     );
@@ -88,7 +108,7 @@ const ChannelHeader = ({
             id="channelMenuBtn"
             aria-owns="channelMenu"
             aria-haspopup="true"
-            onClick={() => onToggle('isMenuOpen')}
+            onClick={onMenuToggle}
         >
             <Hidden smUp>
                 <MoreVert />
@@ -101,58 +121,57 @@ const ChannelHeader = ({
     const channelMenu = (
         <Menu
             open={isMenuOpen}
-            onClose={() => onToggle('isMenuOpen')}
+            onClose={onMenuToggle}
+            id="channelMenu"
             anchorEl={document.getElementById('channelMenuBtn')}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
             <MenuItem
                 onClick={() => {
-                    onStar(!isStarred);
-                    onToggle('isMenuOpen');
+                    onMenuToggle();
+                    onChannelSidebarToggle();
                 }}
-            >
-                {isStarred ? 'Unstar Channel' : 'Star Channel'}
-            </MenuItem>
-            <MenuItem
-                onClick={() => {
-                    onToggle('isDrawerOpen');
-                    onToggle('isMenuOpen');
-                }}
-            >
-                {isDrawerOpen ? 'Hide panel' : 'Open panel'}
-            </MenuItem>
-            <MenuItem
-                onClick={() => {
-                    onToggle('isChannelUpdateFormOpen');
-                    onToggle('isMenuOpen');
-                }}
-            >
-                {`${description ? 'Update' : 'Add'} description`}
-            </MenuItem>
-            <MenuItem
-                onClick={() => {
-                    onToggle('isChannelUpdateFormOpen');
-                    onToggle('isMenuOpen');
-                }}
-            >
-                Update Channel
-            </MenuItem>
-            <MenuItem
-                onClick={() => {
-                    onToggle('isChannelDeleteWarningFormOpen');
-                    onToggle('isMenuOpen');
-                }}
-            >
-                Delete Channel
-            </MenuItem>
-            <MenuItem
-                onClick={() => {
-                    onToggle('isMenuOpen');
-                }}
-            >
-                About Channel
-            </MenuItem>
+                children={isChannelSidebarOpen ? 'Hide panel' : 'Open panel'}
+            />
+            {!isDefault && [
+                <MenuItem
+                    onClick={() => {
+                        onMenuToggle();
+                        onStar();
+                    }}
+                    key="menu-star-channel"
+                    children={
+                        `${isStarred ? 'Unstar' : 'Star'}
+                        ${dm ? 'Chat' : 'Channel'}`
+                    }
+                />,
+                (!dm && [
+                    <MenuItem
+                        onClick={() => {
+                            onMenuToggle();
+                        }}
+                        key="menu-about-channel"
+                        children="About Channel"
+                    />,
+                    <MenuItem
+                        key="menu-update-channel"
+                        children="Update Channel"
+                        onClick={() => {
+                            onMenuToggle();
+                            onChannelUpdateToggle();
+                        }}
+                    />,
+                ]),
+                <MenuItem
+                    onClick={() => {
+                        onMenuToggle();
+                        onChannelDeleteToggle();
+                    }}
+                    key="menu-delete-channel"
+                    children={`Delete ${dm ? 'Chat' : 'Channel'}`}
+                />,
+            ]}
         </Menu>
     );
 
@@ -170,24 +189,44 @@ const ChannelHeader = ({
                             {isMobileSearchOpen && searchBtn}
                             {isMobileSearchOpen ? searchBlock : (
                                 <React.Fragment>
-                                    <IconButton>
+                                    <IconButton onClick={onTeamsSidebarToggle}>
                                         <Avatar className={classes.menuBtn}>
-                                            {name.charAt(0).toUpperCase()}
+                                            {teamName.charAt(0).toUpperCase()}
                                         </Avatar>
                                     </IconButton>
+                                    <ListItemIcon className={classes.icon}>
+                                        <React.Fragment>
+                                            {dm && (
+                                                name.split(',')[1]
+                                                    ? (
+                                                        <Icon
+                                                            className={classes.chatIcon}
+                                                            children={<small>{name.split(',').length}</small>}
+                                                            fontSize="small"
+                                                        />
+                                                    ) : (
+                                                        <FiberManualRecord
+                                                            fontSize="small"
+                                                            color={online ? 'secondary' : 'disabled'}
+                                                        />
+                                                    )
+                                            )}
+                                            {!dm && (
+                                                isPrivate
+                                                    ? <Lock fontSize="small" />
+                                                    : (
+                                                        <Icon
+                                                            children="#"
+                                                            fontSize="small"
+                                                        />
+                                                    )
+                                            )}
+                                        </React.Fragment>
+                                    </ListItemIcon>
                                     <ListItemText
                                         className={classes.title}
-                                        primary={(
-                                            <React.Fragment>
-                                                {
-                                                    isPrivate
-                                                        ? <Lock fontSize="small" />
-                                                        : <Icon children="#" />
-                                                }
-                                                &nbsp;
-                                                {name}
-                                            </React.Fragment>
-                                        )}
+                                        primary={name}
+                                        
                                         primaryTypographyProps={{
                                             noWrap: true,
                                             variant: 'h6',
@@ -204,9 +243,13 @@ const ChannelHeader = ({
                                 color="secondary"
                                 className={classes.title}
                                 primary={`#${name}`}
-                                secondary={`${participantsCount} participants -
-                                ${isPrivate ? 'private' : 'public'} access - 
-                                ${description || 'no description'}`}
+                                secondary={
+                                    dm
+                                        ? 'direct chat'
+                                        : `${membersCount} participants -
+                                            ${isPrivate ? 'private' : 'public'} access - 
+                                            ${description || 'no description'}`
+                                }
                                 primaryTypographyProps={{
                                     noWrap: true,
                                     variant: 'h6',
@@ -217,14 +260,18 @@ const ChannelHeader = ({
                                 }}
                             />
                             {searchBlock}
-                            <Tooltip title={`${isStarred ? 'Unstar' : 'Star'} channel`}>
-                                <IconButton onClick={() => onStar()}>
-                                    {isStarred ? <Star /> : <StarBorder />}
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title={`${isDrawerOpen ? 'Hide' : 'Open'} panel`}>
-                                <IconButton onClick={() => onToggle('isDrawerOpen')}>
-                                    {isDrawerOpen ? <ViewHeadline /> : <VerticalSplit />}
+                            {
+                                !isDefault && (
+                                    <Tooltip title={`${isStarred ? 'Unstar' : 'Star'} channel`}>
+                                        <IconButton onClick={() => onStar()}>
+                                            {isStarred ? <Star /> : <StarBorder />}
+                                        </IconButton>
+                                    </Tooltip>
+                                )
+                            }
+                            <Tooltip title={`${isChannelSidebarOpen ? 'Hide' : 'Open'} panel`}>
+                                <IconButton onClick={onChannelSidebarToggle}>
+                                    {isChannelSidebarOpen ? <ViewHeadline /> : <VerticalSplit />}
                                 </IconButton>
                             </Tooltip>
                             {channelMenuBtn}
@@ -244,15 +291,22 @@ ChannelHeader.propTypes = {
         name: PropTypes.string.isRequired,
         description: PropTypes.string,
         private: PropTypes.bool.isRequired,
-        participantsCount: PropTypes.number.isRequired,
+        dm: PropTypes.bool.isRequired,
+        membersCount: PropTypes.number.isRequired,
     }).isRequired,
+    teamName: PropTypes.string.isRequired,
     isMenuOpen: PropTypes.bool.isRequired,
-    isDrawerOpen: PropTypes.bool.isRequired,
+    isChannelSidebarOpen: PropTypes.bool.isRequired,
     isMobileSearchOpen: PropTypes.bool.isRequired,
     isOwner: PropTypes.bool.isRequired,
     isStarred: PropTypes.bool.isRequired,
     searchText: PropTypes.string.isRequired,
-    onToggle: PropTypes.func.isRequired,
+    onTeamsSidebarToggle: PropTypes.func.isRequired,
+    onChannelSidebarToggle: PropTypes.func.isRequired,
+    onMenuToggle: PropTypes.func.isRequired,
+    onChannelUpdateToggle: PropTypes.func.isRequired,
+    onMobileSearchToggle: PropTypes.func.isRequired,
+    onChannelDeleteToggle: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onSearchSubmit: PropTypes.func.isRequired,
     onStar: PropTypes.func.isRequired,

@@ -1,17 +1,28 @@
 import gql from 'graphql-tag';
 
+export const GET_CHANNEL_MEMBERS_QUERY = gql`
+    query GetChannelMembers($channelId: Int!) {
+        getChannelMembers(channelId: $channelId) {
+            id
+            username
+            online
+        }
+    }
+`;
+
 export const CREATE_CHANNEL_MUTATION = gql`
     mutation($teamId: Int!, $name: String!, $private: Boolean!, $description: String, $members: [Int!]) {
         createChannel(teamId: $teamId, name: $name, private: $private, description: $description, members: $members) {
             ok
             channel {
                 id
+                dm
                 name
                 description
                 private
-                dm
+                starred
                 updatesCount
-                participantsCount
+                membersCount
             }
             errors {
                 path
@@ -21,19 +32,35 @@ export const CREATE_CHANNEL_MUTATION = gql`
     }
 `;
 
-export const GET_OR_CREATE_CHANNEL_MUTATION = gql`
+export const CREATE_DM_CHANNEL_MUTATION = gql`
     mutation($teamId: Int!, $members: [Int!]!) {
-        getOrCreateChannel(teamId: $teamId, members: $members) {
+        createDMChannel(teamId: $teamId, members: $members) {
             id
+            dm
             name
+            description
+            private
+            starred
+            updatesCount
+            membersCount
         }
     }
 `;
 
 export const UPDATE_CHANNEL_MUTATION = gql`
-    mutation UpdateChannel($channelId: Int!, $option: String!, $value: String!) {
-        updateChannel(channelId: $channelId, option: $option, value: $value) {
+    mutation UpdateChannel($channelId: Int!, $name: String!, $private: Boolean!, $description: String, $members: [Int!]) {
+        updateChannel(channelId: $channelId, name: $name, private: $private, description: $description, members: $members) {
             ok
+            channel {
+                id
+                dm
+                name
+                description
+                private
+                starred
+                updatesCount
+                membersCount
+            }
             errors {
                 path
                 message

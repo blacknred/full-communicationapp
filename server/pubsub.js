@@ -4,14 +4,16 @@ import redis from 'redis';
 
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD || '';
 
-const client = redis.createClient({
+const options = {
     port: 6379,
     host: 'redis',
-    retry_strategy: options => Math.max(options.attempt * 100, 3000),
-});
-client.auth(REDIS_PASSWORD);
+    retry_strategy: opts => Math.max(opts.attempt * 100, 3000),
+};
 
-export default new RedisPubSub({
-    publisher: client,
-    subscriber: client,
-});
+const publisher = redis.createClient(options);
+publisher.auth(REDIS_PASSWORD);
+
+const subscriber = redis.createClient(options);
+subscriber.auth(REDIS_PASSWORD);
+
+export default new RedisPubSub({ publisher, subscriber });

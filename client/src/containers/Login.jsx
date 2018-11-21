@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as qs from 'query-string';
 import { graphql } from 'react-apollo';
+import { observer, inject } from 'mobx-react';
 
 import { wsLink } from '../apolloClient';
 import { LOGIN_MUTATION } from '../graphql/user';
@@ -27,13 +28,14 @@ class Login extends React.Component {
         }
     }
 
-    onChangeHandler = (e) => {
-        const { name, value } = e.target;
+    onChangeHandler = ({ target: { name, value } }) => {
         this.setState({ [name]: value });
     }
 
     onSubmitHandler = async () => {
-        const { history, mutate } = this.props;
+        const {
+            history, mutate, store: { createNotification },
+        } = this.props;
         const { email, password, teamToken } = this.state;
         try {
             const {
@@ -58,7 +60,7 @@ class Login extends React.Component {
                 this.setState({ errors: err });
             }
         } catch (err) {
-            // TODO:
+            createNotification(err.message);
         }
     }
 
@@ -84,4 +86,6 @@ Login.propTypes = {
     }).isRequired,
 };
 
-export default graphql(LOGIN_MUTATION)(Login);
+export default graphql(LOGIN_MUTATION)(
+    inject('store')(observer(Login)),
+);

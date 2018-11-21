@@ -83,7 +83,7 @@ const RegisterForm = ({
                 helperText={emailError}
                 onChange={onChange}
                 variant="outlined"
-                disabled={token}
+                disabled={!!token}
             />
             <TextField
                 required

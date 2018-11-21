@@ -69,10 +69,10 @@ const LoginForm = ({
                 helperText={emailError}
                 onChange={onChange}
                 variant="outlined"
-                disabled={token}
+                disabled={!!token}
             />
             <TextField
-                autoFocus={token}
+                autoFocus={!!token}
                 required
                 fullWidth
                 id="password"

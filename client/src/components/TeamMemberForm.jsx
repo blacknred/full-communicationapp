@@ -16,15 +16,15 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 const styles = theme => ({
     form: {
         marginTop: theme.spacing.unit * 2,
-        width: 450,
+        minWidth: '20em',
     },
 });
 
 const NewTeamMemberForm = ({
-    classes, width, open, email, emailError, onClose, onChange, onSubmit,
+    classes, width, email, emailError, onClose, onChange, onSubmit,
 }) => (
     <Dialog
-        open={open}
+        open
         fullScreen={isWidthDown('sm', width)}
         onClose={onClose}
     >
@@ -37,7 +37,7 @@ const NewTeamMemberForm = ({
                 id="email"
                 name="email"
                 type="email"
-                label="User's email"
+                label="New member email"
                 autoComplete="email"
                 className={classes.form}
                 defaultValue={email}
@@ -66,7 +66,6 @@ const NewTeamMemberForm = ({
 NewTeamMemberForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
-    open: PropTypes.bool.isRequired,
     email: PropTypes.string.isRequired,
     emailError: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,

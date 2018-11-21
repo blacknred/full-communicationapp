@@ -1,9 +1,13 @@
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { observer, inject } from 'mobx-react';
 
-import { CREATE_TEAM_MUTATION } from '../graphql/team';
+import {
+    GET_TEAMS_QUERY,
+    CREATE_TEAM_MUTATION,
+} from '../graphql/team';
 
-import NewTeamForm from '../components/NewTeamForm';
+import TeamForm from '../components/TeamForm';
 
 class NewTeam extends React.Component {
     constructor(props) {
@@ -15,21 +19,29 @@ class NewTeam extends React.Component {
         };
     }
 
-    onChangeHandler = (e) => {
-        const { name, value } = e.target;
+    onChangeHandler = ({ target: { name, value } }) => {
         this.setState({ [name]: value });
     }
 
     onSubmitHandler = async () => {
         const { name, description } = this.state;
-        const { mutate, history } = this.props;
+        const {
+            mutate, history, store: { createNotification },
+        } = this.props;
         try {
-            const {
-                data: { createTeam: { ok, errors, team } },
-            } = await mutate({
+            const res = await mutate({
                 variables: { name, description },
+                update: (store, { data: { createTeam } }) => {
+                    const { ok, team } = createTeam;
+                    if (!ok) return;
+                    const data = store.readQuery({ query: GET_TEAMS_QUERY });
+                    data.getTeams.push(team);
+                    store.writeQuery({ query: GET_TEAMS_QUERY, data });
+                },
             });
+            const { ok, team, errors } = res.data.createTeam;
             if (ok) {
+                createNotification(`team ${name} was created`);
                 history.push(`/teams/${team.id}/1`);
             } else {
                 const err = {};
@@ -39,14 +51,14 @@ class NewTeam extends React.Component {
                 this.setState({ errors: err });
             }
         } catch (err) {
+            createNotification(err.message);
             history.push('/login');
-            // TODO:
         }
     }
 
     render() {
         return (
-            <NewTeamForm
+            <TeamForm
                 {...this.state}
                 onChange={this.onChangeHandler}
                 onSubmit={this.onSubmitHandler}
@@ -55,4 +67,6 @@ class NewTeam extends React.Component {
     }
 }
 
-export default graphql(CREATE_TEAM_MUTATION)(NewTeam);
+export default graphql(CREATE_TEAM_MUTATION)(
+    inject('store')(observer(NewTeam)),
+);
