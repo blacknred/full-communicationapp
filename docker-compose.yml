@@ -71,3 +71,20 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - CHOKIDAR_USEPOLLING=true
+
+  nginx:
+    container_name: messenger-nginx
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    environment:
+      - NGINX_HOST=swoy.com
+      - NGINX_PORT=80
+    depends_on:
+      - web-client
+    restart: always
+    healthcheck:
+      test: exit 0
