@@ -45,7 +45,6 @@ export const requiresTeamAdminAccess = createResolver(
     async (parent, { teamId, channelId }, { user, models }) => {
         if (!user || !user.id) throw new Error('Not authenticated');
         let isTeamAdmin;
-
         // check if user is the team admin
         if (teamId) {
             isTeamAdmin = await models.TeamMember.findOne({

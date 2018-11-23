@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 
 import {
-    Slide,
     Dialog,
     Button,
     DialogTitle,
     DialogContent,
     DialogActions,
+    DialogContentText,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
@@ -20,41 +20,43 @@ const styles = theme => ({
     },
 });
 
-function Transition(props) {
-    return <Slide direction="up" {...props} />;
-}
-
-const SettingsModal = ({
-    classes, width, open, children, onClose,
+const WarningForm = ({
+    classes, width, message, onSubmit, onClose,
 }) => (
     <Dialog
-        open={open}
+        open
+        disableBackdropClick
         fullScreen={isWidthDown('sm', width)}
         onClose={onClose}
-        TransitionComponent={Transition}
-        fullWidth
-        scroll="body"
-        maxWidth="sm"
+        className={classes.form}
+        maxWidth="xs"
     >
-        <DialogTitle>Settings</DialogTitle>
+        <DialogTitle>Confirmation</DialogTitle>
         <DialogContent>
-            {children}
+            <DialogContentText>
+                {message}
+            </DialogContentText>
         </DialogContent>
         <DialogActions>
             <Button
+                children="Cancel"
                 onClick={onClose}
-                children="Close"
+            />
+            <Button
+                onClick={onSubmit}
+                color="primary"
+                children="Proceed"
             />
         </DialogActions>
     </Dialog>
 );
 
-SettingsModal.propTypes = {
+WarningForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
-    children: PropTypes.node.isRequired,
     width: PropTypes.string.isRequired,
-    open: PropTypes.bool.isRequired,
+    message: PropTypes.string.isRequired,
+    onSubmit: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(SettingsModal);
+export default compose(withStyles(styles), withWidth())(WarningForm);

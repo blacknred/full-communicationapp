@@ -72,9 +72,13 @@ export const CREATE_TEAM_MUTATION = gql`
 `;
 
 export const UPDATE_TEAM_MUTATION = gql`
-    mutation UpdateTeam($teamId: Int!, $option: String!, $value: String!) {
-        updateTeam(teamId: $teamId, option: $option, value: $value) {
+    mutation UpdateTeam($teamId: Int!, $name: String!, $description: String!) {
+        updateTeam(teamId: $teamId, name: $name, description: $description) {
             ok
+            team {
+                name
+                description
+            }
             errors {
                 path
                 message
@@ -85,13 +89,7 @@ export const UPDATE_TEAM_MUTATION = gql`
 
 export const DELETE_TEAM_MUTATION = gql`
     mutation DeleteTeam($teamId: Int!) {
-        deleteTeam(teamId: $teamId) {
-            ok
-            errors {
-                path
-                message
-            }
-        }
+        deleteTeam(teamId: $teamId)
     }
 `;
 

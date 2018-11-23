@@ -10,13 +10,15 @@ import {
 } from '../graphql/team';
 
 import Settings from './Settings';
+import UpdateTeam from './NewTeam';
 import NewChannel from './NewChannel';
+import TeamInfo from '../components/Info';
 import NewTeamMember from './NewTeamMember';
 import TeamsList from '../components/TeamsList';
 import TeamHeader from '../components/TeamHeader';
 import ChannelsList from '../components/ChannelsList';
 import TeamsSidebarContent from '../components/TeamsSidebar';
-import DeleteWarningForm from '../components/DeleteWarningForm';
+import DeleteWarningForm from '../components/WarningForm';
 
 class TeamsSidebar extends React.Component {
     constructor(props) {
@@ -25,13 +27,14 @@ class TeamsSidebar extends React.Component {
             isFullTeamsOpen: false,
             isSettingsModalOpen: false,
             isTeamMenuOpen: false,
+            isTeamInfoOpen: false,
             isAddChannelModalOpen: false,
             isAddChatModalOpen: false,
             isAllChannelsOpen: false,
             isAllChatsOpen: false,
             isAllStarredOpen: false,
             isInvitePeopleModalOpen: false,
-            isTeamUpdateFormOpen: false,
+            isTeamUpdateModalOpen: false,
             isTeamDeleteWarningFormOpen: false,
             searchText: '',
             ctxTeams: [],
@@ -69,17 +72,16 @@ class TeamsSidebar extends React.Component {
                 ctxTeams.splice(teamIdX, 1, team);
             }
             this.setState({ ctxTeams });
-        } else {
-            // in case of updates in current team
-            // if there is not new channel chosen then update team channels
-            // if (team.channels.length !== oldTeam.channels.length) {
-            this.setState({
-                starred: team.channels.filter(ch => ch.starred),
-                channels: team.channels.filter(ch => !ch.dm && !ch.starred),
-                chats: team.channels.filter(ch => ch.dm && !ch.starred),
-            });
-            // }
         }
+        // in case of updates in current team
+        // if there is not new channel chosen then update team channels
+        // if (team.channels.length !== oldTeam.channels.length) {
+        this.setState({
+            starred: team.channels.filter(ch => ch.starred),
+            channels: team.channels.filter(ch => !ch.dm && !ch.starred),
+            chats: team.channels.filter(ch => ch.dm && !ch.starred),
+        });
+        // }
     }
 
     onToggleHandler = target => () => {
@@ -96,16 +98,15 @@ class TeamsSidebar extends React.Component {
 
     onDeleteTeamSubmitHandler = async () => {
         const {
-            team: { id: teamId }, store: { createNotification },
-            deleteTeamMutation,
+            team: { id }, store: { createNotification }, deleteTeamMutation,
         } = this.props;
         try {
             await deleteTeamMutation({
-                variables: { teamId },
+                variables: { teamId: id },
                 update: (store, { data: { deleteTeam } }) => {
                     if (!deleteTeam) return;
                     const data = store.readQuery({ query: GET_TEAMS_QUERY });
-                    remove(data.getTeams, tm => tm.id === teamId);
+                    remove(data.getTeams, tm => tm.id === id);
                     store.writeQuery({ query: GET_TEAMS_QUERY, data });
                     this.setState({ isTeamDeleteWarningFormOpen: false });
                     createNotification('Team was deleted');
@@ -124,8 +125,8 @@ class TeamsSidebar extends React.Component {
         const {
             isFullTeamsOpen, isSettingsModalOpen, isInvitePeopleModalOpen,
             isAddChannelModalOpen, isAddChatModalOpen, isAllChannelsOpen,
-            isAllChatsOpen, isTeamUpdateFormOpen, isTeamDeleteWarningFormOpen,
-            isTeamMenuOpen, isAllStarredOpen,
+            isAllChatsOpen, isTeamUpdateModalOpen, isTeamDeleteWarningFormOpen,
+            isTeamMenuOpen, isAllStarredOpen, isTeamInfoOpen,
             searchText, ctxTeams, channels, starred, chats,
         } = this.state;
         const searchedTeams = teams.filter(({ name }) => name.indexOf(searchText) !== -1);
@@ -152,8 +153,9 @@ class TeamsSidebar extends React.Component {
                             isMenuOpen={isTeamMenuOpen}
                             onMenuToggle={this.onToggleHandler('isTeamMenuOpen')}
                             onTeamsToggle={this.onToggleHandler('isFullTeamsOpen')}
-                            onUpdateToggle={this.onToggleHandler('isTeamUpdateFormOpen')}
+                            onUpdateToggle={this.onToggleHandler('isTeamUpdateModalOpen')}
                             onDeleteToggle={this.onToggleHandler('isTeamDeleteWarningFormOpen')}
+                            onInfoToggle={this.onToggleHandler('isTeamInfoOpen')}
                         />
                         <ChannelsList
                             teamId={team.id}
@@ -175,10 +177,22 @@ class TeamsSidebar extends React.Component {
                         />
                     </React.Fragment>
                 </TeamsSidebarContent>
-                <Settings
-                    open={isSettingsModalOpen}
-                    onClose={this.onToggleHandler('isSettingsModalOpen')}
-                />
+                {
+                    isSettingsModalOpen && (
+                        <Settings
+                            onClose={this.onToggleHandler('isSettingsModalOpen')}
+                        />
+                    )
+                }
+                {
+                    isTeamUpdateModalOpen && (
+                        <UpdateTeam
+                            team={team}
+                            teamIndex={teamIndex}
+                            onClose={this.onToggleHandler('isTeamUpdateModalOpen')}
+                        />
+                    )
+                }
                 {
                     isInvitePeopleModalOpen && (
                         <NewTeamMember
@@ -199,6 +213,23 @@ class TeamsSidebar extends React.Component {
                                     ? this.onToggleHandler('isAddChatModalOpen')
                                     : this.onToggleHandler('isAddChannelModalOpen')
                             }
+                        />
+                    )
+                }
+                {
+                    isTeamInfoOpen && (
+                        <TeamInfo
+                            onClose={this.onToggleHandler('isTeamInfoOpen')}
+                            options={{
+                                name: team.name,
+                                description: team.description,
+                                updatesCount: team.updatesCount,
+                                membersCount: team.membersCount,
+                                created_at: team.created_at,
+                                admin: team.admin,
+                                channelsCount: team.channels.length,
+                            }}
+                            members={[]}
                         />
                     )
                 }

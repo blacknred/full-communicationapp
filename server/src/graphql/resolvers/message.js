@@ -11,6 +11,7 @@ import {
 const CHANNEL_MESSAGE_CREATED = 'CHANNEL_MESSAGE_CREATED';
 const CHANNEL_MESSAGE_UPDATED = 'CHANNEL_MESSAGE_UPDATED';
 const CHANNEL_MESSAGE_REMOVED = 'CHANNEL_MESSAGE_REMOVED';
+const MESSAGES_LIMIT = 20;
 
 export default {
     Message: {
@@ -26,11 +27,20 @@ export default {
     Query: {
         getMessages: requiresTeamAccess.createResolver(
             requiresPrivateChannelAccess.createResolver(
-                async (_, { channelId }, { models }) => models.Message
+                async (_, { channelId, cursor }, { models }) => models.Message
                     .findAll(
                         {
-                            order: [['created_at', 'ASC']],
-                            where: { channelId },
+                            order: [['created_at', 'DESC']],
+                            where: {
+                                channelId,
+                                ...(cursor && {
+                                    created_at: {
+                                        [models.op.lt]: (new Date(Number(cursor)))
+                                            .toISOString(),
+                                    },
+                                }),
+                            },
+                            limit: MESSAGES_LIMIT,
                         },
                         { raw: true },
                     ),

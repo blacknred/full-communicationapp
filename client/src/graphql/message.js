@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const GET_MESSAGES_QUERY = gql`
-    query($channelId: Int!) {
-        getMessages(channelId: $channelId) {
+    query($channelId: Int!, $cursor: String) {
+        getMessages(channelId: $channelId, cursor: $cursor) {
             id
             text
             pinned

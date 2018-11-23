@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 
 import {
+    Slide,
     Dialog,
     Button,
     DialogTitle,
     DialogContent,
     DialogActions,
-    DialogContentText,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
@@ -20,43 +20,40 @@ const styles = theme => ({
     },
 });
 
-const DeleteWarningForm = ({
-    classes, width, message, onSubmit, onClose,
+function Transition(props) {
+    return <Slide direction="up" {...props} />;
+}
+
+const SettingsForm = ({
+    classes, width, children, onClose,
 }) => (
     <Dialog
         open
-        disableBackdropClick
         fullScreen={isWidthDown('sm', width)}
         onClose={onClose}
-        className={classes.form}
-        maxWidth="xs"
+        TransitionComponent={Transition}
+        fullWidth
+        scroll="body"
+        maxWidth="sm"
     >
-        <DialogTitle>Confirmation</DialogTitle>
+        <DialogTitle>Settings</DialogTitle>
         <DialogContent>
-            <DialogContentText>
-                {message}
-            </DialogContentText>
+            {children}
         </DialogContent>
         <DialogActions>
             <Button
-                children="Cancel"
                 onClick={onClose}
-            />
-            <Button
-                onClick={onSubmit}
-                color="primary"
-                children="proceed deleting"
+                children="Close"
             />
         </DialogActions>
     </Dialog>
 );
 
-DeleteWarningForm.propTypes = {
+SettingsForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
+    children: PropTypes.node.isRequired,
     width: PropTypes.string.isRequired,
-    message: PropTypes.string.isRequired,
-    onSubmit: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
-export default compose(withStyles(styles), withWidth())(DeleteWarningForm);
+export default compose(withStyles(styles), withWidth())(SettingsForm);

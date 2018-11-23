@@ -1,15 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { compose } from 'recompose';
 import { Link } from 'react-router-dom';
 
 import {
     Paper,
+    Dialog,
     Button,
     Hidden,
     TextField,
     Typography,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 
 const styles = theme => ({
     layout: {
@@ -30,6 +36,10 @@ const styles = theme => ({
         flexBasis: 70,
     },
     form: {
+        marginTop: theme.spacing.unit * 2,
+        width: '100%', // Fix IE11 issue.
+    },
+    pageForm: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -40,22 +50,11 @@ const styles = theme => ({
 });
 
 const NewTeamForm = ({
-    classes, name, description, onChange, onSubmit,
-    errors: { nameError, descriptionError },
+    classes, width, name, description, onChange, onSubmit, onClose,
+    isUpdate, errors: { nameError, descriptionError },
 }) => {
     const form = (
-        <div className={classes.form}>
-            <Typography
-                variant="h4"
-                component={Link}
-                to="/"
-                className={classes.title}
-                children={process.env.REACT_APP_WEBSITE_NAME.split('-')[0]}
-            />
-            <Typography
-                variant="h6"
-                children="Create a new Team"
-            />
+        <React.Fragment>
             <TextField
                 autoFocus
                 required
@@ -68,6 +67,7 @@ const NewTeamForm = ({
                 error={!!nameError}
                 helperText={nameError}
                 onChange={onChange}
+                className={classes.form}
                 variant="outlined"
             />
             <TextField
@@ -78,9 +78,26 @@ const NewTeamForm = ({
                 defaultValue={description}
                 error={!!descriptionError}
                 helperText={descriptionError}
+                className={classes.form}
                 onChange={onChange}
                 variant="outlined"
             />
+        </React.Fragment>
+    );
+    const pageForm = (
+        <div className={classes.pageForm}>
+            <Typography
+                variant="h4"
+                component={Link}
+                to="/"
+                className={classes.title}
+                children={process.env.REACT_APP_WEBSITE_NAME.split('-')[0]}
+            />
+            <Typography
+                variant="h6"
+                children="Create a new Team"
+            />
+            {form}
             <Button
                 type="submit"
                 fullWidth
@@ -95,29 +112,61 @@ const NewTeamForm = ({
         </div>
     );
     return (
-        <main className={classes.layout}>
-            <Hidden only="xs">
-                <Paper className={classes.paper}>
-                    {form}
-                </Paper>
-            </Hidden>
-            <Hidden smUp>
-                {form}
-            </Hidden>
-        </main>
+        isUpdate
+            ? (
+                <Dialog
+                    open
+                    onClose={onClose}
+                    disableBackdropClick
+                    fullScreen={isWidthDown('sm', width)}
+                    classes={{ paper: classes.paper }}
+                >
+                    <DialogTitle>Update the team</DialogTitle>
+                    <DialogContent classes={{ root: classes.root }}>
+                        {form}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={onClose}
+                            children="Cansel"
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            onClick={onSubmit}
+                            disabled={name.length === 0}
+                            children="Update"
+                        />
+                    </DialogActions>
+                </Dialog>
+            ) : (
+                <main className={classes.layout}>
+                    <Hidden only="xs">
+                        <Paper className={classes.paper}>
+                            {pageForm}
+                        </Paper>
+                    </Hidden>
+                    <Hidden smUp>
+                        {pageForm}
+                    </Hidden>
+                </main>
+            )
     );
 };
 
 NewTeamForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
+    width: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
+    isUpdate: PropTypes.bool.isRequired,
     errors: PropTypes.shape({
         nameError: PropTypes.string,
-        descriptionError: PropTypes.string,
     }).isRequired,
+    onClose: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(NewTeamForm);
+export default compose(withStyles(styles), withWidth())(NewTeamForm);

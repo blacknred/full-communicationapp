@@ -118,7 +118,7 @@ const NewChannelForm = ({
                 }
             >
                 {dm && 'Start Messaging'}
-                {!dm && (isUpdate ? 'Update channel' : 'Create channel')}
+                {!dm && (isUpdate ? 'Update' : 'Create')}
             </Button>
         </DialogActions>
     </Dialog>
@@ -128,7 +128,7 @@ NewChannelForm.propTypes = {
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     width: PropTypes.string.isRequired,
     dm: PropTypes.bool.isRequired,
-    isUpdate: PropTypes.bool,
+    isUpdate: PropTypes.bool.isRequired,
     name: PropTypes.string.isRequired,
     description: PropTypes.string,
     members: PropTypes.arrayOf(PropTypes.shape()).isRequired,

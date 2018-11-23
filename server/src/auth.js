@@ -86,7 +86,7 @@ export const checkAuth = async (models, req, res, next) => {
     next();
 };
 
-export const checkAuth2 = async (models, token, refreshToken) => {
+export const checkSubscriptionAuth = async (models, token, refreshToken) => {
     let curUser = null;
     if (token && refreshToken) {
         try {

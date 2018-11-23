@@ -2,18 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { findIndex, remove } from 'lodash';
 import { observer, inject } from 'mobx-react';
-import { compose, graphql } from 'react-apollo';
+import { compose, graphql, Query } from 'react-apollo';
 
 import UpdateChannel from './NewChannel';
+import ChannelInfo from '../components/Info';
 import ChannelHeaderContent from '../components/ChannelHeader';
-import DeleteWarningForm from '../components/DeleteWarningForm';
+import DeleteWarningForm from '../components/WarningForm';
 
+import {
+    GET_TEAMS_QUERY,
+    GET_TEAM_MEMBERS_QUERY,
+} from '../graphql/team';
 import {
     STAR_CHANNEL_MUTATION,
     UNSTAR_CHANNEL_MUTATION,
     DELETE_CHANNEL_MUTATION,
 } from '../graphql/channel';
-import { GET_TEAMS_QUERY } from '../graphql/team';
 
 class ChannelHeader extends React.Component {
     constructor(props) {
@@ -23,6 +27,7 @@ class ChannelHeader extends React.Component {
             isStarred: false,
             isMenuOpen: false,
             isMobileSearchOpen: false,
+            isChannelInfoOpen: false,
             isChannelUpdateFormOpen: false,
             isChannelDeleteWarningFormOpen: false,
         };
@@ -106,8 +111,8 @@ class ChannelHeader extends React.Component {
             }, teamIndex, isOwner, channel, teamId, teamName,
         } = this.props;
         const {
-            searchText, isStarred, isMenuOpen, isMobileSearchOpen,
-            isChannelUpdateFormOpen, isChannelDeleteWarningFormOpen,
+            isStarred, isMenuOpen, isMobileSearchOpen, isChannelInfoOpen,
+            isChannelUpdateFormOpen, isChannelDeleteWarningFormOpen, searchText,
         } = this.state;
         return (
             <React.Fragment>
@@ -123,9 +128,10 @@ class ChannelHeader extends React.Component {
                     onTeamsSidebarToggle={toggleTeamsSidebar}
                     onChannelSidebarToggle={toggleChannelSidebar}
                     onMenuToggle={this.onToggleHandler('isMenuOpen')}
-                    onChannelUpdateToggle={this.onToggleHandler('isChannelUpdateFormOpen')}
+                    onUpdateToggle={this.onToggleHandler('isChannelUpdateFormOpen')}
                     onMobileSearchToggle={this.onToggleHandler('isMobileSearchOpen')}
-                    onChannelDeleteToggle={this.onToggleHandler('isChannelDeleteWarningFormOpen')}
+                    onDeleteToggle={this.onToggleHandler('isChannelDeleteWarningFormOpen')}
+                    onInfoToggle={this.onToggleHandler('isChannelInfoOpen')}
                     onChange={this.onChangeHandler}
                     onSearchSubmit={this.onSearchSubmitHandler}
                     onStar={this.onStarSubmitHandler}
@@ -141,10 +147,37 @@ class ChannelHeader extends React.Component {
                     )
                 }
                 {
+                    isChannelInfoOpen && (
+                        <Query query={GET_TEAM_MEMBERS_QUERY} variables={{ teamId }}>
+                            {({ loading, error, data }) => {
+                                if (loading || error) return null;
+                                return (
+                                    <ChannelInfo
+                                        onClose={this.onToggleHandler('isChannelInfoOpen')}
+                                        options={{
+                                            type: channel.dm ? 'Chat' : 'Channel',
+                                            name: channel.name,
+                                            description: channel.description,
+                                            private: channel.private,
+
+                                            membersCount: channel.membersCount,
+                                            created_at: channel.created_at,
+                                            messagesCount: channel.messagesCount,
+                                            filesCount: channel.filesCount,
+                                        }}
+                                        members={data.getTeamMembers}
+                                    />
+                                );
+                            }}
+                        </Query>
+                    )
+                }
+                {
                     isChannelDeleteWarningFormOpen && (
                         <DeleteWarningForm
                             message={`
-                            You are deleting ${channel.name.toUpperCase()} channel.
+                            You are deleting ${channel.name.toUpperCase()}
+                            ${channel.dm ? 'chat' : 'channel'}.
                             All related messages will be deleted also.
                             `}
                             onSubmit={this.onDeleteSubmitHandler}

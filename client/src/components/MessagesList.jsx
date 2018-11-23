@@ -2,45 +2,48 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TransitionGroup } from 'react-transition-group';
 
-import { List } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 import Message from './Message';
 
-const styles = {
+const styles = theme => ({
     content: {
-        flex: 1,
         overflowX: 'hidden',
+        padding: `${theme.spacing.unit}px 0`,
+        height: '100%',
     },
-};
+});
 
 const MessagesList = ({
-    classes, messages, userId,
-}) => {
-    const listBottom = React.createRef();
-    // setTimeout(() => listBottom.current.scrollIntoView(), 250);
-    return (
-        <List className={classes.content}>
-            <TransitionGroup component={null}>
-                {
-                    messages.map(message => (
-                        <Message
-                            {...message}
-                            key={`msq-${message.id}`}
-                            isOwner={message.sender.id === userId}
-                        />
-                    ))
-                }
-            </TransitionGroup>
-            <div ref={listBottom} />
-        </List>
-    );
-};
+    classes, messages, userId, onScroll, listRef, bottomRef,
+}) => (
+    <div
+        className={classes.content}
+        onScroll={onScroll}
+        ref={listRef}
+    >
+        <TransitionGroup component={null}>
+            {
+                messages.map(message => (
+                    <Message
+                        {...message}
+                        key={`msq-${message.id}`}
+                        isOwner={message.sender.id === userId}
+                    />
+                ))
+            }
+        </TransitionGroup>
+        <div ref={bottomRef} />
+    </div>
+);
 
 MessagesList.propTypes = {
     userId: PropTypes.number.isRequired,
     classes: PropTypes.objectOf(PropTypes.string).isRequired,
     messages: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+    onScroll: PropTypes.func.isRequired,
+    listRef: PropTypes.func.isRequired,
+    bottomRef: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(MessagesList);

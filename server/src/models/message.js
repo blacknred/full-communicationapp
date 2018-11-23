@@ -21,6 +21,13 @@ export default (sequelize, DataTypes) => {
             //     defaultValue: 'channel',
             // },
         },
+        {
+            indexes: [
+                {
+                    fields: ['created_at'],
+                },
+            ],
+        },
     );
 
     Message.associate = (models) => {

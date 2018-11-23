@@ -39,7 +39,7 @@ const TeamHeader = ({
     team: {
         name, description, membersCount, admin: { username, online },
     }, classes, isMenuOpen, onMenuToggle, onTeamsToggle,
-    onUpdateToggle, onDeleteToggle,
+    onUpdateToggle, onDeleteToggle, onInfoToggle,
 }) => {
     const teamMenu = (
         <Collapse in={isMenuOpen}>
@@ -79,7 +79,7 @@ const TeamHeader = ({
                 </ListItem>
                 <ListItem
                     button
-                    onClick={onMenuToggle}
+                    onClick={onInfoToggle}
                 >
                     <ListItemText
                         primary="About Team"
@@ -165,6 +165,7 @@ TeamHeader.propTypes = {
     onTeamsToggle: PropTypes.func.isRequired,
     onUpdateToggle: PropTypes.func.isRequired,
     onDeleteToggle: PropTypes.func.isRequired,
+    onInfoToggle: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(TeamHeader);

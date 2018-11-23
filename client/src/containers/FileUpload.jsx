@@ -5,8 +5,13 @@ import { graphql } from 'react-apollo';
 
 import { CREATE_FILE_MESSAGE_MUTATION } from '../graphql/message';
 
+const style = {
+    height: '100%',
+    minHeight: 0,
+};
+
 const FileUpload = ({
-    children, disableClick, channelId, mutate, style = {},
+    children, disableClick, channelId, mutate,
 }) => (
     <Dropzone
         style={style}
@@ -31,7 +36,6 @@ FileUpload.propTypes = {
     disableClick: PropTypes.bool,
     channelId: PropTypes.number.isRequired,
     mutate: PropTypes.func.isRequired,
-    style: PropTypes.shape(),
 };
 
 export default graphql(CREATE_FILE_MESSAGE_MUTATION)(FileUpload);

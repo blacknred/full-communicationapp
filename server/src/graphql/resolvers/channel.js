@@ -30,12 +30,6 @@ export default {
                 where: { channelId: id },
                 distinct: true,
             });
-            // return models.Message.count({
-            //     where: { channelId: id },
-            //     distinct: true,
-            //     col: 'user_id',
-            //     // group: {}
-            // });
         },
     },
     Query: {
@@ -126,7 +120,10 @@ export default {
 
                     return {
                         ok: true,
-                        channel: { ...channel.dataValues, starred: false },
+                        channel: {
+                            ...channel.dataValues,
+                            starred: false,
+                        },
                     };
                 } catch (err) {
                     return {
@@ -178,21 +175,25 @@ export default {
                         .transaction(async (transaction) => {
                             // update a common non dm channel
                             const [, updatedRows] = await models.Channel.update(
-                                args, { where: { id: channelId }, transaction, returning: true },
+                                args,
+                                {
+                                    where: { id: channelId },
+                                    transaction,
+                                    returning: true,
+                                },
                             );
 
                             // in case of private channel manage allowed members
                             if (args.private) {
                                 const membersToDelete = [];
                                 const membersToCreate = [];
+                                members.push(user.id);
                                 let exMembers = await models.PrivateChannelMember.findAll(
                                     { where: { channelId } },
                                     { raw: true },
                                 );
                                 exMembers = exMembers.map(m => m.user_id);
-                                const allMembers = [
-                                    ...new Set([...exMembers, ...members, user.id]),
-                                ];
+                                const allMembers = [...new Set([...exMembers, ...members])];
                                 // const diffMembers = exMembers.filter(x => !members.includes(x));
                                 await allMembers.forEach((m) => {
                                     if (!members.includes(m)) membersToDelete.push(m);
@@ -221,7 +222,7 @@ export default {
                                     { transaction },
                                 );
                             }
-                            return updatedRows;
+                            return updatedRows[0];
                         });
 
                     // create announcement message in channel
@@ -241,7 +242,7 @@ export default {
                     });
                     return {
                         ok: true,
-                        channel: { ...updatedChannel[0].dataValues, starred: false },
+                        channel: updatedChannel,
                     };
                 } catch (err) {
                     return {

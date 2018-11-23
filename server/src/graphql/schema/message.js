@@ -33,7 +33,7 @@ export default `
     }
 
     type Query {
-        getMessages(channelId: Int!): [Message!]!
+        getMessages(channelId: Int!, cursor: String): [Message!]!
     }
 
     type Mutation {

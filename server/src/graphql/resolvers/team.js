@@ -40,37 +40,19 @@ export default {
                     raw: true,
                 },
             ),
-        // `select distinct on (id) * from channels as c
-        //     left outer join private_channel_members as pcm
-        //     on c.id = pcm.channel_id
-        //     left outer join starred_channels as sc on c.id = sc.channel_id
-        //     where c.team_id = :teamId
-        //     and (c.private = false or pcm.user_id = :userId)
-        //     and sc.channel_id is null`,
-        // starredChannels: ({ id }, _, { models, user }) => models.sequelize
+        // chatMembers: ({ id }, _, { models, user }) => models.sequelize
         //     .query(
-        //         `select distinct on (id) * from channels as c
-        //         left outer join starred_channels as sc on c.id = sc.channel_id
-        //         where c.team_id = :teamId and sc.user_id = :userId`,
+        //         `select distinct on (u.id) u.id, u.username from users as u
+        //         join direct_messages as dm
+        //         on (u.id = dm.sender_id) or (u.id = dm.receiver_id)
+        //         where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)
+        //         and dm.team_id = :teamId`,
         //         {
-        //             replacements: { teamId: id, userId: user.id },
-        //             model: models.Channel,
+        //             replacements: { currentUserId: user.id, teamId: id },
+        //             model: models.User,
         //             raw: true,
         //         },
         //     ),
-        directMessageMembers: ({ id }, _, { models, user }) => models.sequelize
-            .query(
-                `select distinct on (u.id) u.id, u.username from users as u
-                join direct_messages as dm
-                on (u.id = dm.sender_id) or (u.id = dm.receiver_id)
-                where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)
-                and dm.team_id = :teamId`,
-                {
-                    replacements: { currentUserId: user.id, teamId: id },
-                    model: models.User,
-                    raw: true,
-                },
-            ),
         updatesCount: async ({ id }, _, { models, user }) => {
             const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
             const [{ count }] = await models.sequelize.query(
@@ -129,14 +111,14 @@ export default {
                             ok: false,
                             errors: [{
                                 path: 'name',
-                                message: 'The team with this name allready exists',
+                                message: 'The team with this name already exists',
                             }],
                         };
                     }
-                    const res = await models.sequelize
+                    const team = await models.sequelize
                         .transaction(async (transaction) => {
                             // create a new team
-                            const team = await models.Team.create(
+                            const newTeam = await models.Team.create(
                                 { ...args },
                                 { transaction },
                             );
@@ -146,7 +128,17 @@ export default {
                                 {
                                     name: 'general',
                                     private: false,
-                                    teamId: team.id,
+                                    teamId: newTeam.dataValues.id,
+                                },
+                                { transaction },
+                            );
+
+                            // create a team admin entry
+                            await models.TeamMember.create(
+                                {
+                                    teamId: newTeam.dataValues.id,
+                                    userId: user.id,
+                                    admin: true,
                                 },
                                 { transaction },
                             );
@@ -156,24 +148,15 @@ export default {
                                 text: 'Channel was created!',
                                 userId: user.id,
                                 announcement: true,
-                                channelId: channel.dataValues.id,
+                                channel_id: channel.dataValues.id,
                             });
 
-                            // create a team admin entry
-                            await models.TeamMember.create(
-                                {
-                                    teamId: team.id,
-                                    userId: user.id,
-                                    admin: true,
-                                },
-                                { transaction },
-                            );
-                            return team;
+                            return newTeam;
                         });
 
                     return {
                         ok: true,
-                        team: res,
+                        team,
                     };
                 } catch (err) {
                     return {
@@ -272,25 +255,32 @@ export default {
             },
         ),
         updateTeam: requiresTeamAdminAccess.createResolver(
-            async (_, { teamId, option, value }, { models }) => {
+            async (_, { teamId, ...args }, { models }) => {
                 try {
-                    // TODO: update the team
-                    const updatedTeam = await models.sequelise
-                        .query(
-                            `update teams
-                            set :option = :value
-                            where id = :teamId
-                            `,
-                            {
-                                replacements: { option, value, teamId },
-                                model: models.Team,
-                                raw: true,
-                            },
-                        );
-
+                    // check if team name was changed with the name that already exists
+                    const isExist = await models.Team.findOne({
+                        where: { name: args.name.toLowerCase() },
+                        raw: true,
+                    });
+                    if (isExist && isExist.id !== teamId) {
+                        return {
+                            ok: false,
+                            errors: [{
+                                path: 'name',
+                                message: 'The team with this name already exists',
+                            }],
+                        };
+                    }
+                    const [, updatedTeam] = await models.Team.update(
+                        args,
+                        {
+                            where: { id: teamId },
+                            returning: true,
+                        },
+                    );
                     return {
                         ok: true,
-                        team: updatedTeam,
+                        team: updatedTeam[0],
                     };
                 } catch (err) {
                     return {
@@ -303,8 +293,31 @@ export default {
         deleteTeam: requiresTeamAdminAccess.createResolver(
             async (_, { teamId }, { models }) => {
                 try {
-                    // TODO: delete the team
-                    await models.Teams.destroy({ where: { id: teamId } });
+                    let channelsIds = await models.Channel.findAll(
+                        { where: { teamId } },
+                        { row: true },
+                    );
+                    channelsIds = channelsIds.map(m => m.id);
+                    console.log(channelsIds);
+                    // delete the team, channels, private channel members, channel messages
+                    await models.sequelize.transaction(async (transaction) => {
+                        await models.Message.destroy(
+                            { where: { channel_id: channelsIds } },
+                            { transaction },
+                        );
+                        await models.PrivateChannelMember.destroy(
+                            { where: { channel_id: channelsIds } },
+                            { transaction },
+                        );
+                        await models.Channel.destroy(
+                            { where: { id: channelsIds } },
+                            { transaction },
+                        );
+                        await models.Team.destroy(
+                            { where: { id: teamId } },
+                            { transaction },
+                        );
+                    });
 
                     return true;
                 } catch (err) {

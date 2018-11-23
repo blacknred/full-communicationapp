@@ -1,9 +1,4 @@
 export default `
-    enum ChannelUpdateOptions {
-        name
-        description
-    }
-
     type Channel {
         id: Int!
         dm: Boolean!
@@ -27,7 +22,7 @@ export default `
 
     type Mutation {
         createChannel(teamId: Int!, name: String!, private: Boolean!=false, description: String, members: [Int!]=[]): ChannelResponse!
-        createDMChannel(teamId: Int!, members: [Int!]!): ChannelResponse!
+        createDMChannel(teamId: Int!, members: [Int!]!): Channel!
         updateChannel(channelId: Int!, name: String!, private: Boolean!=false, description: String, members: [Int!]=[]): ChannelResponse!
         deleteChannel(channelId: Int!): Boolean!
         starChannel(channelId: Int!): Boolean!

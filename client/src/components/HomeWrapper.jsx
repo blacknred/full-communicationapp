@@ -8,7 +8,6 @@ const styles = {
         height: '100vh',
         overflow: 'hidden',
         display: 'flex',
-        width: '100%',
     },
     column: {
         flex: 1,

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { reverse } from 'lodash';
 import { graphql } from 'react-apollo';
 import { observer, inject } from 'mobx-react';
 
@@ -14,20 +15,38 @@ import {
     CHANNEL_MESSAGES_SUBSCRIPTION,
 } from '../graphql/message';
 
+const MESSAGES_LIMIT = 20;
 const AUDIO_URL = 'https://notificationsounds.com/soundfiles/99c5e07b4d5de9d18c350cdf64c5aa3d/file-sounds-1110-stairs.wav';
 
 class Messages extends React.Component {
-    componentWillMount() {
-        const { channelId } = this.props;
-        this.unsubscribe = this.subscribe(channelId);
+    constructor(props) {
+        super(props);
+        this.state = {
+            hasMore: true,
+        };
+        this.bottom = React.createRef();
+        this.scroller = React.createRef();
         this.audio = new Audio(audioFile);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillMount() {
         const { channelId } = this.props;
-        if (channelId !== nextProps.channelId) {
+        this.unsubscribe = this.subscribe(channelId);
+    }
+
+    componentWillReceiveProps({ channelId }) {
+        const { channelId: oldChannelId } = this.props;
+        if (channelId !== oldChannelId) {
+            this.setState({ hasMore: true });
             if (this.unsubscribe) this.unsubscribe();
-            this.unsubscribe = this.subscribe(nextProps.channelId);
+            this.unsubscribe = this.subscribe(channelId);
+        }
+    }
+
+    componentDidUpdate() {
+        const { data: { getMessages } } = this.props;
+        if (getMessages && getMessages.length <= MESSAGES_LIMIT) {
+            this.scrollDown();
         }
     }
 
@@ -50,12 +69,44 @@ class Messages extends React.Component {
                 return {
                     ...prev,
                     getMessages: [
-                        ...prev.getMessages,
                         channelMessagesUpdates,
+                        ...prev.getMessages,
                     ],
                 };
             },
         });
+    }
+
+    handleScroll = () => {
+        if (this.scroller && this.scroller.scrollTop < 200) {
+            const { hasMore } = this.state;
+            const { channelId, data: { getMessages, fetchMore } } = this.props;
+            if (hasMore && getMessages.length >= MESSAGES_LIMIT) {
+                fetchMore({
+                    variables: {
+                        channelId,
+                        cursor: getMessages[getMessages.length - 1].created_at,
+                    },
+                    updateQuery: (prev, { fetchMoreResult }) => {
+                        if (!fetchMoreResult) return prev;
+                        if (fetchMoreResult.getMessages.length < MESSAGES_LIMIT) {
+                            this.setState({ hasMore: false });
+                        }
+                        return {
+                            ...prev,
+                            getMessages: [
+                                ...prev.getMessages,
+                                ...fetchMoreResult.getMessages,
+                            ],
+                        };
+                    },
+                });
+            }
+        }
+    }
+
+    scrollDown = () => {
+        if (this.bottom) this.bottom.scrollIntoView();
     }
 
     render() {
@@ -65,17 +116,15 @@ class Messages extends React.Component {
                 ? <Loading small />
                 : (
                     <FileUpload
-                        style={{
-                            flex: 1,
-                            minHeight: 0,
-                            display: 'flex',
-                        }}
                         channelId={channelId}
                         disableClick
                     >
                         <MessagesList
                             userId={userId}
-                            messages={getMessages}
+                            messages={reverse(getMessages)}
+                            onScroll={this.handleScroll}
+                            listRef={(list) => { this.scroller = list; }}
+                            bottomRef={(bottom) => { this.bottom = bottom; }}
                         />
                     </FileUpload>
                 )

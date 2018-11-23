@@ -28,6 +28,9 @@ const styles = theme => ({
     toolbar: {
         backgroundColor: theme.palette.background.paper,
     },
+    adornment: {
+        height: '100%',
+    },
 });
 
 const NewMessageForm = ({
@@ -83,7 +86,10 @@ const NewMessageForm = ({
                             disabled={(isWidthDown('sm', width) && isFullOptionsOpen)}
                             onKeyDown={e => e.keyCode === ENTER_KEY && onSubmit()}
                             endAdornment={(
-                                <InputAdornment position="end">
+                                <InputAdornment
+                                    position="end"
+                                    className={classes.adornment}
+                                >
                                     {
                                         isFullOptionsOpen
                                             ? fullOptions

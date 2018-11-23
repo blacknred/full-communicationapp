@@ -52,14 +52,9 @@ export const UPDATE_CHANNEL_MUTATION = gql`
         updateChannel(channelId: $channelId, name: $name, private: $private, description: $description, members: $members) {
             ok
             channel {
-                id
-                dm
                 name
                 description
                 private
-                starred
-                updatesCount
-                membersCount
             }
             errors {
                 path

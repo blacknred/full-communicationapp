@@ -5,10 +5,10 @@ import { graphql, compose, Mutation } from 'react-apollo';
 
 import Loading from '../components/Loading';
 import SettingsUi from '../components/SettingsUi';
+import SettingsForm from '../components/SettingsForm';
 import SettingsTeams from '../components/SettingsTeams';
-import SettingsModal from '../components/SettingsModal';
 import SettingsProfile from '../components/SettingsProfile';
-import OnDeleteWarningForm from '../components/DeleteWarningForm';
+import OnDeleteWarningForm from '../components/WarningForm';
 
 import {
     GET_CURRENT_USER_QUERY,
@@ -54,7 +54,7 @@ class Settings extends React.Component {
             store: {
                 isNightMode, isSoundsOn, appColor,
                 toggleNightMode, toggleSoundsOn, changeAppColor,
-            }, open, onClose, getCurrentUserQuery, getTeamsQuery,
+            }, onClose, getCurrentUserQuery, getTeamsQuery,
         } = this.props;
 
         if (getCurrentUserQuery.loading || getTeamsQuery.loading) {
@@ -67,8 +67,7 @@ class Settings extends React.Component {
         }
 
         return (
-            <SettingsModal
-                open={open}
+            <SettingsForm
                 onClose={onClose}
             >
                 <SettingsUi
@@ -79,7 +78,7 @@ class Settings extends React.Component {
                     onSoundsOnChange={toggleSoundsOn}
                     onAppColorChange={changeAppColor}
                 />
-                <Mutation
+                {/* <Mutation
                     mutation={UPDATE_USER_MUTATION}
                     ignoreResults
                 >
@@ -103,8 +102,8 @@ class Settings extends React.Component {
                             onClose={() => this.onToggleHandler('isProfileDeleteWarningFormOpen')}
                         />
                     )}
-                </Mutation>
-                <Mutation
+                </Mutation> */}
+                {/* <Mutation
                     mutation={UPDATE_TEAM_MUTATION}
                     ignoreResults
                 >
@@ -129,14 +128,13 @@ class Settings extends React.Component {
                             onClose={() => this.onToggleHandler('isTeamDeleteWarningFormOpen')}
                         />
                     )}
-                </Mutation>
-            </SettingsModal>
+                </Mutation> */}
+            </SettingsForm>
         );
     }
 }
 
 Settings.propTypes = {
-    open: PropTypes.bool.isRequired,
     store: PropTypes.shape().isRequired,
     onClose: PropTypes.func.isRequired,
     getCurrentUserQuery: PropTypes.shape().isRequired,

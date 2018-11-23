@@ -159,7 +159,8 @@ class NewChannel extends React.Component {
                     if (!isOk) return;
                     const data = store.readQuery({ query: GET_TEAMS_QUERY });
                     const channelIndex = findIndex(data.getTeams[teamIndex].channels, { id });
-                    data.getTeams[teamIndex].channels[channelIndex] = channel;
+                    const props = data.getTeams[teamIndex].channels[channelIndex];
+                    data.getTeams[teamIndex].channels[channelIndex] = { ...props, ...channel };
                     store.writeQuery({ query: GET_TEAMS_QUERY, data });
                     this.setState({ isChannelDeleteWarningFormOpen: false });
                 },
@@ -218,8 +219,6 @@ NewChannel.propTypes = {
         description: PropTypes.any,
         updatesCount: PropTypes.number.isRequired,
     }),
-    createChannelMutation: PropTypes.func.isRequired,
-    updateChannelMutation: PropTypes.func.isRequired,
 };
 
 export default compose(

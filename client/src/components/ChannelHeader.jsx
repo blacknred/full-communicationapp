@@ -41,8 +41,8 @@ const styles = theme => ({
     },
     menuBtn: {
         backgroundColor: theme.palette.primary.light,
-        height: 33,
-        width: 33,
+        height: 30,
+        width: 30,
     },
     icon: {
         margin: '0 0 0 1em',
@@ -75,7 +75,8 @@ const ChannelHeader = ({
     }, isMenuOpen, searchText, isMobileSearchOpen, isOwner, isStarred,
     classes, isChannelSidebarOpen, onChange, onSearchSubmit, onStar,
     onMobileSearchToggle, onMenuToggle, onTeamsSidebarToggle, teamName,
-    onChannelSidebarToggle, onChannelUpdateToggle, onChannelDeleteToggle,
+    onChannelSidebarToggle, onUpdateToggle, onDeleteToggle,
+    onInfoToggle,
 }) => {
     const isDefault = name === 'general';
     const searchBtn = (
@@ -150,6 +151,7 @@ const ChannelHeader = ({
                     <MenuItem
                         onClick={() => {
                             onMenuToggle();
+                            onInfoToggle();
                         }}
                         key="menu-about-channel"
                         children="About Channel"
@@ -159,14 +161,14 @@ const ChannelHeader = ({
                         children="Update Channel"
                         onClick={() => {
                             onMenuToggle();
-                            onChannelUpdateToggle();
+                            onUpdateToggle();
                         }}
                     />,
                 ]),
                 <MenuItem
                     onClick={() => {
                         onMenuToggle();
-                        onChannelDeleteToggle();
+                        onDeleteToggle();
                     }}
                     key="menu-delete-channel"
                     children={`Delete ${dm ? 'Chat' : 'Channel'}`}
@@ -304,9 +306,10 @@ ChannelHeader.propTypes = {
     onTeamsSidebarToggle: PropTypes.func.isRequired,
     onChannelSidebarToggle: PropTypes.func.isRequired,
     onMenuToggle: PropTypes.func.isRequired,
-    onChannelUpdateToggle: PropTypes.func.isRequired,
+    onUpdateToggle: PropTypes.func.isRequired,
+    onInfoToggle: PropTypes.func.isRequired,
     onMobileSearchToggle: PropTypes.func.isRequired,
-    onChannelDeleteToggle: PropTypes.func.isRequired,
+    onDeleteToggle: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onSearchSubmit: PropTypes.func.isRequired,
     onStar: PropTypes.func.isRequired,

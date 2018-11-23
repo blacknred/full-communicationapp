@@ -33,7 +33,7 @@ const Message = ({
     classes, text, created_at, announcement, isOwner,
     sender: { username, avatar },
 }) => (
-    <Slide in direction="up">
+    // <Slide in direction="up">
         <ListItem className={announcement ? classes.announce : null}>
             {
                 announcement ? (
@@ -80,7 +80,7 @@ const Message = ({
                 )
             }
         </ListItem>
-    </Slide>
+    // </Slide>
 );
 
 Message.propTypes = {

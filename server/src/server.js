@@ -9,7 +9,7 @@ import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
 
 import app from './app';
 import models from './models';
-import { checkAuth2 } from './auth';
+import { checkSubscriptionAuth } from './auth';
 
 const PORT = process.env.PORT || 3000;
 const debug = Debug('corporate-messenger:server');
@@ -26,6 +26,7 @@ const apollo = new ApolloServer({
     context: async ({ req }) => ({
         models,
         user: req.user,
+        serverUrl: `${req.protocol}://${req.get('host')}`,
     }),
 });
 apollo.applyMiddleware({ app });
@@ -42,7 +43,7 @@ models.sequelize.sync(IS_FORCE).then(() => server
                 subscribe,
                 schema,
                 onConnect: async ({ token, refreshToken }, webSocket) => {
-                    const user = await checkAuth2(models, token, refreshToken);
+                    const user = await checkSubscriptionAuth(models, token, refreshToken);
                     debug(`Subscription client ${user.id} connected via new SubscriptionServer.`);
                     return { models, user };
                 },
