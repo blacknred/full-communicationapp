@@ -10,11 +10,11 @@ export default (sequelize, DataTypes) => {
                 validate: {
                     isAlphanumeric: {
                         args: true,
-                        msg: 'The username can only contain letters and numbers',
+                        msg: 'Can only contain letters and numbers',
                     },
                     len: {
                         args: [5, 25],
-                        msg: 'The username needs to be between 5 and 25 characters long',
+                        msg: 'Needs to be between 5 and 25 characters long',
                     },
                 },
             },
@@ -23,7 +23,7 @@ export default (sequelize, DataTypes) => {
                 validate: {
                     isAlpha: {
                         args: true,
-                        msg: 'The fullname can only contain letters',
+                        msg: 'Can only contain letters',
                     },
                 },
             },
@@ -41,7 +41,7 @@ export default (sequelize, DataTypes) => {
                 validate: {
                     len: {
                         args: [5, 20],
-                        msg: 'The password needs to be between 5 and 20 characters long',
+                        msg: 'Needs to be between 5 and 20 characters long',
                     },
                 },
             },
@@ -49,8 +49,10 @@ export default (sequelize, DataTypes) => {
         {
             hooks: {
                 afterValidate: async (user) => {
-                    // eslint-disable-next-line no-param-reassign
-                    user.password = await bcrypt.hash(user.password, 12);
+                    if (user.password) {
+                        // eslint-disable-next-line no-param-reassign
+                        user.password = await bcrypt.hash(user.password, 12);
+                    }
                 },
             },
         },
@@ -58,6 +60,9 @@ export default (sequelize, DataTypes) => {
 
     User.associate = (models) => {
         User.belongsToMany(models.Team, {
+            hooks: true,
+            // foreignKeyConstraint: true,
+            onDelete: 'CASCADE',
             through: models.TeamMember,
             foreignKey: {
                 name: 'userId',
@@ -65,6 +70,8 @@ export default (sequelize, DataTypes) => {
             },
         });
         User.belongsToMany(models.Channel, {
+            hooks: true,
+            onDelete: 'CASCADE',
             through: models.PrivateChannelMember,
             foreignKey: {
                 name: 'userId',
@@ -72,6 +79,8 @@ export default (sequelize, DataTypes) => {
             },
         });
         User.belongsToMany(models.Channel, {
+            hooks: true,
+            onDelete: 'CASCADE',
             through: 'starred_channels',
             foreignKey: {
                 name: 'userId',

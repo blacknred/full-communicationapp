@@ -30,7 +30,9 @@
         "bluebird": "^3.5.3",
         "body-parser": "^1.18.3",
         "cors": "^2.8.5",
+        "dataloader": "^1.4.0",
         "debug": "^4.1.0",
+        "dotenv": "^6.1.0",
         "express": "^4.16.4",
         "graphql": "^14.0.2",
         "graphql-redis-subscriptions": "^1.5.0",
@@ -45,7 +47,6 @@
         "pg-hstore": "^2.3.2",
         "redis": "^2.8.0",
         "sequelize": "^4.41.2",
-        "subscriptions-transport-ws": "^0.9.15",
         "xmlhttprequest": "^1.8.0"
     }
 }

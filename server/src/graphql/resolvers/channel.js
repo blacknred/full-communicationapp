@@ -31,8 +31,55 @@ export default {
                 distinct: true,
             });
         },
+        messagesCount: ({ id }, _, { models }) => models.Message
+            .count({
+                where: { channelId: id },
+                distinct: true,
+            }),
+        filesCount: ({ id }, _, { models }) => models.sequelize
+            .query(
+                `select count(*) from files as f
+                join messages as m on f.message_id = m.id
+                join channels as c on m.channel_id = c.id
+                where c.id = :channelId`,
+                {
+                    replacements: { channelId: id },
+                    model: models.Files,
+                    raw: true,
+                },
+            ),
     },
     Query: {
+        getChannelInfo: requiresTeamAccess.createResolver(
+            async (_, { channelId }, { models }) => {
+                // in case of private channel get restricted users
+                const { private: isPrivate } = await models.Channel.findById(channelId);
+                if (isPrivate) {
+                    return models.sequelize.query(
+                        `select distinct on (u.id) u.* from users as u
+                        join private_channel_members as pcm on pcm.user_id = u.id
+                        where pcm.channel_id = ?`,
+                        {
+                            replacements: [channelId],
+                            model: models.User,
+                            raw: true,
+                        },
+                    );
+                }
+
+                // in otherway get users that have allready posted messages in channel
+                return models.sequelize.query(
+                    `select distinct on (u.id) u.* from users as u
+                    join messages as m on m.user_id = u.id
+                    where m.channel_id = ?`,
+                    {
+                        replacements: [channelId],
+                        model: models.User,
+                        raw: true,
+                    },
+                );
+            },
+        ),
         getChannelMembers: requiresTeamAccess.createResolver(
             async (_, { channelId }, { models }) => {
                 // in case of private channel get restricted users
@@ -183,17 +230,17 @@ export default {
                                 },
                             );
 
-                            // in case of private channel manage allowed members
+                            // manage allowed members if channel is switched to private
                             if (args.private) {
                                 const membersToDelete = [];
                                 const membersToCreate = [];
                                 members.push(user.id);
-                                let exMembers = await models.PrivateChannelMember.findAll(
+                                const exMembers = await models.PrivateChannelMember.findAll(
                                     { where: { channelId } },
                                     { raw: true },
                                 );
-                                exMembers = exMembers.map(m => m.user_id);
-                                const allMembers = [...new Set([...exMembers, ...members])];
+                                const exMemberIds = exMembers.map(m => m.user_id);
+                                const allMembers = [...new Set([...exMemberIds, ...members])];
                                 // const diffMembers = exMembers.filter(x => !members.includes(x));
                                 await allMembers.forEach((m) => {
                                     if (!members.includes(m)) membersToDelete.push(m);
@@ -255,21 +302,9 @@ export default {
         deleteChannel: requiresTeamAdminAccess.createResolver(
             async (_, { channelId }, { models }) => {
                 try {
-                    // delete the channel, private channel members, channel messages
-                    await models.sequelize.transaction(async (transaction) => {
-                        await models.Message.destroy(
-                            { where: { channelId } },
-                            { transaction },
-                        );
-                        await models.PrivateChannelMember.destroy(
-                            { where: { channelId } },
-                            { transaction },
-                        );
-                        await models.Channel.destroy(
-                            { where: { id: channelId } },
-                            { transaction },
-                        );
-                    });
+                    await models.Channel.destroy(
+                        { where: { id: channelId } },
+                    );
 
                     return true;
                 } catch (err) {

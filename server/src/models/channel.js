@@ -23,6 +23,8 @@ export default (sequelize, DataTypes) => {
             },
         });
         Channel.belongsToMany(models.User, {
+            hooks: true,
+            onDelete: 'CASCADE',
             through: models.PrivateChannelMember,
             foreignKey: {
                 name: 'channelId',
@@ -30,7 +32,17 @@ export default (sequelize, DataTypes) => {
             },
         });
         Channel.belongsToMany(models.User, {
+            hooks: true,
+            onDelete: 'CASCADE',
             through: 'starred_channels',
+            foreignKey: {
+                name: 'channelId',
+                field: 'channel_id',
+            },
+        });
+        Channel.hasMany(models.Message, {
+            hooks: true,
+            onDelete: 'CASCADE',
             foreignKey: {
                 name: 'channelId',
                 field: 'channel_id',

@@ -15,14 +15,11 @@ const MESSAGES_LIMIT = 20;
 
 export default {
     Message: {
-        sender: ({ user, userId }, _, { models }) => {
+        sender: ({ user, userId }, _, { loaders }) => {
             if (user) return user;
-            return models.User.findById(userId);
+            return loaders.sender.load(userId);
         },
-        files: ({ id }, _, { models }) => models.File.findAll(
-            { where: { messageId: id } },
-            { raw: true },
-        ),
+        files: ({ id }, _, { loaders }) => loaders.file.load(id),
     },
     Query: {
         getMessages: requiresTeamAccess.createResolver(

@@ -104,22 +104,52 @@ export default {
         updateUser: requiresAuth.createResolver(
             async (_, { option, value }, { models, user }) => {
                 try {
-                    // TODO: update user
-                    const updatedUser = await models.sequelise
-                        .query(
-                            `update users
-                            set :option = :value
-                            where id = :userId
-                            `,
-                            {
-                                replacements: { option, value, userId: user.id },
-                                model: models.User,
-                                raw: true,
-                            },
-                        );
+                    const [, updatedRows] = await models.User.update(
+                        { [option]: value },
+                        {
+                            where: { id: user.id },
+                            returning: true,
+                        },
+                    );
                     return {
                         ok: true,
-                        user: updatedUser,
+                        user: updatedRows[0],
+                    };
+                } catch (err) {
+                    return {
+                        ok: false,
+                        errors: formateErrors(err, models),
+                    };
+                }
+            },
+        ),
+        updateUserPassword: requiresAuth.createResolver(
+            async (_, { oldPassword, password }, { models, user }) => {
+                try {
+                    const userData = await models.User.findOne({
+                        where: { id: user.id }, raw: true,
+                    });
+
+                    // is password valid
+                    const isValid = await bcrypt.compare(oldPassword, userData.password);
+                    if (!isValid) {
+                        return {
+                            ok: false,
+                            errors: [
+                                {
+                                    path: 'password',
+                                    message: 'Wrong password',
+                                },
+                            ],
+                        };
+                    }
+
+                    await models.User.update(
+                        { password },
+                        { where: { id: user.id } },
+                    );
+                    return {
+                        ok: true,
                     };
                 } catch (err) {
                     return {
@@ -132,8 +162,22 @@ export default {
         deleteUser: requiresAuth.createResolver(
             async (_, __, { models, user }) => {
                 try {
-                    // TODO: delete user
-                    await models.User.destroy({ where: { id: user.id } });
+                    const adminedTeams = await models.TeamMember.findAll({
+                        where: { userId: user.id, admin: true },
+                        raw: true,
+                    });
+                    const adminedTeamIds = adminedTeams.map(m => m.teamId);
+                    await models.sequelize.transaction(async (transaction) => {
+                        await models.User.destroy(
+                            { where: { id: user.id } },
+                            { transaction },
+                        );
+                        await models.Team.destroy(
+                            { where: { id: adminedTeamIds } },
+                            { transaction },
+                        );
+                    });
+
                     return true;
                 } catch (err) {
                     return false;

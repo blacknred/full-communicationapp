@@ -43,6 +43,14 @@ export default (sequelize, DataTypes) => {
                 field: 'channel_id',
             },
         });
+        // Message.hasMany(models.File, {
+        //     hooks: true,
+        //     onDelete: 'CASCADE',
+        //     // foreignKey: {
+        //     //     name: 'messageId',
+        //     //     field: 'message_id',
+        //     // },
+        // });
     };
 
     return Message;

@@ -4,7 +4,6 @@ import {
     requiresTeamAdminAccess,
 } from '../../permissions';
 import redisClient from '../../redis';
-import emailTransporter from '../../email';
 import { createInviteToken } from '../../auth';
 import formateErrors from '../../formateErrors';
 
@@ -20,39 +19,6 @@ export default {
                 raw: true,
             },
         ).then(users => users[0]),
-        channels: ({ id }, _, { models, user }) => models.sequelize
-            .query(
-                `select distinct on (id) *,
-                case
-                when sc.channel_id is not null and sc.user_id = :userId
-                then true else false
-                end as starred
-                from channels as c
-                left outer join private_channel_members as pcm
-                on c.id = pcm.channel_id
-                left outer join starred_channels as sc
-                on c.id = sc.channel_id
-                where c.team_id = :teamId
-                and (c.private = false or pcm.user_id = :userId)`,
-                {
-                    replacements: { teamId: id, userId: user.id },
-                    model: models.Channel,
-                    raw: true,
-                },
-            ),
-        // chatMembers: ({ id }, _, { models, user }) => models.sequelize
-        //     .query(
-        //         `select distinct on (u.id) u.id, u.username from users as u
-        //         join direct_messages as dm
-        //         on (u.id = dm.sender_id) or (u.id = dm.receiver_id)
-        //         where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)
-        //         and dm.team_id = :teamId`,
-        //         {
-        //             replacements: { currentUserId: user.id, teamId: id },
-        //             model: models.User,
-        //             raw: true,
-        //         },
-        //     ),
         updatesCount: async ({ id }, _, { models, user }) => {
             const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
             const [{ count }] = await models.sequelize.query(
@@ -70,6 +36,20 @@ export default {
         },
         membersCount: ({ id }, _, { models }) => models.TeamMember
             .count({ where: { teamId: id } }),
+        channels: ({ id }, _, { loaders }) => loaders.channel.load(id),
+        // chatMembers: ({ id }, _, { models, user }) => models.sequelize
+        //     .query(
+        //         `select distinct on (u.id) u.id, u.username from users as u
+        //         join direct_messages as dm
+        //         on (u.id = dm.sender_id) or (u.id = dm.receiver_id)
+        //         where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)
+        //         and dm.team_id = :teamId`,
+        //         {
+        //             replacements: { currentUserId: user.id, teamId: id },
+        //             model: models.User,
+        //             raw: true,
+        //         },
+        //     ),
     },
     Query: {
         getTeams: requiresAuth.createResolver(
@@ -144,12 +124,15 @@ export default {
                             );
 
                             // create announcement message in channel
-                            await models.Message.create({
-                                text: 'Channel was created!',
-                                userId: user.id,
-                                announcement: true,
-                                channel_id: channel.dataValues.id,
-                            });
+                            await models.Message.create(
+                                {
+                                    text: 'Channel was created!',
+                                    userId: user.id,
+                                    announcement: true,
+                                    channelId: channel.dataValues.id,
+                                },
+                                { transaction },
+                            );
 
                             return newTeam;
                         });
@@ -167,7 +150,7 @@ export default {
             },
         ),
         addTeamMember: requiresTeamAdminAccess.createResolver(
-            async (_, { teamId, email }, { models }) => {
+            async (_, { teamId, email }, { models, emailTransporter }) => {
                 try {
                     // check if valid email
                     if (!/\S+@\S+/.test(email)) {
@@ -293,31 +276,9 @@ export default {
         deleteTeam: requiresTeamAdminAccess.createResolver(
             async (_, { teamId }, { models }) => {
                 try {
-                    let channelsIds = await models.Channel.findAll(
-                        { where: { teamId } },
-                        { row: true },
+                    await models.Team.destroy(
+                        { where: { id: teamId } },
                     );
-                    channelsIds = channelsIds.map(m => m.id);
-                    console.log(channelsIds);
-                    // delete the team, channels, private channel members, channel messages
-                    await models.sequelize.transaction(async (transaction) => {
-                        await models.Message.destroy(
-                            { where: { channel_id: channelsIds } },
-                            { transaction },
-                        );
-                        await models.PrivateChannelMember.destroy(
-                            { where: { channel_id: channelsIds } },
-                            { transaction },
-                        );
-                        await models.Channel.destroy(
-                            { where: { id: channelsIds } },
-                            { transaction },
-                        );
-                        await models.Team.destroy(
-                            { where: { id: teamId } },
-                            { transaction },
-                        );
-                    });
 
                     return true;
                 } catch (err) {

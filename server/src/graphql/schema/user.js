@@ -8,6 +8,7 @@ export default `
     type User {
         id: Int!
         username: String!
+        fullname: String
         email: String!
         online: Boolean!
     }
@@ -33,6 +34,7 @@ export default `
         register(username: String!, email: String!, password: String!, teamToken: String): UserResponse!
         login(email: String!, password: String!, teamToken: String): LoginResponse!
         updateUser(option: UserUpdateOptions!, value: String!): UserResponse!
+        updateUserPassword(oldPassword: String!, password: String!): UserResponse!
         deleteUser: Boolean!
     }
 `;

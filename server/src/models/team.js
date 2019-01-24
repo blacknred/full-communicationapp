@@ -18,7 +18,17 @@ export default (sequelize, DataTypes) => {
 
     Team.associate = (models) => {
         Team.belongsToMany(models.User, {
+            hooks: true,
+            onDelete: 'CASCADE',
             through: models.TeamMember,
+            foreignKey: {
+                name: 'teamId',
+                field: 'team_id',
+            },
+        });
+        Team.hasMany(models.Channel, {
+            hooks: true,
+            onDelete: 'CASCADE',
             foreignKey: {
                 name: 'teamId',
                 field: 'team_id',

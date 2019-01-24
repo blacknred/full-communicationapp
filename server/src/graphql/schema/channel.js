@@ -4,13 +4,17 @@ export default `
         dm: Boolean!
         name: String!
         description: String
+        created_at: String
         private: Boolean!
         starred: Boolean!
         updatesCount: Int!
         membersCount: Int!
+        messagesCount: Int
+        filesCount: Int
     }
 
     type Query {
+        getChannelInfo(channelId: Int!): Channel
         getChannelMembers(channelId: Int!): [User!]
     }
 

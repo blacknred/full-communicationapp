@@ -27,15 +27,6 @@ services:
     healthcheck:
       test: exit 0
 
-  storage:
-    container_name: messenger-storage
-    build: ./storage
-    ports:
-      - '4004:3000'
-    volumes:
-      - './storage:/usr/src/app'
-      - './storage/package.json:/usr/src/package.json'
-
   server:
     container_name: messenger-server
     build: ./server
@@ -51,6 +42,7 @@ services:
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
       - REDIS_PASSWORD=default-password
+      - CLIENT_URL=
       - GMAIL_USER=
       - GMAIL_PASSWORD=
     depends_on:
@@ -60,31 +52,42 @@ services:
       - db
       - redis
 
-  web-client:
-    container_name: messenger-web-client
-    build: ./client
-    ports:
-      - '4000:3000'
-    volumes:
-      - './client:/usr/src/app'
-      - '/usr/src/app/node_modules'
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - CHOKIDAR_USEPOLLING=true
+  #web-client:
+  #  container_name: web-client
+  #  build: .
+  #  volumes:
+  #    - '.:/usr/src/app'
+  #    - './package.json:/usr/src/package.json'
+  #    - '/usr/src/app/node_modules'
+  #  ports:
+  #    - '3000:3000'
+  #  environment:
+  #    - NODE_ENV=${NODE_ENV}
+  #    - CHOKIDAR_USEPOLLING=true
 
-  nginx:
-    container_name: messenger-nginx
-    image: nginx:latest
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    environment:
-      - NGINX_HOST=swoy.com
-      - NGINX_PORT=80
-    depends_on:
-      - web-client
-    restart: always
-    healthcheck:
-      test: exit 0
+  # storage:
+  #   container_name: messenger-storage
+  #   build: ./storage
+  #   ports:
+  #     - '4004:3000'
+  #   volumes:
+  #     - './storage:/usr/src/app'
+  #     - './storage/package.json:/usr/src/package.json'
+
+  # nginx:
+  #   container_name: messenger-nginx
+  #   build: ./nginx
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   volumes:
+  #     - './nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf'
+  #     - './nginx/certs:/etc/letsencrypt'
+  #     - './nginx/certs-data:/data/letsencrypt'
+  #     - './storage/static:/files'
+  #   depends_on:
+  #     - server
+  #     - storage
+  #   restart: always
+  #   healthcheck:
+  #     test: exit 0
