@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import redisClient from '../../redis';
 import formateErrors from '../../formateErrors';
 import { requiresAuth } from '../../permissions';
-import { createTokens, SECRET2, checkInviteToken } from '../../auth';
+import { createTokens, checkInviteToken } from '../../auth';
 
 export default {
     User: {
@@ -11,7 +11,7 @@ export default {
     },
     Query: {
         getCurrentUser: requiresAuth.createResolver(
-            (_, __, { models, user }) => models.User.findById(user.id),
+            (_, __, { models, user }) => models.User.findByPk(user.id),
         ),
     },
     Mutation: {
@@ -85,10 +85,7 @@ export default {
                 }
 
                 // create token
-                const refreshTokenSecret = user.password + SECRET2;
-                const [token, refreshToken] = await createTokens({
-                    user, refreshTokenSecret,
-                });
+                const [token, refreshToken] = await createTokens(user);
                 return {
                     ok: true,
                     token,

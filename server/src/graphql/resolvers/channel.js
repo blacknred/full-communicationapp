@@ -1,114 +1,21 @@
-import redisClient from '../../redis';
 import formateErrors from '../../formateErrors';
 import { requiresTeamAccess, requiresTeamAdminAccess } from '../../permissions';
 
 export default {
     Channel: {
-        updatesCount: async ({ id }, _, { models, user }) => {
-            const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
-            const [{ count }] = await models.sequelize.query(
-                `select count(*) from messages as m
-                join channels as c on m.channel_id = c.id
-                where c.id = :channelId and m.created_at > to_timestamp(:lastVisit)`,
-                {
-                    replacements: { channelId: id, lastVisit },
-                    model: models.Message,
-                    raw: true,
-                },
-            );
-            return count;
-        },
-        membersCount: ({ id, private: isPrivate }, _, { models }) => {
-            // in case of private channel get restricted users count
-            if (isPrivate) {
-                return models.PrivateChannelMember.count({
-                    where: { channelId: id },
-                });
-            }
-            // otherway get count of users have allready posted in channel
-            return models.Message.aggregate('user_id', 'count', {
-                where: { channelId: id },
-                distinct: true,
-            });
-        },
-        messagesCount: ({ id }, _, { models }) => models.Message
-            .count({
-                where: { channelId: id },
-                distinct: true,
-            }),
-        filesCount: ({ id }, _, { models }) => models.sequelize
-            .query(
-                `select count(*) from files as f
-                join messages as m on f.message_id = m.id
-                join channels as c on m.channel_id = c.id
-                where c.id = :channelId`,
-                {
-                    replacements: { channelId: id },
-                    model: models.Files,
-                    raw: true,
-                },
-            ),
+        participants: ({ id, private: isPrivate }, _, { loaders }) => (
+            loaders.participant.load({ id, isPrivate })
+        ),
+        participantsCount: ({ id, private: isPrivate }, _, { loaders }) => (
+            loaders.participantsCount.load({ id, isPrivate })
+        ),
+        filesCount: ({ id }, _, { loaders }) => loaders.channelFilesCount.load(id),
+        messagesCount: ({ id }, _, { loaders }) => loaders.channelMessagesCount.load(id),
+        updatesCount: ({ id }, _, { loaders }) => loaders.channelUpdatesCount.load(id),
     },
     Query: {
-        getChannelInfo: requiresTeamAccess.createResolver(
-            async (_, { channelId }, { models }) => {
-                // in case of private channel get restricted users
-                const { private: isPrivate } = await models.Channel.findById(channelId);
-                if (isPrivate) {
-                    return models.sequelize.query(
-                        `select distinct on (u.id) u.* from users as u
-                        join private_channel_members as pcm on pcm.user_id = u.id
-                        where pcm.channel_id = ?`,
-                        {
-                            replacements: [channelId],
-                            model: models.User,
-                            raw: true,
-                        },
-                    );
-                }
-
-                // in otherway get users that have allready posted messages in channel
-                return models.sequelize.query(
-                    `select distinct on (u.id) u.* from users as u
-                    join messages as m on m.user_id = u.id
-                    where m.channel_id = ?`,
-                    {
-                        replacements: [channelId],
-                        model: models.User,
-                        raw: true,
-                    },
-                );
-            },
-        ),
-        getChannelMembers: requiresTeamAccess.createResolver(
-            async (_, { channelId }, { models }) => {
-                // in case of private channel get restricted users
-                const { private: isPrivate } = await models.Channel.findById(channelId);
-                if (isPrivate) {
-                    return models.sequelize.query(
-                        `select distinct on (u.id) u.* from users as u
-                        join private_channel_members as pcm on pcm.user_id = u.id
-                        where pcm.channel_id = ?`,
-                        {
-                            replacements: [channelId],
-                            model: models.User,
-                            raw: true,
-                        },
-                    );
-                }
-
-                // in otherway get users that have allready posted messages in channel
-                return models.sequelize.query(
-                    `select distinct on (u.id) u.* from users as u
-                    join messages as m on m.user_id = u.id
-                    where m.channel_id = ?`,
-                    {
-                        replacements: [channelId],
-                        model: models.User,
-                        raw: true,
-                    },
-                );
-            },
+        getChannel: requiresTeamAccess.createResolver(
+            (_, { channelId }, { models }) => models.Channel.findByPk(channelId),
         ),
     },
     Mutation: {
@@ -138,13 +45,14 @@ export default {
                         };
                     }
 
-                    // create a common non dm channel
-                    // in case of private channel set allowed members
                     const channel = await models.sequelize
                         .transaction(async (transaction) => {
+                            // create a common non dm channel
                             const newChannel = await models.Channel.create(
                                 args, { transaction },
                             );
+
+                            // in case of private channel set allowed members
                             if (args.private) {
                                 const allMembers = [...new Set([...args.members, user.id])];
                                 await models.PrivateChannelMember.bulkCreate(
@@ -157,9 +65,10 @@ export default {
                             }
                             return newChannel;
                         });
+
                     // create announcement message in channel
                     await models.Message.create({
-                        text: 'Channel was created!',
+                        text: 'Channel has been created!',
                         userId: user.id,
                         announcement: true,
                         channelId: channel.dataValues.id,
@@ -183,8 +92,8 @@ export default {
         updateChannel: requiresTeamAdminAccess.createResolver(
             async (_, { channelId, members, ...args }, { models, user }) => {
                 try {
-                    // check if channel is not dm
-                    const channel = await models.Channel.findById(channelId);
+                    // check if channel is not direct messages chat
+                    const channel = await models.Channel.findByPk(channelId);
                     if (channel.dm) {
                         return {
                             ok: false,
@@ -225,60 +134,61 @@ export default {
                                 args,
                                 {
                                     where: { id: channelId },
-                                    transaction,
                                     returning: true,
+                                    transaction,
                                 },
                             );
 
-                            // manage allowed members if channel is switched to private
+                            // manage allowed members in case of private status
                             if (args.private) {
-                                const membersToDelete = [];
-                                const membersToCreate = [];
-                                members.push(user.id);
-                                const exMembers = await models.PrivateChannelMember.findAll(
+                                // the difference in the number of participants will find that
+                                // the number of members has been changed
+                                // the channel has been switched to private
+                                if (!members.includes(user.id)) {
+                                    members.push(user.id);
+                                }
+                                let exMembers = await models.PrivateChannelMember.findAll(
                                     { where: { channelId } },
                                     { raw: true },
                                 );
-                                const exMemberIds = exMembers.map(m => m.user_id);
-                                const allMembers = [...new Set([...exMemberIds, ...members])];
-                                // const diffMembers = exMembers.filter(x => !members.includes(x));
-                                await allMembers.forEach((m) => {
-                                    if (!members.includes(m)) membersToDelete.push(m);
-                                    if (!exMembers.includes(m)) {
-                                        membersToCreate.push({
-                                            user_id: m,
-                                            channelId,
-                                        });
-                                    }
-                                });
-                                console.log(membersToDelete, membersToCreate);
+                                exMembers = exMembers.map(m => m.user_id);
+
+                                const allMembers = [...new Set([...exMembers, ...members])];
+                                const toDelete = allMembers.filter(m => !members.includes(m));
+                                const toCreate = allMembers.filter(m => !exMembers.includes(m));
+
+                                console.log(allMembers, toDelete, toCreate);
                                 // delete members
                                 await models.PrivateChannelMember.destroy(
-                                    { where: { user_id: membersToDelete } },
+                                    { where: { user_id: toDelete } },
                                     { transaction },
                                 );
                                 // create members
                                 await models.PrivateChannelMember.bulkCreate(
-                                    membersToCreate,
+                                    toCreate.map(m => ({
+                                        user_id: m,
+                                        channelId,
+                                    })),
                                     { transaction },
                                 );
                             } else {
-                                // in otherway delete all members if were
+                                // otherwise delete all existing members
                                 await models.PrivateChannelMember.destroy(
                                     { where: { channelId } },
                                     { transaction },
                                 );
                             }
+
                             return updatedRows[0];
                         });
 
                     // create announcement message in channel
-                    let updateMessage = 'Channel was updated';
+                    let updateMessage = 'Channel has been updated';
                     if (channel.private !== args.private) {
                         if (args.private) {
-                            updateMessage = `Access restricted to ${members.length + 1} members`;
+                            updateMessage = `Access restricted to ${members.length} members`;
                         } else {
-                            updateMessage = 'Channel was switched to public access ';
+                            updateMessage = 'Channel has been switched to public access';
                         }
                     }
                     await models.Message.create({
@@ -287,6 +197,7 @@ export default {
                         announcement: true,
                         channelId,
                     });
+
                     return {
                         ok: true,
                         channel: updatedChannel,
@@ -344,7 +255,7 @@ export default {
                         });
                     }
 
-                    // in otherway create a new dm channel with a composite name
+                    // otherwise create a new dm channel with a specific name
                     const users = await models.User.findAll({
                         where: { id: { [models.sequelize.Op.in]: members } },
                         raw: true,
@@ -352,6 +263,7 @@ export default {
                     const name = users.map(u => u.username).join(', ');
                     const channel = await models.sequelize
                         .transaction(async (transaction) => {
+                            // create channel
                             const newChannel = await models.Channel.create(
                                 {
                                     teamId,
@@ -361,6 +273,8 @@ export default {
                                 },
                                 { transaction },
                             );
+
+                            // manage members
                             await models.PrivateChannelMember.bulkCreate(
                                 allMembers.map(m => ({
                                     channelId: newChannel.dataValues.id,
@@ -368,12 +282,13 @@ export default {
                                 })),
                                 { transaction },
                             );
+
                             return newChannel;
                         });
 
                     // create announcement message in channel
                     await models.Message.create({
-                        text: 'Chat was created!',
+                        text: 'Chat has been created!',
                         userId: user.id,
                         announcement: true,
                         channelId: channel.dataValues.id,

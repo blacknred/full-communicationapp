@@ -7,9 +7,9 @@ export default `
 
     type User {
         id: Int!
+        email: String!
         username: String!
         fullname: String
-        email: String!
         online: Boolean!
     }
 

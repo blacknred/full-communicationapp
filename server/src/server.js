@@ -1,16 +1,25 @@
 import path from 'path';
 import http from 'http';
 import Debug from 'debug';
+import dotenv from 'dotenv';
+import {
+    fileLoader,
+    mergeTypes,
+    mergeResolvers,
+} from 'merge-graphql-schemas';
 import DataLoader from 'dataloader';
 import nodemailer from 'nodemailer';
 import { ApolloServer } from 'apollo-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
-import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
 
 import app from './app';
 import models from './models';
 import loaders from './loaders';
 import { checkSubscriptionAuth } from './auth';
+
+dotenv.config({
+    path: path.join(__dirname, '../', `.env.${process.env.NODE_ENV || 'production'}`),
+});
 
 const PORT = process.env.PORT || 3000;
 const SUBSCRIPTIONS_PATH = '/subscriptions';
@@ -27,6 +36,27 @@ const emailTransporter = nodemailer.createTransport({
         pass: process.env.GMAIL_PASSWORD,
     },
 });
+const regularLoaders = {
+    file: new DataLoader(ids => loaders.file(ids, models)),
+    sender: new DataLoader(ids => loaders.sender(ids, models)),
+    admin: new DataLoader(ids => loaders.admin(ids, models)),
+    member: new DataLoader(ids => loaders.member(ids, models)),
+    membersCount: new DataLoader(ids => loaders.membersCount(ids, models)),
+    participant: new DataLoader(ids => loaders.participant(ids, models)),
+    channelFilesCount: new DataLoader(ids => loaders.channelFilesCount(ids, models)),
+    channelMessagesCount: new DataLoader(ids => loaders.channelMessagesCount(ids, models)),
+    participantsCount: new DataLoader(ids => loaders.participantsCount(ids, models)),
+};
+const subscriptionLoaders = {
+    sender: new DataLoader(ids => loaders.sender(ids, models)),
+    file: new DataLoader(ids => loaders.file(ids, models)),
+};
+const getRegularLoaders = req => ({
+    ...regularLoaders,
+    channel: new DataLoader(ids => loaders.channel(ids, models, req.user)),
+    teamUpdatesCount: new DataLoader(ids => loaders.teamUpdatesCount(ids, models, req.user)),
+    channelUpdatesCount: new DataLoader(ids => loaders.channelUpdatesCount(ids, models, req.user)),
+});
 
 const apollo = new ApolloServer({
     schema,
@@ -35,20 +65,14 @@ const apollo = new ApolloServer({
             return {
                 ...connection.context,
                 models,
-                loaders: {
-                    sender: new DataLoader(ids => loaders.sender(ids, models)),
-                    file: new DataLoader(ids => loaders.file(ids, models)),
-                },
+                loaders: subscriptionLoaders,
             };
         }
         return {
             models,
             user: req.user,
-            loaders: {
-                file: new DataLoader(ids => loaders.file(ids, models)),
-                sender: new DataLoader(ids => loaders.sender(ids, models)),
-                channel: new DataLoader(ids => loaders.channel(ids, models, req.user)),
-            },
+            referrer: req.headers.origin,
+            loaders: getRegularLoaders(req),
             emailTransporter,
         };
     },
@@ -60,7 +84,7 @@ const apollo = new ApolloServer({
             debug(`Subscription client ${user.id} connected via new SubscriptionServer.`);
             return { user };
         },
-        onDisconnect: async () => debug('Subscription client disconnected.'),
+        onDisconnect: () => debug('Subscription client disconnected.'),
     },
 });
 

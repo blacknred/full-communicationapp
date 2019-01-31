@@ -69,7 +69,7 @@ export default {
                             });
 
                         // put new message in pubsub
-                        const currentUser = await models.User.findById(user.id);
+                        const currentUser = await models.User.findByPk(user.id);
                         await pubsub.publish(CHANNEL_MESSAGE_CREATED, {
                             channelId: restArgs.channelId,
                             channelMessagesUpdates: {
@@ -99,7 +99,8 @@ export default {
                     // add the files if provided
                     if (newFiles) {
                         const filesMap = newFiles.map(file => ({
-                            ...file, messageId,
+                            ...file,
+                            messageId,
                         }));
                         await models.File.bulkCreate(filesMap);
                     }
@@ -147,9 +148,9 @@ export default {
     },
     Subscription: {
         channelMessagesUpdates: {
-            resolve: (payload, args, context, info) => {
+            resolve: (payload) => { // , args, context, info
                 // Manipulate and return the new value
-                console.log('new payload', payload.channelMessagesUpdates);
+                // console.log('new payload', payload.channelMessagesUpdates);
                 return payload.channelMessagesUpdates;
             },
             subscribe: requiresTeamAccess.createResolver(

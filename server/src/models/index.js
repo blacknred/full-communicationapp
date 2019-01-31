@@ -12,6 +12,7 @@ const sequelize = new Sequelize(DATABASE_URL[ENV], {
     define: {
         underscored: true,
     },
+    logging: false,
 });
 
 const models = {

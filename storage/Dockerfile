@@ -14,7 +14,7 @@ ENV PATH /usr/src/node_modules/.bin:$PATH
 
 # install and cache app dependencies
 ADD package.json /usr/src/package.json
-RUN yarn install --unsafe-perm=true
+RUN yarn install
 
 # start app
 CMD ["yarn", "start"]

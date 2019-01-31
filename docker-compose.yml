@@ -42,15 +42,21 @@ services:
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
       - REDIS_PASSWORD=default-password
-      - CLIENT_URL=
-      - GMAIL_USER=
-      - GMAIL_PASSWORD=
     depends_on:
       - db
       - redis
     links:
       - db
       - redis
+
+  storage:
+    container_name: messenger-storage
+    build: ./storage
+    ports:
+      - '4002:3000'
+    volumes:
+      - './storage:/usr/src/app'
+      - './storage/package.json:/usr/src/package.json'
 
   #web-client:
   #  container_name: web-client
@@ -64,15 +70,6 @@ services:
   #  environment:
   #    - NODE_ENV=${NODE_ENV}
   #    - CHOKIDAR_USEPOLLING=true
-
-  # storage:
-  #   container_name: messenger-storage
-  #   build: ./storage
-  #   ports:
-  #     - '4004:3000'
-  #   volumes:
-  #     - './storage:/usr/src/app'
-  #     - './storage/package.json:/usr/src/package.json'
 
   # nginx:
   #   container_name: messenger-nginx

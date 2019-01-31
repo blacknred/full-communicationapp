@@ -2,7 +2,11 @@ import axios from 'axios';
 import { XMLHttpRequest } from 'xmlhttprequest';
 import data from './tests_data';
 
-const { serverUrl, password, users } = data;
+const {
+    serverUrl,
+    password,
+    users,
+} = data;
 
 global.XMLHttpRequest = XMLHttpRequest;
 

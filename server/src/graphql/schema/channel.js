@@ -6,16 +6,17 @@ export default `
         description: String
         created_at: String
         private: Boolean!
-        starred: Boolean!
+        starred: Boolean
         updatesCount: Int!
-        membersCount: Int!
+        participantsCount: Int!
         messagesCount: Int
         filesCount: Int
+        participants: [User!]
+        dmOnline: Boolean
     }
 
     type Query {
-        getChannelInfo(channelId: Int!): Channel
-        getChannelMembers(channelId: Int!): [User!]
+        getChannel(channelId: Int!): Channel!
     }
 
     type ChannelResponse {

@@ -5,14 +5,15 @@ export default `
         description: String
         admin: User!
         channels: [Channel!]!
-        directMessageMembers: [User!]
+        created_at: String!
         updatesCount: Int!
         membersCount: Int!
+        members: [User!]
     }
 
     type Query {
         getTeams: [Team!]
-        getTeamMembers(teamId: Int!): [User!]
+        getTeam(teamId: Int!): Team!
     }
 
     type MemberResponse {
@@ -30,7 +31,10 @@ export default `
     type Mutation {
         createTeam(name: String!, description: String): TeamResponse!
         addTeamMember(teamId: Int!, email: String!): MemberResponse!
+        createTeamAccessLink(teamId: Int!, timespan: Int): String!
         updateTeam(teamId: Int!, name: String!, description: String): TeamResponse!
         deleteTeam(teamId: Int!): Boolean!
+        leaveTeam(teamId: Int!): Boolean!
     }
 `;
+// directMessageMembers: [User!]

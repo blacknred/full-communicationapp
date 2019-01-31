@@ -10,15 +10,18 @@ const createResolver = (resolver) => {
     return baseResolver;
 };
 
-export const requiresAuth = createResolver((parent, args, { user }) => {
+export const requiresAuth = createResolver((_, __, { user }) => {
     if (!user || !user.id) {
         throw new Error('Not authenticated');
     }
 });
 
 export const requiresTeamAccess = createResolver(
-    async (parent, { teamId, channelId }, { user, models }) => {
-        if (!user || !user.id) throw new Error('Not authenticated');
+    async (_, { teamId, channelId }, { user, models }) => {
+        if (!user || !user.id) {
+            throw new Error('Not authenticated');
+        }
+
         let teamIdX;
 
         // check if user is the team member
@@ -42,8 +45,11 @@ export const requiresTeamAccess = createResolver(
 );
 
 export const requiresTeamAdminAccess = createResolver(
-    async (parent, { teamId, channelId }, { user, models }) => {
-        if (!user || !user.id) throw new Error('Not authenticated');
+    async (_, { teamId, channelId }, { user, models }) => {
+        if (!user || !user.id) {
+            throw new Error('Not authenticated');
+        }
+
         let isTeamAdmin;
         // check if user is the team admin
         if (teamId) {
@@ -72,8 +78,10 @@ export const requiresTeamAdminAccess = createResolver(
 );
 
 export const requiresPrivateChannelAccess = createResolver(
-    async (parent, { channelId }, { user, models }) => {
-        if (!user || !user.id) throw new Error('Not authenticated');
+    async (_, { channelId }, { user, models }) => {
+        if (!user || !user.id) {
+            throw new Error('Not authenticated');
+        }
 
         // check user access in case of private channel
         const channel = await models.Channel.findOne({
@@ -93,8 +101,11 @@ export const requiresPrivateChannelAccess = createResolver(
 );
 
 export const requiresMessageFullAccess = createResolver(
-    async (parent, { messageId, adminAccess }, { user, models }) => {
-        if (!user || !user.id) throw new Error('Not authenticated');
+    async (_, { messageId, adminAccess }, { user, models }) => {
+        if (!user || !user.id) {
+            throw new Error('Not authenticated');
+        }
+
         let isFullAccess;
 
         // in case of admin access

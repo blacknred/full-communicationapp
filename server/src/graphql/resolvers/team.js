@@ -3,53 +3,17 @@ import {
     requiresTeamAccess,
     requiresTeamAdminAccess,
 } from '../../permissions';
-import redisClient from '../../redis';
+import getTemplate from '../../emailTemplates';
 import { createInviteToken } from '../../auth';
 import formateErrors from '../../formateErrors';
 
 export default {
     Team: {
-        admin: ({ id }, _, { models }) => models.sequelize.query(
-            `select u.id, u.username from users as u
-            join team_members as tm on u.id = tm.user_id
-            where tm.team_id = ? and tm.admin = true`,
-            {
-                replacements: [id],
-                model: models.User,
-                raw: true,
-            },
-        ).then(users => users[0]),
-        updatesCount: async ({ id }, _, { models, user }) => {
-            const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
-            const [{ count }] = await models.sequelize.query(
-                `select count(*) from messages as m
-                join channels as c on m.channel_id = c.id
-                join teams as t on c.team_id = t.id
-                where t.id = :teamId and m.created_at > to_timestamp(:lastVisit)`,
-                {
-                    replacements: { teamId: id, lastVisit },
-                    model: models.Message,
-                    raw: true,
-                },
-            );
-            return count;
-        },
-        membersCount: ({ id }, _, { models }) => models.TeamMember
-            .count({ where: { teamId: id } }),
+        admin: ({ id }, _, { loaders }) => loaders.admin.load(id),
         channels: ({ id }, _, { loaders }) => loaders.channel.load(id),
-        // chatMembers: ({ id }, _, { models, user }) => models.sequelize
-        //     .query(
-        //         `select distinct on (u.id) u.id, u.username from users as u
-        //         join direct_messages as dm
-        //         on (u.id = dm.sender_id) or (u.id = dm.receiver_id)
-        //         where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id)
-        //         and dm.team_id = :teamId`,
-        //         {
-        //             replacements: { currentUserId: user.id, teamId: id },
-        //             model: models.User,
-        //             raw: true,
-        //         },
-        //     ),
+        members: ({ id }, _, { loaders }) => loaders.member.load(id),
+        membersCount: ({ id }, _, { loaders }) => loaders.membersCount.load(id),
+        updatesCount: ({ id }, _, { loaders }) => loaders.teamUpdatesCount.load(id),
     },
     Query: {
         getTeams: requiresAuth.createResolver(
@@ -64,17 +28,8 @@ export default {
                 },
             ),
         ),
-        getTeamMembers: requiresTeamAccess.createResolver(
-            (_, { teamId }, { models }) => models.sequelize.query(
-                `select * from users as u
-                join team_members as tm on tm.user_id = u.id
-                where tm.team_id = ?`,
-                {
-                    replacements: [teamId],
-                    model: models.User,
-                    raw: true,
-                },
-            ),
+        getTeam: requiresTeamAccess.createResolver(
+            (_, { teamId }, { models }) => models.Team.findByPk(teamId),
         ),
     },
     Mutation: {
@@ -150,7 +105,7 @@ export default {
             },
         ),
         addTeamMember: requiresTeamAdminAccess.createResolver(
-            async (_, { teamId, email }, { models, emailTransporter }) => {
+            async (_, { teamId, email }, { models, emailTransporter, referrer }) => {
                 try {
                     // check if valid email
                     if (!/\S+@\S+/.test(email)) {
@@ -162,38 +117,30 @@ export default {
                             }],
                         };
                     }
-
                     // check if new member is a valid user
                     // if not, create short lived token -
                     // an invitation to the team and send it by email
                     const isValidUser = await models.User.findOne({
-                        where: { email }, raw: true,
+                        where: { email },
+                        raw: true,
                     });
                     if (!isValidUser) {
-                        const team = await models.Team.findById(teamId);
-                        const token = createInviteToken({ teamId, email });
+                        const team = await models.Team.findByPk(teamId);
+                        const token = await createInviteToken({ teamId, email });
                         await emailTransporter.sendMail({
                             from: 'swoy-inviteservice@gmail.com',
                             to: email,
                             subject: `Invitation to team ${team.name}`,
-                            html: `
-                            <div>
-                            <h1><i>Hello</i> from SWOY corporate messenger</h1>
-                            <h2>You have received invitation to the team
-                            ${team.name.charAt(0).toUpperCase() + team.name.substr(1)}.</h2>
-                            <p>
-                            Just use the link to continue.<br />
-                            (This link will expire in 1 day.)
-                            </p>
-                            <a href="http://localhost:4000/login?token=${token}&email=${email}">
-                            <b>INVITATION LINK</b>
-                            </a>
-                            </div>
-                            `,
+                            html: getTemplate('envitation', {
+                                name: team.name.charAt(0).toUpperCase() + team.name.substr(1),
+                                token,
+                                email,
+                                referrer,
+                            }),
                         });
                         return {
                             ok: true,
-                            status: 'Invitation was send',
+                            status: 'Invitation has been sent',
                         };
                     }
 
@@ -227,7 +174,7 @@ export default {
 
                     return {
                         ok: true,
-                        status: 'New member was added',
+                        status: 'New member has been added',
                     };
                 } catch (err) {
                     return {
@@ -235,6 +182,13 @@ export default {
                         errors: formateErrors(err, models),
                     };
                 }
+            },
+        ),
+        createTeamAccessLink: requiresTeamAdminAccess.createResolver(
+            (_, { teamId, timespan }, { referrer }) => {
+                // TODO: something wrong with teamId destructuring
+                const token = createInviteToken({ teamId }, timespan);
+                return `${referrer}/login?token=${token}`;
             },
         ),
         updateTeam: requiresTeamAdminAccess.createResolver(
@@ -278,6 +232,25 @@ export default {
                 try {
                     await models.Team.destroy(
                         { where: { id: teamId } },
+                    );
+
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            },
+        ),
+        leaveTeam: requiresTeamAccess.createResolver(
+            async (_, { teamId }, { models, user }) => {
+                try {
+                    await models.TeamMember.destroy(
+                        {
+                            where: {
+                                teamId,
+                                userId: user.id,
+                                admin: false,
+                            },
+                        },
                     );
 
                     return true;
