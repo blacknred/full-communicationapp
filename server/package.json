@@ -2,7 +2,7 @@
     "name": "corporate-messenger-server",
     "version": "0.1.0",
     "description": "",
-    "main": "server.js",
+    "main": "index.js",
     "scripts": {
         "serve": "node ./dist",
         "build": "babel src -d dist",
@@ -11,8 +11,8 @@
         "test:integration": "jest --forceExit --detectOpenHandles tests/integration/index_resolvers",
         "test:unit": "jest tests/unit"
     },
-    "keywords": [],
-    "author": "",
+    "repository": "https://github.com/blacknred/swoy-messenger-server.git",
+    "author": "blcknrd <tretyakov.dmi@gmail.com>",
     "license": "ISC",
     "devDependencies": {
         "babel-cli": "^6.26.0",

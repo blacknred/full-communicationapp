@@ -1,14 +1,12 @@
-// process.env.NODE_ENV = 'test';
-
-import path from 'path';
-import http from 'http';
-import Debug from 'debug';
-import dotenv from 'dotenv';
 import {
     fileLoader,
     mergeTypes,
     mergeResolvers,
 } from 'merge-graphql-schemas';
+import path from 'path';
+import http from 'http';
+import Debug from 'debug';
+import dotenv from 'dotenv';
 import DataLoader from 'dataloader';
 import nodemailer from 'nodemailer';
 import { ApolloServer } from 'apollo-server-express';
@@ -20,17 +18,21 @@ import loaders from './loaders';
 import { checkSubscriptionAuth } from './auth';
 
 dotenv.config({
-    path: path.join(__dirname, '../', `.env.${process.env.NODE_ENV || 'production'}`),
+    path: path.join(__dirname, '../', `.env.${process.env.NODE_ENV || 'development'}`),
 });
 
 const PORT = process.env.PORT || 3000;
 const SUBSCRIPTIONS_PATH = '/subscriptions';
-const IS_FORCE = process.env.NODE_ENV === 'test';
-const debug = Debug('corporate-messenger:server');
+const IS_DB_DROP = process.env.NODE_ENV === 'test';
+const IS_LOGGING = process.env.NODE_ENV === 'test';
 
+const debug = Debug('corporate-messenger:server');
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './graphql/schema')));
 const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './graphql/resolvers')));
-const schema = makeExecutableSchema({ typeDefs, resolvers });
+const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+});
 const emailTransporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -62,6 +64,9 @@ const getRegularLoaders = req => ({
 
 const apollo = new ApolloServer({
     schema,
+    engine: {
+        apiKey: process.env.ENGINE_API_KEY,
+    },
     context: ({ req, connection }) => {
         if (connection) {
             return {
@@ -90,6 +95,16 @@ const apollo = new ApolloServer({
     },
 });
 
+if (IS_LOGGING) {
+    apollo.requestOptions.formatError = (error) => {
+        debug(error);
+        return error;
+    };
+    apollo.requestOptions.formatResponse = (response) => {
+        debug(response);
+        return response;
+    };
+}
 apollo.applyMiddleware({ app });
 
 const server = http.createServer(app);
@@ -97,7 +112,7 @@ apollo.installSubscriptionHandlers(server);
 
 setImmediate(async () => {
     try {
-        if (IS_FORCE) {
+        if (IS_DB_DROP) {
             await models.sequelize.drop();
             await models.sequelize.sync();
         }

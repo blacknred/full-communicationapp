@@ -1,3 +1,4 @@
+// TODO: implement https://www.apollographql.com/docs/apollo-server/features/testing.html
 import ws from 'ws';
 import fetch from 'node-fetch';
 import gql from 'graphql-tag';
