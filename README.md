@@ -5,33 +5,15 @@
 
 | Name       | Container            | Stack                  | Ports |
 |------------|----------------------|------------------------|-------|
-| Web client | messenger-web-client | React, Mobx, GraphQL   | 4001  |
 | Server     | messenger-server     | Node, Express, GraphQL | 4000  |
 | DB         | messenger-db         | Postgres               | 5432  |
 | Redis      | messenger-redis      | Redis                  | 6379  |
-| Storage    | messenger-storage    | Node, Koa              | 4004  |
-
-#### Web client - http://localhost:4001
-
-| Endpoint                    | Result                                    |
-|-----------------------------|-------------------------------------------|
-| /                           | redirect to /teams                        |
-| /login                      | login page                                |
-| /register                   | register page                             |
-| /settings                   | settings page                             |
-| /new                        | team creating page                        |
-| /teams/:teamId?/:channelId? | renders teams, channels, messages of user |
-| /admin/:teamId?/:channelId? | dashboard                                 |
 
 #### Server - http://localhost:4000
 
-#### Files Storage - http://localhost:4004
-
-Mock storage with API for CREATE, DELETE and GET static posts files
-
 #### Redis
 
-Cache layer for GraphQL Subscriptions and users' online/offline status
+Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
 
 ## Run the project
 

@@ -49,14 +49,14 @@ services:
       - db
       - redis
 
-  storage:
-    container_name: messenger-storage
-    build: ./storage
-    ports:
-      - '4002:3000'
-    volumes:
-      - './storage:/usr/src/app'
-      - './storage/package.json:/usr/src/package.json'
+  # storage:
+  #   container_name: messenger-storage
+  #   build: ./storage
+  #   ports:
+  #     - '4002:3000'
+  #   volumes:
+  #     - './storage:/usr/src/app'
+  #     - './storage/package.json:/usr/src/package.json'
 
   #web-client:
   #  container_name: web-client
