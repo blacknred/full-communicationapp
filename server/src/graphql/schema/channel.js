@@ -15,18 +15,18 @@ export default `
         dmOnline: Boolean
     }
 
-    type Query {
-        getChannel(channelId: Int!): Channel!
-    }
-
     type ChannelResponse {
         ok: Boolean!
         channel: Channel
         errors: [Error!]
     }
 
+    type Query {
+        getChannel(channelId: Int!): Channel!
+    }
+
     type Mutation {
-        createChannel(teamId: Int!, name: String!, private: Boolean!=false, description: String, members: [Int!]=[]): ChannelResponse!
+        createChannel(teamId: Int!, name: String!, description: String, private: Boolean=false, members: [Int!]=[]): ChannelResponse!
         createDMChannel(teamId: Int!, members: [Int!]!): Channel!
         updateChannel(channelId: Int!, name: String!, private: Boolean!=false, description: String, members: [Int!]=[]): ChannelResponse!
         deleteChannel(channelId: Int!): Boolean!

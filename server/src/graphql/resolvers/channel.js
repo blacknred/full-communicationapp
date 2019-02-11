@@ -311,7 +311,8 @@ export default {
                 try {
                     // add new row on starred_channels
                     await models.StarredChannel.create({
-                        channelId, userId: user.id,
+                        channelId,
+                        userId: user.id,
                     });
                     return true;
                 } catch (err) {
@@ -324,7 +325,10 @@ export default {
                 try {
                     // remove row from starred_channels
                     await models.StarredChannel.destroy({
-                        where: { channelId, userId: user.id },
+                        where: {
+                            channelId,
+                            userId: user.id,
+                        },
                     });
                     return true;
                 } catch (err) {
@@ -332,6 +336,5 @@ export default {
                 }
             },
         ),
-
     },
 };

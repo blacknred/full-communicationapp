@@ -4,9 +4,36 @@ export default (sequelize, DataTypes) => {
         {
             size: DataTypes.INTEGER,
             name: DataTypes.STRING,
-            path: DataTypes.STRING,
-            type: DataTypes.STRING,
-            thumb: DataTypes.STRING,
+            path: {
+                type: DataTypes.STRING,
+                unique: true,
+                validate: {
+                    isUrl: {
+                        args: true,
+                        msg: 'Can only contain url',
+                    },
+                },
+            },
+            type: {
+                type: DataTypes.STRING,
+                unique: true,
+                validate: {
+                    isIn: {
+                        args: [['png', 'jpg']],
+                        msg: 'Invalid file type',
+                    },
+                },
+            },
+            thumb: {
+                type: DataTypes.STRING,
+                unique: true,
+                validate: {
+                    isUrl: {
+                        args: true,
+                        msg: 'Can only contain url',
+                    },
+                },
+            },
             description: DataTypes.STRING,
         },
     );

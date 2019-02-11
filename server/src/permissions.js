@@ -49,12 +49,16 @@ export const requiresTeamAdminAccess = createResolver(
         if (!user || !user.id) {
             throw new Error('Not authenticated');
         }
-
+        console.log('pppppp');
         let isTeamAdmin;
         // check if user is the team admin
         if (teamId) {
             isTeamAdmin = await models.TeamMember.findOne({
-                where: { teamId, userId: user.id, admin: true },
+                where: {
+                    teamId,
+                    userId: user.id,
+                    admin: true,
+                },
                 raw: true,
             });
         } else {
@@ -65,13 +69,17 @@ export const requiresTeamAdminAccess = createResolver(
                 where c.id = :channelId and tm.user_id = :userId
                 and tm.admin = true`,
                 {
-                    replacements: { channelId, userId: user.id },
+                    replacements: {
+                        channelId,
+                        userId: user.id,
+                    },
                     model: models.TeamMember,
                     raw: true,
                 },
             );
         }
         if (!isTeamAdmin) {
+            console.log('pppfgppp');
             throw new Error('The operation needs team admin rights');
         }
     },
@@ -90,7 +98,10 @@ export const requiresPrivateChannelAccess = createResolver(
         });
         if (channel.private) {
             const isMember = await models.PrivateChannelMember.findOne({
-                where: { channelId, user_id: user.id },
+                where: {
+                    channelId,
+                    user_id: user.id,
+                },
                 raw: true,
             });
             if (!isMember) {
@@ -105,14 +116,13 @@ export const requiresMessageFullAccess = createResolver(
         if (!user || !user.id) {
             throw new Error('Not authenticated');
         }
-
         let isFullAccess;
 
         // in case of admin access
         // check if user is admin of a team that hosts the message
         if (adminAccess) {
             isFullAccess = await models.sequelize.query(
-                `select user_id from team_members as tm
+                `select tm.user_id from team_members as tm
                 left outer join teams as t on t.id = tm.team_id
                 left outer join channels as c on c.team_id = t.id
                 left outer join messages as m on m.channel_id = c.id
@@ -127,7 +137,10 @@ export const requiresMessageFullAccess = createResolver(
         } else {
             // check if user is author of the message
             isFullAccess = await models.Message.findOne({
-                where: { id: messageId, userId: user.id },
+                where: {
+                    id: messageId,
+                    userId: user.id,
+                },
                 raw: true,
             });
         }

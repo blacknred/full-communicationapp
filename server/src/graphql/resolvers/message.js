@@ -6,6 +6,7 @@ import {
     requiresTeamAccess,
     requiresPrivateChannelAccess,
     requiresMessageFullAccess,
+    requiresTeamAdminAccess,
 } from '../../permissions';
 
 const CHANNEL_MESSAGE_CREATED = 'CHANNEL_MESSAGE_CREATED';
@@ -32,8 +33,7 @@ export default {
                                 channelId,
                                 ...(cursor && {
                                     created_at: {
-                                        [models.op.lt]: (new Date(Number(cursor)))
-                                            .toISOString(),
+                                        [models.op.lt]: (new Date(Number(cursor))).toISOString(),
                                     },
                                 }),
                             },
@@ -61,7 +61,8 @@ export default {
                                     { transaction },
                                 );
                                 const filesMap = files.map(file => ({
-                                    ...file, messageId: newMessage.id,
+                                    ...file,
+                                    messageId: newMessage.id,
                                 }));
                                 await models.File.bulkCreate(filesMap, { transaction });
 
@@ -86,19 +87,19 @@ export default {
             ),
         ),
         updateMessage: requiresMessageFullAccess.createResolver(
-            async (_, { messageId, newText, newFiles }, { models }) => {
+            async (_, { messageId, text, files }, { models }) => {
                 try {
                     // update the text if provided
-                    if (newText) {
+                    if (text) {
                         await models.Message.update(
-                            { text: newText },
+                            { text },
                             { where: { id: messageId } },
                         );
                     }
 
                     // add the files if provided
-                    if (newFiles) {
-                        const filesMap = newFiles.map(file => ({
+                    if (files) {
+                        const filesMap = files.map(file => ({
                             ...file,
                             messageId,
                         }));
@@ -113,7 +114,6 @@ export default {
                     //         user: currentUser.dataValues,
                     //     },
                     // });
-
                     return true;
                 } catch (err) {
                     return false;
@@ -145,10 +145,25 @@ export default {
                 }
             },
         ),
+        pinMessage: requiresMessageFullAccess.createResolver(
+            async (_, { messageId, status }, { models }) => {
+                try {
+                    await models.Message.update(
+                        { pinned: status },
+                        { where: { id: messageId } },
+                    );
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            },
+        ),
     },
     Subscription: {
         channelMessagesUpdates: {
-            resolve: (payload) => { // , args, context, info
+            resolve: (payload) => {
+                console.log('brrrah');
+                // , args, context, info
                 // Manipulate and return the new value
                 // console.log('new payload', payload.channelMessagesUpdates);
                 return payload.channelMessagesUpdates;

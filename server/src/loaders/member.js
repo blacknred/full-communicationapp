@@ -1,9 +1,9 @@
 export default async (ids, models) => {
     const users = await models.sequelize.query(
-        `select tm.team_id, u.id, u.username, u.fullname from users as u
+        `select tm.team_id, u.id, u.username, u.fullname, u.email from users as u
         join team_members as tm on tm.user_id = u.id
         where tm.team_id in (:ids)
-        order by tm.team_id asc`,
+        order by u.id asc`, // tm.team_id
         {
             replacements: { ids },
             model: models.User,

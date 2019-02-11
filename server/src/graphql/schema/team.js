@@ -11,11 +11,6 @@ export default `
         members: [User!]
     }
 
-    type Query {
-        getTeams: [Team!]
-        getTeam(teamId: Int!): Team!
-    }
-
     type MemberResponse {
         ok: Boolean!
         errors: [Error!]
@@ -28,10 +23,15 @@ export default `
         team: Team
     }
 
+    type Query {
+        getTeam(teamId: Int!): Team!
+        getTeams: [Team!]
+    }
+
     type Mutation {
         createTeam(name: String!, description: String): TeamResponse!
         addTeamMember(teamId: Int!, email: String!): MemberResponse!
-        createTeamAccessLink(teamId: Int!, timespan: Int): String!
+        createTeamAccessLink(teamId: Int!, hours: Int): String!
         updateTeam(teamId: Int!, name: String!, description: String): TeamResponse!
         deleteTeam(teamId: Int!): Boolean!
         leaveTeam(teamId: Int!): Boolean!

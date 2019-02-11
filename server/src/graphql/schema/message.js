@@ -38,7 +38,8 @@ export default `
 
     type Mutation {
         createMessage(channelId: Int!, text: String, files: [FileData!]=[], forwarded: Boolean=false): Boolean!
-        updateMessage(messageId: Int!, newText: String, newFiles: [FileData!]): Boolean!
+        updateMessage(messageId: Int!, text: String, files: [FileData!]=[]): Boolean!
         deleteMessage(messageId: Int!, adminAccess: Boolean=false): Boolean!
+        pinMessage(messageId: Int!, adminAccess: Boolean=false, status: Boolean=false): Boolean!
     }
 `;

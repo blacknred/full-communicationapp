@@ -2,7 +2,15 @@ export default (sequelize, DataTypes) => {
     const Channel = sequelize.define(
         'channel',
         {
-            name: DataTypes.STRING,
+            name: {
+                type: DataTypes.STRING,
+                validate: {
+                    is: {
+                        args: ['^[a-zA-Z0-9, ]+$', 'i'],
+                        msg: 'Can only contain letters, numbers and space',
+                    },
+                },
+            },
             description: DataTypes.STRING,
             private: {
                 type: DataTypes.BOOLEAN,

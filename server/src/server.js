@@ -1,3 +1,5 @@
+// process.env.NODE_ENV = 'test';
+
 import path from 'path';
 import http from 'http';
 import Debug from 'debug';
@@ -81,7 +83,7 @@ const apollo = new ApolloServer({
         keepAlive: 1,
         onConnect: async ({ token, refreshToken }) => {
             const user = await checkSubscriptionAuth(models, token, refreshToken);
-            debug(`Subscription client ${user.id} connected via new SubscriptionServer.`);
+            debug(`Subscription ${token} client ${user.id} connected via new SubscriptionServer.`);
             return { user };
         },
         onDisconnect: () => debug('Subscription client disconnected.'),
@@ -93,8 +95,16 @@ apollo.applyMiddleware({ app });
 const server = http.createServer(app);
 apollo.installSubscriptionHandlers(server);
 
-models.sequelize.sync(IS_FORCE && { force: true })
-    .then(() => server.listen({ port: PORT }, () => {
+setImmediate(async () => {
+    try {
+        if (IS_FORCE) {
+            await models.sequelize.drop();
+            await models.sequelize.sync();
+        }
+        await server.listen(PORT);
         debug(`🚀 at http://localhost:${PORT}${apollo.graphqlPath}`);
         debug(`Subscriptions 🚀 at ws://localhost:${PORT}${apollo.subscriptionsPath}`);
-    }));
+    } catch (e) {
+        debug(e);
+    }
+});

@@ -101,7 +101,6 @@ export const checkSubscriptionAuth = async (models, token, refreshToken) => {
 };
 
 export const createInviteToken = (credentials, hours = 24) => {
-    debug(credentials, hours);
     return jwt.sign(
         { credentials },
         SECRET,
@@ -110,7 +109,6 @@ export const createInviteToken = (credentials, hours = 24) => {
 };
 
 export const checkInviteToken = (token) => {
-    debug(token);
     try {
         const { credentials } = jwt.verify(token, SECRET);
         return credentials;

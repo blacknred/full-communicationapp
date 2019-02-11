@@ -5,7 +5,6 @@ const DATABASE_URL = {
     development: process.env.DATABASE_URL,
     test: process.env.DATABASE_TEST_URL,
 };
-
 const sequelize = new Sequelize(DATABASE_URL[ENV], {
     dialect: 'postgres',
     operatorsAliases: Sequelize.Op,

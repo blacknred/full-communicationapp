@@ -15,9 +15,3 @@ export default async (ids, models) => {
     // reorder the results due to the disorder of the channels
     return ids.map(id => counts.find(c => c.id === id).count || 0);
 };
-
-// `select c.id, count(f.id) from channels as c
-// left join messages as m on c.id = m.channel_id
-// left join files as f on m.id = f.message_id
-// where c.id in (:ids)
-// group by c.id`,

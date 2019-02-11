@@ -21,6 +21,7 @@
 | /settings                   | settings page                             |
 | /new                        | team creating page                        |
 | /teams/:teamId?/:channelId? | renders teams, channels, messages of user |
+| /admin/:teamId?/:channelId? | dashboard                                 |
 
 #### Server - http://localhost:4000
 

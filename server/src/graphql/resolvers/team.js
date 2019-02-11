@@ -16,6 +16,9 @@ export default {
         updatesCount: ({ id }, _, { loaders }) => loaders.teamUpdatesCount.load(id),
     },
     Query: {
+        getTeam: requiresTeamAccess.createResolver(
+            (_, { teamId }, { models }) => models.Team.findByPk(teamId),
+        ),
         getTeams: requiresAuth.createResolver(
             (_, __, { models, user }) => models.sequelize.query(
                 `select * from teams as t
@@ -27,9 +30,6 @@ export default {
                     raw: true,
                 },
             ),
-        ),
-        getTeam: requiresTeamAccess.createResolver(
-            (_, { teamId }, { models }) => models.Team.findByPk(teamId),
         ),
     },
     Mutation: {
@@ -126,7 +126,7 @@ export default {
                     });
                     if (!isValidUser) {
                         const team = await models.Team.findByPk(teamId);
-                        const token = await createInviteToken({ teamId, email });
+                        const token = await createInviteToken({ teamId });
                         await emailTransporter.sendMail({
                             from: 'swoy-inviteservice@gmail.com',
                             to: email,
@@ -185,10 +185,13 @@ export default {
             },
         ),
         createTeamAccessLink: requiresTeamAdminAccess.createResolver(
-            (_, { teamId, timespan }, { referrer }) => {
-                // TODO: something wrong with teamId destructuring
-                const token = createInviteToken({ teamId }, timespan);
-                return `${referrer}/login?token=${token}`;
+            async (_, { teamId, hours }, { referrer }) => {
+                try {
+                    const token = await createInviteToken({ teamId }, hours);
+                    return `${referrer}/login?token=${token}`;
+                } catch (e) {
+                    return '';
+                }
             },
         ),
         updateTeam: requiresTeamAdminAccess.createResolver(

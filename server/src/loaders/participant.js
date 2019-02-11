@@ -14,10 +14,11 @@ export default async (channels, models) => {
 
     const [privateUsers, publicUsers] = await Promise.all([
         // in the case of a private channel, get the allowed users
-        ids.private.length === 0 ? [] : models.sequelize.query(
-            `select u.id, u.username, u.fullname, pcm.channel_id from users as u
+        ids.private.length === 0 ? [] : await models.sequelize.query(
+            `select u.id, u.username, u.fullname, u.email, pcm.channel_id from users as u
             join private_channel_members as pcm on pcm.user_id = u.id
-            where pcm.channel_id in (:pids)`,
+            where pcm.channel_id in (:pids)
+            order by u.id`,
             {
                 replacements: { pids: ids.private },
                 model: models.User,
@@ -25,11 +26,12 @@ export default async (channels, models) => {
             },
         ),
         // otherwise get the users who have already posted messages in the channel
-        ids.public.length === 0 ? [] : models.sequelize.query(
+        ids.public.length === 0 ? [] : await models.sequelize.query(
             `select distinct on (u.id)
-            u.id, u.username, u.fullname, m.channel_id from users as u
+            u.id, u.username, u.fullname, u.email, m.channel_id from users as u
             join messages as m on m.user_id = u.id
-            where m.channel_id in (:fids)`,
+            where m.channel_id in (:fids)
+            order by u.id`,
             {
                 replacements: { fids: ids.public },
                 model: models.User,

@@ -21,9 +21,9 @@ export default (sequelize, DataTypes) => {
             fullname: {
                 type: DataTypes.STRING,
                 validate: {
-                    isAlpha: {
-                        args: true,
-                        msg: 'Can only contain letters',
+                    is: {
+                        args: ['^[a-zA-Z ]+$', 'i'],
+                        msg: 'Can only contain letters and space',
                     },
                 },
             },

@@ -10,7 +10,7 @@ export default {
         online: async ({ id }) => !!await redisClient.getAsync(`user_${id}_online`),
     },
     Query: {
-        getCurrentUser: requiresAuth.createResolver(
+        getUser: requiresAuth.createResolver(
             (_, __, { models, user }) => models.User.findByPk(user.id),
         ),
     },
@@ -22,14 +22,15 @@ export default {
 
                 // if there is team invite token, create new member
                 if (teamToken) {
-                    const { teamId, email } = checkInviteToken(teamToken);
-                    if (teamId && email === args.email) {
+                    const { teamId } = await checkInviteToken(teamToken);
+                    if (teamId) {
                         await models.TeamMember.create({
                             userId: user.id,
                             teamId,
                         });
                     }
                 }
+
                 return {
                     ok: true,
                     user,
@@ -47,6 +48,7 @@ export default {
                 const user = await models.User.findOne({
                     where: { email }, raw: true,
                 });
+
                 if (!user) {
                     return {
                         ok: false,
@@ -61,6 +63,7 @@ export default {
 
                 // is password valid
                 const isPasswordValid = await bcrypt.compare(password, user.password);
+
                 if (!isPasswordValid) {
                     return {
                         ok: false,
@@ -75,8 +78,8 @@ export default {
 
                 // if there is team invite token, create new member
                 if (teamToken) {
-                    const { teamId, email: tokenEmail } = checkInviteToken(teamToken);
-                    if (teamId && tokenEmail === email) {
+                    const { teamId } = await checkInviteToken(teamToken);
+                    if (teamId) {
                         await models.TeamMember.create({
                             userId: user.id,
                             teamId,
@@ -92,6 +95,7 @@ export default {
                     refreshToken,
                 };
             } catch (err) {
+                console.log(err);
                 return {
                     ok: false,
                     errors: formateErrors(err, models),

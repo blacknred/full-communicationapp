@@ -14,7 +14,7 @@ export default async (channels, models) => {
 
     const [privateChCounts, publicChCounts] = await Promise.all([
         // in the case of a private channel, get the number of allowed users
-        ids.private.length === 0 ? [] : models.sequelize.query(
+        ids.private.length === 0 ? [] : await models.sequelize.query(
             `select pcm.channel_id, count(pcm.user_id)  
             from private_channel_members as pcm
             where pcm.channel_id in (:pids)
@@ -26,7 +26,7 @@ export default async (channels, models) => {
             },
         ),
         // otherwise get the number of users who have already posted messages in the channel
-        ids.public.length === 0 ? [] : models.sequelize.query(
+        ids.public.length === 0 ? [] : await models.sequelize.query(
             `select m.channel_id, count(distinct m.user_id)
             from messages as m
             where m.channel_id in (:fids)

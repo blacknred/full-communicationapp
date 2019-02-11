@@ -27,7 +27,7 @@ export default `
     }
 
     type Query {
-        getCurrentUser: User!
+        getUser: User!
     }
 
     type Mutation {
