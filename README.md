@@ -1,7 +1,6 @@
 # Corporate Messenger - GraphQL Messenger on Docker
 
-
-## Architecture
+### Architecture
 
 | Name       | Container            | Stack                  | Ports |
 |------------|----------------------|------------------------|-------|
@@ -9,15 +8,13 @@
 | DB         | messenger-db         | Postgres               | 5432  |
 | Redis      | messenger-redis      | Redis                  | 6379  |
 
-#### Server - http://localhost:4000
-
-#### Redis
+##### Redis
 
 Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
 
-## Run the project
+### Run the project
 
-### Setup
+##### Setup
 
 1. Fork/Clone this repo
 
@@ -30,7 +27,7 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     Docker version 17.03.0-ce, build 60ccb22
     ```
 
-### Build and Run the App
+##### Build and Run the App
 
 1. Set the Environment variable
 
@@ -60,7 +57,7 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     $ docker exec -ti <container-id> psql -U postgres
     ```
 
-### Run tests
+##### Run tests
 
 1. Set the Environment variable
     ```sh
@@ -70,6 +67,6 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
 1. With the apps up, run:
 
     ```sh
-    $ cd server && npm run test
+    $ cd server && npm test
     ```
 
