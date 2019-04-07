@@ -73,6 +73,7 @@ services:
       - './nginx/nginx-conf:/etc/nginx/conf.d'
       - './nginx/certs:/etc/letsencrypt'
       - './nginx/certs-data:/var/lib/letsencrypt'
+      - './nginx/dhparam:/etc/ssl/certs'
       - './files:/files'
     depends_on:
       - server
@@ -89,4 +90,4 @@ services:
       - './nginx/certs-data:/var/lib/letsencrypt'
     depends_on:
       - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email sammy@blackapis.tk --agree-tos --no-eff-email --staging -d blackapis.tk -d www.blackapis.tk
+    command: certonly --webroot --webroot-path=/var/www/html --email sammy@blackapis.tk --agree-tos --no-eff-email --force-renewal -d blackapis.tk -d www.blackapis.tk
