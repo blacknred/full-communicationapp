@@ -2,19 +2,21 @@
 
 ## Architecture
 
-| Name       | Container            | Stack                  | Ports |
-|------------|----------------------|------------------------|-------|
-| Server     | messenger-server     | Node, Express, GraphQL | 4000  |
-| DB         | messenger-db         | Postgres               | 5432  |
-| Redis      | messenger-redis      | Redis                  | 6379  |
+| Name       | Container            | Stack                  | Ports  |
+|------------|----------------------|------------------------|--------|
+| Server     | messenger-server     | Node, Express, GraphQL | 4000   |
+| DB         | messenger-db         | Postgres               | 5432   |
+| Redis      | messenger-redis      | Redis                  | 6379   |
+| Nginx      | messenger-nginx      | Nginx                  | 80/443 |
+| Certbot    | messenger-certbot    |                        |        |
 
 ### Redis
 
 Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
 
-### Run the project
+## Run the project
 
-#### Setup
+### Setup
 
 1. Fork/Clone this repo
 
@@ -27,7 +29,7 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     Docker version 17.03.0-ce, build 60ccb22
     ```
 
-#### Build and Run the App
+### Build and Run the App
 
 1. Set the Environment variable
 
@@ -57,7 +59,7 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     docker exec -ti <container-id> psql -U postgres
     ```
 
-#### Run tests
+### Run tests
 
 1. Set the Environment variable
 
@@ -71,17 +73,17 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     cd server && npm test
     ```
 
-#### Production
+### Production
 
-1. Edit the init-letsencrypt.sh script to add in your domain(s) and your email address.
+1. Edit the `init-letsencrypt.sh` script to add in your domain(s) and your email address.
 
-2. Run init-letsencrypt.sh script:
+1. Run `init-letsencrypt.sh` script:
 
     ```sh
     sudo ./init-letsencrypt.sh
     ```
 
-3. Run the containers:
+1. Run the containers:
 
     ```sh
     docker-compose -f docker-compose.prod.yml up -d

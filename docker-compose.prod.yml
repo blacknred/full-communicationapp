@@ -72,15 +72,14 @@ services:
       - './nginx:/etc/nginx/conf.d'
       - './certbot/conf:/etc/letsencrypt'
       - './certbot/www:/var/www/certbot'
-      # - './nginx/certs:/etc/letsencrypt'
-      # - './nginx/certs-data:/var/lib/letsencrypt'
-      # - './nginx/dhparam:/etc/ssl/certs'
-      # - './files:/files'
+      - './files:/files'
     depends_on:
       - server
     restart: always
     healthcheck:
       test: exit 0
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx \
+    -s reload; done & nginx -g \"daemon off;\"'"
 
   certbot:
     container_name: messenger-certbot
@@ -88,8 +87,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-      # - './nginx/web-root:/var/www/html'
-      # - './nginx/certs:/etc/letsencrypt'
-      # - './nginx/certs-data:/var/lib/letsencrypt'
     depends_on:
       - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; \
+    do certbot renew; sleep 12h & wait $${!}; done;'"
