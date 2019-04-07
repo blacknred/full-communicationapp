@@ -1,10 +1,10 @@
-FROM nginx:latest
+FROM nginx:mainline-alpine
 
-# Remove the default Nginx configuration file
-RUN rm -v /etc/nginx/nginx.conf
+# # Remove the default Nginx configuration file
+# RUN rm -v /etc/nginx/nginx.conf
 
-# Copy a configuration file from the current directory
-ADD nginx.conf /etc/nginx/
+# # Copy a configuration file from the current directory
+# ADD nginx.conf /etc/nginx/
 
-# Start nginx in the foreground
-CMD nginx -g 'daemon off;'
+# # Start nginx in the foreground
+# CMD nginx -g 'daemon off;'

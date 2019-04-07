@@ -62,3 +62,31 @@ services:
   #    - NODE_ENV=${NODE_ENV}
   #    - CHOKIDAR_USEPOLLING=true
 
+  nginx:
+    container_name: messenger-nginx
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - './nginx/web-root:/var/www/html'
+      - './nginx/nginx-conf:/etc/nginx/conf.d'
+      - './nginx/certs:/etc/letsencrypt'
+      - './nginx/certs-data:/var/lib/letsencrypt'
+      - './files:/files'
+    depends_on:
+      - server
+    restart: always
+    healthcheck:
+      test: exit 0
+
+  certbot:
+    image: certbot/certbot
+    container_name: messenger-certbot
+    volumes:
+      - './nginx/web-root:/var/www/html'
+      - './nginx/certs:/etc/letsencrypt'
+      - './nginx/certs-data:/var/lib/letsencrypt'
+    depends_on:
+      - nginx
+    command: certonly --webroot --webroot-path=/var/www/html --email sammy@blackapis.tk --agree-tos --no-eff-email --staging -d blackapis.tk -d www.blackapis.tk
