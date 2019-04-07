@@ -1,6 +1,6 @@
 # Corporate Messenger - GraphQL Messenger on Docker
 
-### Architecture
+## Architecture
 
 | Name       | Container            | Stack                  | Ports |
 |------------|----------------------|------------------------|-------|
@@ -8,13 +8,13 @@
 | DB         | messenger-db         | Postgres               | 5432  |
 | Redis      | messenger-redis      | Redis                  | 6379  |
 
-##### Redis
+### Redis
 
 Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
 
 ### Run the project
 
-##### Setup
+#### Setup
 
 1. Fork/Clone this repo
 
@@ -27,12 +27,12 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     Docker version 17.03.0-ce, build 60ccb22
     ```
 
-##### Build and Run the App
+#### Build and Run the App
 
 1. Set the Environment variable
 
     ```sh
-    $ export NODE_ENV=development
+    export NODE_ENV=development
     ```
 
 1. Fire up the Containers
@@ -40,13 +40,13 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     Build the images:
 
     ```sh
-    $ docker-compose build
+    docker-compose build
     ```
 
     Run the containers:
 
     ```sh
-    $ docker-compose up -d
+    docker-compose up -d
     ```
 
 1. Database
@@ -54,19 +54,35 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
     To access, get the container id from `docker ps` and then open `psql`:
 
     ```sh
-    $ docker exec -ti <container-id> psql -U postgres
+    docker exec -ti <container-id> psql -U postgres
     ```
 
-##### Run tests
+#### Run tests
 
 1. Set the Environment variable
+
     ```sh
-    $ export NODE_ENV=test
+    export NODE_ENV=test
     ```
 
 1. With the apps up, run:
 
     ```sh
-    $ cd server && npm test
+    cd server && npm test
     ```
 
+#### Production
+
+1. Edit the init-letsencrypt.sh script to add in your domain(s) and your email address.
+
+2. Run init-letsencrypt.sh script:
+
+    ```sh
+    sudo ./init-letsencrypt.sh
+    ```
+
+3. Run the containers:
+
+    ```sh
+    docker-compose -f docker-compose.prod.yml up -d
+    ```

@@ -69,12 +69,13 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - './nginx/web-root:/var/www/html'
-      - './nginx/nginx-conf:/etc/nginx/conf.d'
-      - './nginx/certs:/etc/letsencrypt'
-      - './nginx/certs-data:/var/lib/letsencrypt'
-      - './nginx/dhparam:/etc/ssl/certs'
-      - './files:/files'
+      - './nginx:/etc/nginx/conf.d'
+      - './certbot/conf:/etc/letsencrypt'
+      - './certbot/www:/var/www/certbot'
+      # - './nginx/certs:/etc/letsencrypt'
+      # - './nginx/certs-data:/var/lib/letsencrypt'
+      # - './nginx/dhparam:/etc/ssl/certs'
+      # - './files:/files'
     depends_on:
       - server
     restart: always
@@ -82,12 +83,13 @@ services:
       test: exit 0
 
   certbot:
-    image: certbot/certbot
     container_name: messenger-certbot
+    build: ./certbot
     volumes:
-      - './nginx/web-root:/var/www/html'
-      - './nginx/certs:/etc/letsencrypt'
-      - './nginx/certs-data:/var/lib/letsencrypt'
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      # - './nginx/web-root:/var/www/html'
+      # - './nginx/certs:/etc/letsencrypt'
+      # - './nginx/certs-data:/var/lib/letsencrypt'
     depends_on:
       - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email sammy@blackapis.tk --agree-tos --no-eff-email --force-renewal -d blackapis.tk -d www.blackapis.tk
