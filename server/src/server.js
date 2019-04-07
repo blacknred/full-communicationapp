@@ -114,8 +114,8 @@ setImmediate(async () => {
     try {
         if (IS_DB_DROP) {
             await models.sequelize.drop();
-            await models.sequelize.sync();
         }
+        await models.sequelize.sync();
         await server.listen(PORT);
         debug(`🚀 at http://localhost:${PORT}${apollo.graphqlPath}`);
         debug(`Subscriptions 🚀 at ws://localhost:${PORT}${apollo.subscriptionsPath}`);
