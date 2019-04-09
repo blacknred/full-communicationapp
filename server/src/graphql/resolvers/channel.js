@@ -1,5 +1,10 @@
-import formateErrors from '../../formateErrors';
-import { requiresTeamAccess, requiresTeamAdminAccess } from '../../permissions';
+import {
+    formateErrors,
+} from '../../helpers';
+import {
+    requiresTeamAccess,
+    requiresTeamAdminAccess,
+} from '../../permissions';
 
 export default {
     Channel: {
@@ -55,6 +60,7 @@ export default {
                             // in case of private channel set allowed members
                             if (args.private) {
                                 const allMembers = [...new Set([...args.members, user.id])];
+
                                 await models.PrivateChannelMember.bulkCreate(
                                     allMembers.map(userId => ({
                                         user_id: userId,
@@ -94,6 +100,7 @@ export default {
                 try {
                     // check if channel is not direct messages chat
                     const channel = await models.Channel.findByPk(channelId);
+
                     if (channel.dm) {
                         return {
                             ok: false,
@@ -147,10 +154,12 @@ export default {
                                 if (!members.includes(user.id)) {
                                     members.push(user.id);
                                 }
+
                                 let exMembers = await models.PrivateChannelMember.findAll(
                                     { where: { channelId } },
                                     { raw: true },
                                 );
+
                                 exMembers = exMembers.map(m => m.user_id);
 
                                 const allMembers = [...new Set([...exMembers, ...members])];
@@ -158,11 +167,13 @@ export default {
                                 const toCreate = allMembers.filter(m => !exMembers.includes(m));
 
                                 console.log(allMembers, toDelete, toCreate);
+
                                 // delete members
                                 await models.PrivateChannelMember.destroy(
                                     { where: { user_id: toDelete } },
                                     { transaction },
                                 );
+
                                 // create members
                                 await models.PrivateChannelMember.bulkCreate(
                                     toCreate.map(m => ({
@@ -184,6 +195,7 @@ export default {
 
                     // create announcement message in channel
                     let updateMessage = 'Channel has been updated';
+
                     if (channel.private !== args.private) {
                         if (args.private) {
                             updateMessage = `Access restricted to ${members.length} members`;
@@ -191,6 +203,7 @@ export default {
                             updateMessage = 'Channel has been switched to public access';
                         }
                     }
+
                     await models.Message.create({
                         text: updateMessage,
                         userId: user.id,
@@ -228,6 +241,7 @@ export default {
                 try {
                     // if dm channel with provided members already exists return it
                     const allMembers = [...new Set([...members, user.id])];
+
                     const existedChannel = await models.sequelize.query(
                         `select c.id, c.name from channels as c,
                         private_channel_members pc 
@@ -248,6 +262,7 @@ export default {
                             raw: true,
                         },
                     );
+
                     if (existedChannel.length) {
                         return models.Channel.findOne({
                             where: { id: existedChannel[0].id },
@@ -260,7 +275,9 @@ export default {
                         where: { id: { [models.sequelize.Op.in]: members } },
                         raw: true,
                     });
+
                     const name = users.map(u => u.username).join(', ');
+
                     const channel = await models.sequelize
                         .transaction(async (transaction) => {
                             // create channel
@@ -314,6 +331,7 @@ export default {
                         channelId,
                         userId: user.id,
                     });
+
                     return true;
                 } catch (err) {
                     return false;
@@ -330,6 +348,7 @@ export default {
                             userId: user.id,
                         },
                     });
+
                     return true;
                 } catch (err) {
                     return false;

@@ -1,11 +1,15 @@
 import {
+    createInviteToken,
+} from '../../auth';
+import {
+    formateErrors,
+} from '../../helpers';
+import {
     requiresAuth,
     requiresTeamAccess,
     requiresTeamAdminAccess,
 } from '../../permissions';
 import getTemplate from '../../emailTemplates';
-import { createInviteToken } from '../../auth';
-import formateErrors from '../../formateErrors';
 
 export default {
     Team: {
@@ -41,6 +45,7 @@ export default {
                         where: { name: args.name },
                         raw: true,
                     });
+
                     if (isExist) {
                         return {
                             ok: false,
@@ -50,6 +55,7 @@ export default {
                             }],
                         };
                     }
+
                     const team = await models.sequelize
                         .transaction(async (transaction) => {
                             // create a new team
@@ -124,9 +130,12 @@ export default {
                         where: { email },
                         raw: true,
                     });
+
                     if (!isValidUser) {
                         const team = await models.Team.findByPk(teamId);
+
                         const token = await createInviteToken({ teamId });
+
                         await emailTransporter.sendMail({
                             from: 'swoy-inviteservice@gmail.com',
                             to: email,
@@ -138,6 +147,7 @@ export default {
                                 referrer,
                             }),
                         });
+
                         return {
                             ok: true,
                             status: 'Invitation has been sent',
@@ -156,6 +166,7 @@ export default {
                                 raw: true,
                             },
                         );
+
                     if (isMember.length) {
                         return {
                             ok: false,
@@ -188,6 +199,7 @@ export default {
             async (_, { teamId, hours }, { referrer }) => {
                 try {
                     const token = await createInviteToken({ teamId }, hours);
+
                     return `${referrer}/login?token=${token}`;
                 } catch (e) {
                     return '';
@@ -202,6 +214,7 @@ export default {
                         where: { name: args.name.toLowerCase() },
                         raw: true,
                     });
+
                     if (isExist && isExist.id !== teamId) {
                         return {
                             ok: false,
@@ -211,6 +224,7 @@ export default {
                             }],
                         };
                     }
+
                     const [, updatedTeam] = await models.Team.update(
                         args,
                         {
@@ -218,6 +232,7 @@ export default {
                             returning: true,
                         },
                     );
+
                     return {
                         ok: true,
                         team: updatedTeam[0],

@@ -1,73 +1,48 @@
+import http from 'http';
+import Debug from 'debug';
+import {
+    makeExecutableSchema,
+} from 'graphql-tools';
 import {
     fileLoader,
     mergeTypes,
     mergeResolvers,
 } from 'merge-graphql-schemas';
-import path from 'path';
-import http from 'http';
-import Debug from 'debug';
-import dotenv from 'dotenv';
-import DataLoader from 'dataloader';
-import nodemailer from 'nodemailer';
-import { ApolloServer } from 'apollo-server-express';
-import { makeExecutableSchema } from 'graphql-tools';
+import {
+    ApolloServer,
+} from 'apollo-server-express';
 
+import {
+    checkSubscriptionAuth,
+} from './auth';
+import {
+    getRegularLoaders,
+    subscriptionLoaders,
+} from './dataLoaders';
 import app from './app';
+import conf from '../config';
 import models from './models';
-import loaders from './loaders';
-import { checkSubscriptionAuth } from './auth';
-
-dotenv.config({
-    path: path.join(__dirname, '../', `.env.${process.env.NODE_ENV || 'development'}`),
-});
-
-const PORT = process.env.PORT || 3000;
-const SUBSCRIPTIONS_PATH = '/subscriptions';
-const IS_DB_DROP = process.env.NODE_ENV === 'test';
-const IS_LOGGING = process.env.NODE_ENV === 'test';
+import helpers from './helpers';
+import emailTransporter from './email';
 
 const debug = Debug('corporate-messenger:server');
-const typeDefs = mergeTypes(fileLoader(path.join(__dirname, './graphql/schema')));
-const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './graphql/resolvers')));
+
 const schema = makeExecutableSchema({
-    typeDefs,
-    resolvers,
+    typeDefs: mergeTypes(fileLoader(conf.apollo.schemasPath)),
+    resolvers: mergeResolvers(fileLoader(conf.apollo.resolversPath)),
 });
-const emailTransporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
-    },
-});
-const regularLoaders = {
-    file: new DataLoader(ids => loaders.file(ids, models)),
-    sender: new DataLoader(ids => loaders.sender(ids, models)),
-    admin: new DataLoader(ids => loaders.admin(ids, models)),
-    member: new DataLoader(ids => loaders.member(ids, models)),
-    membersCount: new DataLoader(ids => loaders.membersCount(ids, models)),
-    participant: new DataLoader(ids => loaders.participant(ids, models)),
-    channelFilesCount: new DataLoader(ids => loaders.channelFilesCount(ids, models)),
-    channelMessagesCount: new DataLoader(ids => loaders.channelMessagesCount(ids, models)),
-    participantsCount: new DataLoader(ids => loaders.participantsCount(ids, models)),
-};
-const subscriptionLoaders = {
-    sender: new DataLoader(ids => loaders.sender(ids, models)),
-    file: new DataLoader(ids => loaders.file(ids, models)),
-};
-const getRegularLoaders = req => ({
-    ...regularLoaders,
-    channel: new DataLoader(ids => loaders.channel(ids, models, req.user)),
-    teamUpdatesCount: new DataLoader(ids => loaders.teamUpdatesCount(ids, models, req.user)),
-    channelUpdatesCount: new DataLoader(ids => loaders.channelUpdatesCount(ids, models, req.user)),
-});
+
+/* server instanse */
 
 const apollo = new ApolloServer({
     schema,
     engine: {
-        apiKey: process.env.ENGINE_API_KEY,
+        apiKey: conf.apollo.engineKey,
     },
-    context: ({ req, connection }) => {
+    context: ({
+        req,
+        connection,
+    }) => {
         if (connection) {
             return {
                 ...connection.context,
@@ -75,6 +50,7 @@ const apollo = new ApolloServer({
                 loaders: subscriptionLoaders,
             };
         }
+
         return {
             models,
             user: req.user,
@@ -84,41 +60,60 @@ const apollo = new ApolloServer({
         };
     },
     subscriptions: {
-        path: SUBSCRIPTIONS_PATH,
+        path: conf.apollo.subscriptions_path,
         keepAlive: 1,
-        onConnect: async ({ token, refreshToken }) => {
+        onConnect: async ({
+            token,
+            refreshToken,
+        }) => {
             const user = await checkSubscriptionAuth(models, token, refreshToken);
-            debug(`Subscription ${token} client ${user.id} connected via new SubscriptionServer.`);
-            return { user };
+            // debug(`Subscription ${token} client ${user.id}`);
+            return {
+                user,
+            };
         },
-        onDisconnect: () => debug('Subscription client disconnected.'),
+        onDisconnect: o => debug(`Subscription client ${o} disconnected.`),
     },
 });
 
-if (IS_LOGGING) {
+/* allow extra logging */
+
+if (conf.is_logging) {
     apollo.requestOptions.formatError = (error) => {
         debug(error);
+        helpers.fileStderr(error.message);
         return error;
     };
+
     apollo.requestOptions.formatResponse = (response) => {
         debug(response);
         return response;
     };
 }
-apollo.applyMiddleware({ app });
+
+/* set all up */
+
+apollo.applyMiddleware({
+    app,
+});
 
 const server = http.createServer(app);
+
 apollo.installSubscriptionHandlers(server);
+
+/* start */
 
 setImmediate(async () => {
     try {
-        if (IS_DB_DROP) {
+        if (conf.is_db_drop) {
             await models.sequelize.drop();
         }
+
         await models.sequelize.sync();
-        await server.listen(PORT);
-        debug(`🚀 at http://localhost:${PORT}${apollo.graphqlPath}`);
-        debug(`Subscriptions 🚀 at ws://localhost:${PORT}${apollo.subscriptionsPath}`);
+        await server.listen(conf.port);
+
+        debug(`🚀 at http://localhost:${conf.port}${apollo.graphqlPath}`);
+        debug(`Subscriptions 🚀 at ws://localhost:${conf.port}${apollo.subscriptionsPath}`);
     } catch (e) {
         debug(e);
     }

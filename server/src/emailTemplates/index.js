@@ -16,8 +16,10 @@ const templates = {
 
 export default (name, values) => {
     let template = templates[name] || '';
+
     Object.keys(values).forEach((k) => {
         template = template.replace(new RegExp(`#${k}`, 'g'), values[k]);
     });
+
     return template;
 };

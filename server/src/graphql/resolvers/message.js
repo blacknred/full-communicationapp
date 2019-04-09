@@ -1,6 +1,8 @@
-import { withFilter } from 'graphql-subscriptions';
+import {
+    withFilter,
+} from 'graphql-subscriptions';
 
-import pubsub from '../../pubsub';
+import pubsub from '../../redis/pubsub';
 
 import {
     requiresTeamAccess,
@@ -18,6 +20,7 @@ export default {
     Message: {
         sender: ({ user, userId }, _, { loaders }) => {
             if (user) return user;
+
             return loaders.sender.load(userId);
         },
         files: ({ id }, _, { loaders }) => loaders.file.load(id),
@@ -60,10 +63,12 @@ export default {
                                     },
                                     { transaction },
                                 );
+
                                 const filesMap = files.map(file => ({
                                     ...file,
                                     messageId: newMessage.id,
                                 }));
+
                                 await models.File.bulkCreate(filesMap, { transaction });
 
                                 return newMessage;
@@ -71,6 +76,7 @@ export default {
 
                         // put new message in pubsub
                         const currentUser = await models.User.findByPk(user.id);
+
                         await pubsub.publish(CHANNEL_MESSAGE_CREATED, {
                             channelId: restArgs.channelId,
                             channelMessagesUpdates: {
@@ -103,6 +109,7 @@ export default {
                             ...file,
                             messageId,
                         }));
+
                         await models.File.bulkCreate(filesMap);
                     }
 
@@ -152,6 +159,7 @@ export default {
                         { pinned: status },
                         { where: { id: messageId } },
                     );
+
                     return true;
                 } catch (err) {
                     return false;

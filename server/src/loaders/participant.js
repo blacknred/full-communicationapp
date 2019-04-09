@@ -42,6 +42,7 @@ export default async (channels, models) => {
 
     // group by channel: [{},{},{},{}] => [[{},{}],[{},{}]]
     const users = [...privateUsers, ...publicUsers];
+
     return channels.map(ch => users.filter(u => u.channel_id === ch.id) || []);
     // const data = users.reduce((acc, u) => {
     //     if (acc[u.channel_id]) {

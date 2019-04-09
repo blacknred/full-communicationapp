@@ -1,12 +1,16 @@
 const createResolver = (resolver) => {
     const baseResolver = resolver;
+
     baseResolver.createResolver = (childResolver) => {
         const newResolver = async (parent, args, context, info) => {
             await resolver(parent, args, context, info);
+
             return childResolver(parent, args, context, info);
         };
+
         return createResolver(newResolver);
     };
+
     return baseResolver;
 };
 
@@ -30,14 +34,17 @@ export const requiresTeamAccess = createResolver(
                 where: { id: channelId },
                 raw: true,
             });
+
             teamIdX = channel.teamId;
         } else {
             teamIdX = teamId;
         }
+
         const isTeamMember = await models.TeamMember.findOne({
             where: { teamId: teamIdX, userId: user.id },
             raw: true,
         });
+
         if (!isTeamMember) {
             throw new Error('The operation needs team member rights');
         }
@@ -49,8 +56,11 @@ export const requiresTeamAdminAccess = createResolver(
         if (!user || !user.id) {
             throw new Error('Not authenticated');
         }
+
         console.log('pppppp');
+
         let isTeamAdmin;
+
         // check if user is the team admin
         if (teamId) {
             isTeamAdmin = await models.TeamMember.findOne({
@@ -78,6 +88,7 @@ export const requiresTeamAdminAccess = createResolver(
                 },
             );
         }
+
         if (!isTeamAdmin) {
             console.log('pppfgppp');
             throw new Error('The operation needs team admin rights');
@@ -96,6 +107,7 @@ export const requiresPrivateChannelAccess = createResolver(
             where: { id: channelId },
             raw: true,
         });
+
         if (channel.private) {
             const isMember = await models.PrivateChannelMember.findOne({
                 where: {
@@ -104,6 +116,7 @@ export const requiresPrivateChannelAccess = createResolver(
                 },
                 raw: true,
             });
+
             if (!isMember) {
                 throw new Error('The operation needs private channel access');
             }
@@ -116,6 +129,7 @@ export const requiresMessageFullAccess = createResolver(
         if (!user || !user.id) {
             throw new Error('Not authenticated');
         }
+
         let isFullAccess;
 
         // in case of admin access
@@ -144,6 +158,7 @@ export const requiresMessageFullAccess = createResolver(
                 raw: true,
             });
         }
+
         if (!isFullAccess) {
             throw new Error('The message is not exist or access is restricted');
         }

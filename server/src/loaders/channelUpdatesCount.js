@@ -2,6 +2,7 @@ import redisClient from '../redis';
 
 export default async (ids, models, user) => {
     const lastVisit = await redisClient.getAsync(`user_${user.id}_online`);
+
     const counts = await models.sequelize.query(
         // `select c.id, count(m.id) from messages as m
         // right join channels as c on m.channel_id = c.id

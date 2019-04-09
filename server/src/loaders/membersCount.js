@@ -10,5 +10,6 @@ export default async (ids, models) => {
             raw: true,
         },
     );
+
     return counts.map(c => c.count);
 };

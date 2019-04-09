@@ -1,20 +1,17 @@
 export default (sequelize, DataTypes) => {
-    const Team = sequelize.define(
-        'team',
-        {
-            name: {
-                type: DataTypes.STRING,
-                unique: true,
-                validate: {
-                    is: {
-                        args: ['^[a-zA-Z0-9 ]+$', 'i'],
-                        msg: 'Can only contain letters, numbers and space',
-                    },
+    const Team = sequelize.define('team', {
+        name: {
+            type: DataTypes.STRING,
+            unique: true,
+            validate: {
+                is: {
+                    args: ['^[a-zA-Z0-9 ]+$', 'i'],
+                    msg: 'Can only contain letters, numbers and space',
                 },
             },
-            description: DataTypes.STRING,
         },
-    );
+        description: DataTypes.STRING,
+    });
 
     Team.associate = (models) => {
         Team.belongsToMany(models.User, {

@@ -1,14 +1,16 @@
 import redis from 'redis';
 import bluebird from 'bluebird';
 
-const REDIS_PASSWORD = process.env.REDIS_PASSWORD || '';
+import conf from '../../config';
 
 const client = redis.createClient({
-    port: 6379,
-    host: 'redis',
+    port: conf.redis.port,
+    host: conf.redis.host,
     retry_strategy: options => Math.max(options.attempt * 100, 3000),
 });
-client.auth(REDIS_PASSWORD);
+
+client.auth(conf.redis.password);
+
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 

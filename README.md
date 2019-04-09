@@ -75,6 +75,8 @@ Cache layer for GraphQL Subscriptions pubsub, users statuses and updates
 
 ### Production
 
+1. Edit the `nginx/app.conf` to add your domain.
+
 1. Edit the `init-letsencrypt.sh` script to add in your domain(s) and your email address.
 
 1. Run `init-letsencrypt.sh` script:

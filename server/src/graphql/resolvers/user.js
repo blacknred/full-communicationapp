@@ -1,9 +1,16 @@
 import bcrypt from 'bcryptjs';
 
+import {
+    createTokens,
+    checkInviteToken,
+} from '../../auth';
+import {
+    formateErrors,
+} from '../../helpers';
+import {
+    requiresAuth,
+} from '../../permissions';
 import redisClient from '../../redis';
-import formateErrors from '../../formateErrors';
-import { requiresAuth } from '../../permissions';
-import { createTokens, checkInviteToken } from '../../auth';
 
 export default {
     User: {
@@ -23,6 +30,7 @@ export default {
                 // if there is team invite token, create new member
                 if (teamToken) {
                     const { teamId } = await checkInviteToken(teamToken);
+
                     if (teamId) {
                         await models.TeamMember.create({
                             userId: user.id,
@@ -79,6 +87,7 @@ export default {
                 // if there is team invite token, create new member
                 if (teamToken) {
                     const { teamId } = await checkInviteToken(teamToken);
+
                     if (teamId) {
                         await models.TeamMember.create({
                             userId: user.id,
@@ -89,6 +98,7 @@ export default {
 
                 // create token
                 const [token, refreshToken] = await createTokens(user);
+
                 return {
                     ok: true,
                     token,
@@ -112,6 +122,7 @@ export default {
                             returning: true,
                         },
                     );
+
                     return {
                         ok: true,
                         user: updatedRows[0],
@@ -133,6 +144,7 @@ export default {
 
                     // is password valid
                     const isValid = await bcrypt.compare(oldPassword, userData.password);
+
                     if (!isValid) {
                         return {
                             ok: false,
@@ -149,6 +161,7 @@ export default {
                         { password },
                         { where: { id: user.id } },
                     );
+
                     return {
                         ok: true,
                     };
@@ -167,7 +180,9 @@ export default {
                         where: { userId: user.id, admin: true },
                         raw: true,
                     });
+
                     const adminedTeamIds = adminedTeams.map(m => m.teamId);
+
                     await models.sequelize.transaction(async (transaction) => {
                         await models.User.destroy(
                             { where: { id: user.id } },

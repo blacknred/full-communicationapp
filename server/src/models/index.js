@@ -1,12 +1,8 @@
 import Sequelize from 'sequelize';
 
-const ENV = process.env.NODE_ENV || 'development';
+import conf from '../../config';
 
-const DATABASE_URL = {
-    development: process.env.DATABASE_URL,
-    test: process.env.DATABASE_TEST_URL,
-};
-const sequelize = new Sequelize(DATABASE_URL[ENV], {
+const sequelize = new Sequelize(conf.dbUrls[conf.env], {
     dialect: 'postgres',
     operatorsAliases: Sequelize.Op,
     define: {

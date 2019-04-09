@@ -1,27 +1,24 @@
 export default (sequelize, DataTypes) => {
-    const Channel = sequelize.define(
-        'channel',
-        {
-            name: {
-                type: DataTypes.STRING,
-                validate: {
-                    is: {
-                        args: ['^[a-zA-Z0-9, ]+$', 'i'],
-                        msg: 'Can only contain letters, numbers and space',
-                    },
+    const Channel = sequelize.define('channel', {
+        name: {
+            type: DataTypes.STRING,
+            validate: {
+                is: {
+                    args: ['^[a-zA-Z0-9, ]+$', 'i'],
+                    msg: 'Can only contain letters, numbers and space',
                 },
             },
-            description: DataTypes.STRING,
-            private: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
-            },
-            dm: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
-            },
         },
-    );
+        description: DataTypes.STRING,
+        private: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        dm: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+    });
 
     Channel.associate = (models) => {
         Channel.belongsTo(models.Team, {
