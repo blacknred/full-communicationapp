@@ -8,7 +8,7 @@ import {
     requiresTeamAccess,
     requiresPrivateChannelAccess,
     requiresMessageFullAccess,
-    requiresTeamAdminAccess,
+    // requiresTeamAdminAccess,
 } from '../../permissions';
 
 const CHANNEL_MESSAGE_CREATED = 'CHANNEL_MESSAGE_CREATED';
@@ -59,6 +59,8 @@ export default {
                                 const newMessage = await models.Message.create(
                                     {
                                         ...restArgs,
+                                        // explicitly fixing non-null default arg graphql issue
+                                        forwarded: restArgs.forwarded || false,
                                         userId: user.id,
                                     },
                                     { transaction },
