@@ -31,7 +31,7 @@ export default `
     type Mutation {
         createTeam(name: String!, description: String): TeamResponse!
         addTeamMember(teamId: Int!, email: String!): MemberResponse!
-        createTeamAccessLink(teamId: Int!, hours: Int): String!
+        createTeamAccessLink(teamId: Int!, timespan: Int): String!
         updateTeam(teamId: Int!, name: String!, description: String): TeamResponse!
         deleteTeam(teamId: Int!): Boolean!
         leaveTeam(teamId: Int!): Boolean!

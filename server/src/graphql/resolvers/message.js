@@ -28,22 +28,24 @@ export default {
     Query: {
         getMessages: requiresTeamAccess.createResolver(
             requiresPrivateChannelAccess.createResolver(
-                async (_, { channelId, cursor }, { models }) => models.Message
-                    .findAll(
-                        {
-                            order: [['created_at', 'DESC']],
-                            where: {
-                                channelId,
-                                ...(cursor && {
-                                    created_at: {
-                                        [models.op.lt]: (new Date(Number(cursor))).toISOString(),
-                                    },
-                                }),
-                            },
-                            limit: MESSAGES_LIMIT,
+                async (_, { channelId, cursor }, { models }) => {
+                    const messages = await models.Message.findAll({
+                        order: [['created_at', 'DESC']],
+                        where: {
+                            channelId,
+                            ...(cursor && {
+                                created_at: {
+                                    [models.op.lt]: (new Date(Number(cursor))).toISOString(),
+                                },
+                            }),
                         },
-                        { raw: true },
-                    ),
+                        limit: MESSAGES_LIMIT,
+                    }, {
+                        raw: true,
+                    });
+
+                    return messages.reverse();
+                },
             ),
         ),
     },
@@ -78,6 +80,9 @@ export default {
 
                         // put new message in pubsub
                         const currentUser = await models.User.findByPk(user.id);
+
+                        // TODO: quick fix non timestamps date
+                        message.dataValues.created_at = Date.now();
 
                         await pubsub.publish(CHANNEL_MESSAGE_CREATED, {
                             channelId: restArgs.channelId,
@@ -175,7 +180,6 @@ export default {
                 console.log('brrrah');
                 // , args, context, info
                 // Manipulate and return the new value
-                // console.log('new payload', payload.channelMessagesUpdates);
                 return payload.channelMessagesUpdates;
             },
             subscribe: requiresTeamAccess.createResolver(

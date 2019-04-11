@@ -1,4 +1,5 @@
 import cors from 'cors';
+import helmet from 'helmet';
 import express from 'express';
 import bodyParser from 'body-parser';
 import RedisStore from 'rate-limit-redis';
@@ -23,6 +24,8 @@ const limiter = new RateLimit({
 });
 
 const app = express();
+
+app.use(helmet());
 
 app.use(conf.cors.allow ? cors(conf.cors.client_host) : cors());
 

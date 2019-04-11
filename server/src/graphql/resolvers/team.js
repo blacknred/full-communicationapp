@@ -196,9 +196,11 @@ export default {
             },
         ),
         createTeamAccessLink: requiresTeamAdminAccess.createResolver(
-            async (_, { teamId, hours }, { referrer }) => {
+            async (_, { teamId, timespan }, { referrer }) => {
                 try {
-                    const token = await createInviteToken({ teamId }, hours);
+                    const validTimespan = Math.floor(Math.abs(timespan));
+
+                    const token = await createInviteToken({ teamId }, validTimespan);
 
                     return `${referrer}/login?token=${token}`;
                 } catch (e) {

@@ -142,6 +142,6 @@ export const checkInviteToken = (token) => {
 
         return credentials;
     } catch (e) {
-        return null;
+        return {};
     }
 };

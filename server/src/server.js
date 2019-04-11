@@ -13,6 +13,9 @@ import {
 } from 'apollo-server-express';
 
 import {
+    fileStderr,
+} from './helpers';
+import {
     checkSubscriptionAuth,
 } from './auth';
 import {
@@ -22,7 +25,6 @@ import {
 import app from './app';
 import conf from '../config';
 import models from './models';
-import helpers from './helpers';
 import emailTransporter from './email';
 
 const debug = Debug('corporate-messenger:server');
@@ -81,7 +83,7 @@ const apollo = new ApolloServer({
 if (conf.is_logging) {
     apollo.requestOptions.formatError = (error) => {
         debug(error);
-        helpers.fileStderr(error.message);
+        fileStderr(error.message);
         return error;
     };
 
