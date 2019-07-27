@@ -53,7 +53,7 @@
         "graphql-tools": "^4.0.3",
         "helmet": "^3.16.0",
         "jsonwebtoken": "^8.4.0",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.13",
         "merge-graphql-schemas": "^1.5.8",
         "nodemailer": "^4.7.0",
         "pg": "^7.6.1",
