@@ -1,12 +1,11 @@
-version: '3'
+version: "3"
 
 services:
-
   redis:
-    container_name: messenger-redis
+    container_name: redis
     build: ./redis
     ports:
-      - '6377:6379'
+      - "6377:6379"
     volumes:
       - ./redis/redis-data:/data
     environment:
@@ -14,51 +13,103 @@ services:
     healthcheck:
       test: exit 0
 
-  db:
-    container_name: messenger-db
-    build: ./db
+  workspace-db:
+    container_name: workspace-db
+    build: ./workspace-db
     ports:
-      - '5438:5432'
+      - "5438:5432"
     volumes:
-      - ./db/pg-data:/var/lib/postgresql/data
+      - ./workspace-db/pg-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=postgres
     healthcheck:
       test: exit 0
 
-  server:
-    container_name: messenger-server
-    build: ./server
+  message-db:
+    container_name: message-db
+    build: ./message-db
     ports:
-      - '4001:3000'
+      - "27017:27017"
     volumes:
-      - './server:/usr/src/app'
-      - './server/package.json:/usr/src/package.json'
+      - ./message-db/mongo-data:/data/db
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@messenger-db:5432/messenger_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@messenger-db:5432/messenger_test
+      - MONGODB_USER=mongo
+      - MONGODB_PASSWORD=mongo
+    healthcheck:
+      test: exit 0
+
+  workspace-service:
+    container_name: workspace-service
+    build: ./workspace-service
+    ports:
+      - "4001:3000"
+    volumes:
+      - "./workspace-service:/usr/src/app"
+      - "./workspace-service/package.json:/usr/src/package.json"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@workspace-db:5432/workspace_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@workspace-db:5432/workspace_test
       - NODE_ENV=${NODE_ENV}
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
       - REDIS_PASSWORD=default-password
     depends_on:
-      - db
+      - workspace-db
       - redis
     links:
-      - db
+      - workspace-db
       - redis
 
-  #web-client:
-  #  container_name: web-client
-  #  build: .
-  #  volumes:
-  #    - '.:/usr/src/app'
-  #    - './package.json:/usr/src/package.json'
-  #    - '/usr/src/app/node_modules'
-  #  ports:
-  #    - '3000:3000'
-  #  environment:
-  #    - NODE_ENV=${NODE_ENV}
-  #    - CHOKIDAR_USEPOLLING=true
+  message-service:
+    container_name: message-service
+    build: ./message-service
+    ports:
+      - "4002:3000"
+    volumes:
+      - "./message-service:/usr/src/app"
+      - "./message-service/package.json:/usr/src/package.json"
+    environment:
+      - DATABASE_URL=mongo://partners-db:27017/message_dev
+      - DATABASE_TEST_URL=mongo://partners-db:27017/message_test
+      - NODE_ENV=${NODE_ENV}
+      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+      - REDIS_PASSWORD=default-password
+    depends_on:
+      - message-db
+      - redis
+    links:
+      - message-db
+      - redis
 
+    call-service:
+      container_name: call-service
+      build: ./call-service
+      ports:
+        - "4003:3000"
+      volumes:
+        - "./call-service:/usr/src/app"
+        - "./call-service/package.json:/usr/src/package.json"
+      environment:
+        - NODE_ENV=${NODE_ENV}
+        - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+        - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+        - REDIS_PASSWORD=default-password
+      depends_on:
+        - redis
+      links:
+        - redis
+
+    file-service:
+      container_name: file-service
+      build: ./file-service
+      ports:
+        - "5000:5000"
+      volumes:
+        - "./file-service:/usr/src/app"
+        - "./file-service/requirements.txt:/usr/src/requirements.txt"
+      environment:
+        - NODE_ENV=${NODE_ENV}
+        - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+        - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe

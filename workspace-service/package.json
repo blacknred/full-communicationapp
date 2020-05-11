@@ -1,17 +1,17 @@
 {
-    "name": "corporate-messenger",
+    "name": "workspace-service",
     "version": "0.1.0",
     "description": "",
     "main": "index.js",
     "scripts": {
         "serve": "pm2 start ./dist",
         "build": "babel src -d dist",
-        "start": "DEBUG=corporate-messenger:* nodemon --exec babel-node app/src",
+        "start": "DEBUG=workspace-service:* nodemon --exec babel-node app/src",
         "test": "npm run test:unit && npm run test:integration",
         "test:unit": "jest tests/unit",
         "test:integration": "jest --forceExit --detectOpenHandles tests/integration/index_resolvers"
     },
-    "repository": "https://github.com/blacknred/swoy-messenger-server.git",
+    "repository": "https://github.com/blacknred/swoy-services.git",
     "author": "blcknrd <tretyakov.dmi@gmail.com>",
     "license": "MIT",
     "engines": {
