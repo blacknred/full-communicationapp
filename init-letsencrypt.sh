@@ -1,9 +1,9 @@
 #!/bin/bash
 
-domains=(blackapis.tk www.blackapis.tk)
+domains=(domain.com www.domain.com)
 rsa_key_size=4096
 data_path="./certbot"
-email="admin@blackapis.tk" # Adding a valid address is strongly recommended
+email="admin@domain.com" # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then
