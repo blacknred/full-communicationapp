@@ -48,3 +48,11 @@ NodeJs, Koa, GraphQL
     ```sh
     ...
     ```
+
+### Production
+
+1. Push image:
+
+    ```sh
+    docker push swoy_workspace-service .
+    ```
