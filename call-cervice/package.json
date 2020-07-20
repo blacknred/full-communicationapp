@@ -38,7 +38,7 @@
         "fastify": "latest",
         "helmet": "^3.16.0",
         "jsonwebtoken": "^8.4.0",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.19",
         "pm2": "^3.5.0",
         "ws": "^6.1.3"
     }
