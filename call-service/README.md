@@ -1,8 +1,8 @@
-# Audio and video call command service
+# WebRTC signalling media server
 
 ## Stack
 
-NodeJs, Fastify, REST, WS
+TS, Nodejs, Redis, WS
 
 ## Run the project
 
@@ -18,7 +18,7 @@ NodeJs, Fastify, REST, WS
   
     ```sh
     cd call-service
-    $ docker build -t swoy_call-service .
+    $ docker build -t call-service .
     ```
 
 1. Set the Environment variable
@@ -30,7 +30,7 @@ NodeJs, Fastify, REST, WS
 1. Run the container:
 
     ```sh
-    docker run -it -p 3000:3000 swoy_call-service
+    docker run -it -p 3000:3000 call-service
     ```
 
 1. curl `http://localhost:3000`
@@ -48,3 +48,5 @@ NodeJs, Fastify, REST, WS
     ```sh
     ...
     ```
+
+### Production

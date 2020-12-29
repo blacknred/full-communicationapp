@@ -1,25 +1,25 @@
-version: "3"
+version: "3.3"
 
 services:
   redis:
     container_name: redis
     build: ./redis
     ports:
-      - "6377:6379"
+      - "6379:6379"
     volumes:
       - ./redis/redis-data:/data
     environment:
-      - REDIS_PASSWORD=default-password
+      - REDIS_PASSWORD=redis
     healthcheck:
       test: exit 0
 
-  workspace-db:
-    container_name: workspace-db
-    build: ./workspace-db
+  channel-db:
+    container_name: channel-db
+    build: ./channel-db
     ports:
-      - "5438:5432"
+      - "5432:5432"
     volumes:
-      - ./workspace-db/pg-data:/var/lib/postgresql/data
+      - ./channel-db/pg-data:/var/lib/postgresql/data
     environment:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=postgres
@@ -39,43 +39,43 @@ services:
     healthcheck:
       test: exit 0
 
-  workspace-service:
-    container_name: workspace-service
-    build: ./workspace-service
+  channel-service:
+    container_name: channel-service
+    build: ./channel-service
     ports:
-      - "4001:3000"
+      - "4000:3000"
     volumes:
-      - "./workspace-service:/usr/src/app"
-      - "./workspace-service/package.json:/usr/src/package.json"
+      - "./channel-service:/usr/src/app"
+      - "./channel-service/package.json:/usr/src/package.json"
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@workspace-db:5432/workspace_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@workspace-db:5432/workspace_test
       - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=postgres://postgres:postgres@channel-db:5432/workspace_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@channel-db:5432/workspace_test
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
-      - REDIS_PASSWORD=default-password
+      - REDIS_PASSWORD=redis
     depends_on:
-      - workspace-db
+      - channel-db
       - redis
     links:
-      - workspace-db
+      - channel-db
       - redis
 
   message-service:
     container_name: message-service
     build: ./message-service
     ports:
-      - "4002:3000"
+      - "4001:3000"
     volumes:
       - "./message-service:/usr/src/app"
       - "./message-service/package.json:/usr/src/package.json"
     environment:
+      - NODE_ENV=${NODE_ENV}
       - DATABASE_URL=mongo://partners-db:27017/message_dev
       - DATABASE_TEST_URL=mongo://partners-db:27017/message_test
-      - NODE_ENV=${NODE_ENV}
       - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
       - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
-      - REDIS_PASSWORD=default-password
+      - REDIS_PASSWORD=redis
     depends_on:
       - message-db
       - redis
@@ -83,33 +83,52 @@ services:
       - message-db
       - redis
 
-    call-service:
-      container_name: call-service
-      build: ./call-service
-      ports:
-        - "4003:3000"
-      volumes:
-        - "./call-service:/usr/src/app"
-        - "./call-service/package.json:/usr/src/package.json"
-      environment:
-        - NODE_ENV=${NODE_ENV}
-        - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-        - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
-        - REDIS_PASSWORD=default-password
-      depends_on:
-        - redis
-      links:
-        - redis
+  call-service:
+    container_name: call-service
+    build: ./call-service
+    ports:
+      - "4002:3000"
+    volumes:
+      - "./call-service:/usr/src/app"
+      - "./call-service/package.json:/usr/src/package.json"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+      - REDIS_PASSWORD=redis
+    depends_on:
+      - redis
+    links:
+      - redis
 
-    file-service:
-      container_name: file-service
-      build: ./file-service
-      ports:
-        - "5000:5000"
-      volumes:
-        - "./file-service:/usr/src/app"
-        - "./file-service/requirements.txt:/usr/src/requirements.txt"
-      environment:
-        - NODE_ENV=${NODE_ENV}
-        - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-        - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+  file-service:
+    container_name: file-service
+    build: ./file-service
+    ports:
+      - "4003:5000"
+    volumes:
+      - "./file-service:/usr/src/app"
+      - "./file-service/requirements.txt:/usr/src/requirements.txt"
+    environment:
+      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+
+  # nginx:
+  #   container_name: nginx
+  #   build: ./nginx
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - "./nginx:/etc/nginx/conf.d"
+  #     - "./file-service/app/static:/files"
+  #   depends_on:
+  #     - channel-service
+  #     - message-service
+  #     - call-service
+  #     - assistant-service
+  #     - file-service
+  #   restart: always
+  #   healthcheck:
+  #     test: exit 0
+  #   command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx \
+  #     -s reload; done & nginx -g \"daemon off;\"'"

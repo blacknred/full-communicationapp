@@ -2,7 +2,7 @@
 
 ## Stack
 
-NodeJs, Micro, GraphQL, WS
+TS, NodeJs, Redis, Mongodb, REST, WS
 
 ## Run the project
 
@@ -18,7 +18,7 @@ NodeJs, Micro, GraphQL, WS
   
     ```sh
     cd message-service
-    $ docker build -t swoy_message-service .
+    $ docker build -t message-service .
     ```
 
 1. Set the Environment variable
@@ -30,7 +30,7 @@ NodeJs, Micro, GraphQL, WS
 1. Run the container:
 
     ```sh
-    docker run -it -p 3000:3000 swoy_message-service
+    docker run -it -p 3000:3000 message-service
     ```
 
 1. curl `http://localhost:3000`
@@ -48,3 +48,5 @@ NodeJs, Micro, GraphQL, WS
     ```sh
     ...
     ```
+
+### Production

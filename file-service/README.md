@@ -1,4 +1,4 @@
-# File storage service
+# File pocessing and storage service
 
 ## Stack
 
@@ -18,7 +18,7 @@ Python, Flask, REST
   
     ```sh
     cd file-service
-    $ docker build -t swoy_file-service .
+    $ docker build -t file-service .
     ```
 
 1. Set the Environment variable
@@ -30,7 +30,7 @@ Python, Flask, REST
 1. Run the container:
 
     ```sh
-    docker run -it -p 5000:5000 swoy_file-service
+    docker run -it -p 5000:5000 file-service
     ```
 
 1. curl `http://localhost:5000`
@@ -48,3 +48,5 @@ Python, Flask, REST
     ```sh
     ...
     ```
+
+### Production

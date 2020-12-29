@@ -1,22 +1,18 @@
-# SWOY - GraphQL Corporate Instant Messaging & Call Services on Docker
+# SWOY - Instant messaging and voice communication platform
 
 ## Architecture
 
-| Name                 | Container         | Stack                  | Ports  |
-| -------------------- | ----------------- | ---------------------- | ------ |
-| Workspace service    | workspace-service | NodeJs, Koa, GraphQL   | 4001   |
-| Message service      | message-service   | NodeJs, Micro, GraphQL | 4002   |
-| Call command Service | call-service      | NodeJs, Fastify, REST  | 4003   |
-| File storage service | file-service      | Python, Flask, REST    | 5000   |
-| Workspace DB         | workspace-db      | Postgres               | 5432   |
-| Message DB           | message-db        | MongoDB => Cassandra   | 5432   |
-| Redis                | redis             | Redis                  | 6379   |
-| Nginx                | nginx             | Nginx                  | 80/443 |
-| Certbot              | certbot           |                        |        |
-
-### Redis
-
-Cache layer for GraphQL Subscriptions pubsub, ratelimiting, users statuses and updates
+| Services             | Container         | Stack                    | Ports  |
+| -------------------- | ----------------- | ------------------------ | ------ |
+| Channel service      | channel-service   | TS, Nodejs, Koa, GraphQL | 4000   |
+| Message service      | message-service   | TS, NodeJs, REST, WS     | 4001   |
+| Call command Service | call-service      | TS, Nodejs, WS           | 4002   |
+| File storage service | file-service      | Python, Flask, REST      | 4003   |
+| Channel DB           | channel-db        | Postgres                 | 5432   |
+| Message DB           | message-db        | MongoDB                  | 27017  |
+| Redis                | redis             | Redis                    | 6379   |
+| Nginx                | nginx             | Nginx                    | 80/443 |
+| Certbot              | certbot           |                          |        |
 
 ## Run the project
 

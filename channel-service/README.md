@@ -1,8 +1,8 @@
-# Workspace service
+# Channel service
 
 ## Stack
 
-NodeJs, Koa, GraphQL
+TS, Nodejs, Koa, Postgres, Redis, GraphQL
 
 ## Run the project
 
@@ -17,8 +17,8 @@ NodeJs, Koa, GraphQL
 1. Build the image:
   
     ```sh
-    cd workspace-service
-    $ docker build -t swoy_workspace-service .
+    cd channel-service
+    $ docker build -t channel-service .
     ```
 
 1. Set the Environment variable
@@ -30,7 +30,7 @@ NodeJs, Koa, GraphQL
 1. Run the container:
 
     ```sh
-    docker run -it -p 3000:3000 swoy_workspace-service
+    docker run -it -p 3000:3000 channel-service
     ```
 
 1. curl `http://localhost:3000`
@@ -54,5 +54,5 @@ NodeJs, Koa, GraphQL
 1. Push image:
 
     ```sh
-    docker push swoy_workspace-service .
+    docker push channel-service .
     ```
