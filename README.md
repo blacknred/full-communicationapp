@@ -4,10 +4,10 @@
 
 | Services             | Container         | Stack                    | Ports  |
 | -------------------- | ----------------- | ------------------------ | ------ |
-| Channel service      | channel-service   | TS, Nodejs, Koa, GraphQL | 4000   |
-| Message service      | message-service   | TS, NodeJs, REST, WS     | 4001   |
-| Call command Service | call-service      | TS, Nodejs, WS           | 4002   |
-| File storage service | file-service      | Python, Flask, REST      | 4003   |
+| Channel service      | channel-service   | TS, Nodejs, Koa, GraphQL | 3001   |
+| Message service      | message-service   | TS, NodeJs, REST, WS     | 3002   |
+| Call command Service | call-service      | TS, Nodejs, WS           | 3003   |
+| File storage service | file-service      | Python, Flask, REST      | 3004   |
 | Channel DB           | channel-db        | Postgres                 | 5432   |
 | Message DB           | message-db        | MongoDB                  | 27017  |
 | Redis                | redis             | Redis                    | 6379   |
@@ -72,13 +72,13 @@
 
    ```sh
    export NODE_ENV=production
-   export TOKEN_SECRET=your_secret
-   export TOKEN_SECRET_2=your_secret_2
+   export SECRET=your_secret
    export REDIS_PASSWORD=your_redis_password
    export POSTGRESQL_USER=your_postgresql_user
-   export POSTGRESQL_PASSWORD=your_postresql_user
+   export POSTGRESQL_PASSWORD=your_postresql_password
    export MONGODB_USER=your_mongodb_user
    export MONGODB_PASSWORD=your_mongodb_password
+   export SMTP_URL=your_smtp_url_like_smtps://username:password@smtp.gmail.com:465/
    ```
 
 1. Edit the `nginx/app.conf` to add your domain

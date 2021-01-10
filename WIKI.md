@@ -2,7 +2,7 @@
 
 [![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://blacknred.github.io/)
 
-Instant messaging and voice platform to communicate and work together within the team.
+Instant messaging and voice cloud platform to communicate and work together.
 
 Why?
 
@@ -677,20 +677,28 @@ the first channel will be default
 
 - common
   - avatar
-  - username
+  - name*
   - fullname
   - description
-  - contacts
-  - email(with confirmation)
-  - phone
-  - timezone
-- Space
+  - email
+  - phone*(with confirmation)
+- 2fa
+  - switch(off, need password + email for recovery)
+  - password(null)  
+- sessions
+  - devices list:(last activity + session turn off except current)
+  - sign out
+  - sign out from all devices
+  - clear cache
+- deleting
+  - self destruction period(null)
+  - delete my account
+
+<!-- - Space
   - description
   - inactivity status
-  - inactivity schedule
-- restoration token
+  - inactivity schedule -->
 - access tokens
-- sign out
 
 `settings/app`
 
@@ -704,7 +712,7 @@ the first channel will be default
   - off push notifications(false)
   - off sound(false)
   - notify about(init mode on available threads, main): all new messages || dm, reactions, mentions & keywords
-  - duplicate notifications to all devices(false)
+  <!-- - duplicate notifications to all devices(false) -->
   - keywords notification
     - list
     - add one
@@ -719,7 +727,7 @@ the first channel will be default
   - select correct audio input(mic), output sources(speakers) and camera device
   - call test
 
-`settings/Space`
+<!-- `settings/Space`
 
 - common
   - privateness
@@ -762,15 +770,15 @@ the first channel will be default
   - allow DM calls
   - allow audio channels
 - integrations
-    - moderation
-        - show ratings
-        - stopwords
-          - list
-          - add new
-      - list
-      - add new
+  - moderation
+      - show ratings
+      - stopwords
+        - list
+        - add new
+    - list
+    - add new
 - analitics(link)
-- delete Space
+- delete Space -->
 
 ### Analitics page
 
@@ -782,14 +790,6 @@ the first channel will be default
 
 https://sun1-87.userapi.com/impg/u2ZnTCTna9h0SXegj4F9dj18liqdsLtVl1WcBw/kvGE9i9YQ6U.jpg?size=100x0&quality=88&crop=9,7,1601,1601&sign=02c002777b087e5cea13300d586e55ef
 =chunks: epic => stories(within a single sprint) => tasks
-=Jwt token & refresh token in http-only cookies since cookies are preferable for storage. Payload stored in indexedDB.
-jwt(db check only on creation (includes public data, also microservice arch since no centralized db) vs sessionid(monolith).
-=foreign-lang-study(rand questions, level, freaq, day stats)
-=Question-answer pairs with any content will be saved in db. Service handles a new received payload with question by rating all Space related questions throught nlp analysis/elastic 'like this' query.
-If there is a question with a higher 80 percent occurance it will be sent as an answer.
-If there is a question with a higher 50 percent occurance it will be sent as an likely answer.
-In other cases there is no suitable answer.
-
 👏:clap: — “Well done!”
 ➕:heavy_plus_sign: — “I agree”
 👀:eyes: — “Looking at it” or “acknowledged”
@@ -810,12 +810,12 @@ In other cases there is no suitable answer.
 - extended role/permission model
 - extended auth ways: identity providers, google etc
 - call logging: the name of a call, where it was started (in a channel or a direct message), who started and participated, when members joined or left, and the time it ended.
-- ?message security
+- message security(telegram faq)
   - all messages are encrypted and stored in distributed network of servers
   - own protocol to transmit any private data
   - well-known protection algorithms? like TLS cryptographic protocol
-- ?call security:
-  - All traffic is encrypted in transit.
+- call security(telegram faq):
+  - All traffic is encrypted in transit(end-to-end encrypted voice calls).
   - Media traffic is encrypted with SRTP using a DTLS-SRTP key exchange.
   - Real-time data channel traffic is encrypted with DTLS.
   - HTTPS or secure WebSockets using TLS 1.2 are used for signaling communication with our media server.
@@ -825,3 +825,88 @@ In other cases there is no suitable answer.
   clients: travis ci + deploy provider: github pages(web), github releases(desktop/mobile)
   application:
   integrations: ?heroku + heroku-postgresql(free)
+
+
+
+
+#
+initial/reload
+  state.isLogged
+  ? getAllSpacesAndThreads:
+    (be)initial 
+    (fe)render threads & spaces, connect message & call services with wss
+    (be)message & call services dispatch updates
+    (fe)commit updates
+  : login:
+    (fe)enter phone
+    (be)send code
+    (fe)enter code
+    (be)checkcode and user existance(create session if exist)
+    (fe)signup(name+, fullname, email, avatar) || redirect to getAllSpacesAndThreads
+    (be)save user(create session)
+    (fe)redirect to getAllSpacesAndThreads
+
+
+
+
+Auth---------------------------------------------------------------------------------
+
+stateful session: channel-service, message-service, call-service
+jwt: file-service for actions, webhooks()
+- 
+
+webhooks
+- push messages(commands) and as call enhancements
+- jwt to app
+- secret to webhook
+
+
+Redis----------------------------------------------------------------------------------
+channel-service
+
+- session store: sessionid, user last activity time(lat), user clients, statusses?
+- caching(ttlб all thread users with allowed __thread notification politic__)
+
+message-service
+
+- session store: sessionid, user last activity time(lat), user clients, statusses?
+- caching(ttlб all thread users with allowed __thread notification politic__)
+- frontend db for 200 ms network latency issue
+- pubsub: broadcast message/feeds, broadcast typing/on stream/read message
+
+call-service
+
+?message broker
+Common----------------------------------------------------------------------------------
+
+fast, simple and free.
+self(profile), message(file), thread, group destruction after period
+your messages sync seamlessly across any number of your devices(clients).
+you can send messages, files of any type up to 1gb, make calls and create an audio/video streams.
+you can use replies, mentions, keywords and message threads.
+p2p connections for streams.
+offline access and cache files.
+dm up to 8 people and multipurpose channels for broadcasting to unlimited audiences.
+thread lists and groups.
+Invite links
+Direct links to chat 
+
+Once you've set up a username, you can give people a t.me/username link. Opening that link on their phone will automatically fire up their Telegram app and open a chat with you. 
+
+2fa with base SMS code + additional password. You need also email for password recovery.
+If phone was stolen and you have session access from another device turn on the 2FA, terminate your old phone session, get new sim and change the phone number with brand new if need. Otherwise get new SIM with the old number, login, terminate your old phone session and turn on the 2FA.
+
+
+bot usecases: 
+users can interact with bots in two ways: dm and threads(all messages|only mentions)
+bot commands(with bot mentions) are not persist
+
+
+
+ user, thread_user, group_user
+ thread: channel, dm
+ list, list_thread
+ group, group_thread
+
+ role
+ webhook

@@ -12,4 +12,4 @@ ADD package.json /usr/src/package.json
 RUN yarn install
 
 # start app
-CMD ["yarn", "start"]
+CMD ["yarn", "watch"]

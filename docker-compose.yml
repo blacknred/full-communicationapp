@@ -43,17 +43,17 @@ services:
     container_name: channel-service
     build: ./channel-service
     ports:
-      - "4000:3000"
+      - "3001:3000"
     volumes:
       - "./channel-service:/usr/src/app"
       - "./channel-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=${NODE_ENV}
-      - DATABASE_URL=postgres://postgres:postgres@channel-db:5432/workspace_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@channel-db:5432/workspace_test
-      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
-      - REDIS_PASSWORD=redis
+      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - DATABASE_URL=postgres://postgres:postgres@channel-db:5432/channel_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@channel-db:5432/channel_test
+      - REDIS_URL=redis://:redis@redis:6379/0
+      - SMTP_URL=smtp://marty.barrows92@ethereal.email:hT8tSyK6VUuvBfVDGH@smtp.ethereal.email:587/?pool=true
     depends_on:
       - channel-db
       - redis
@@ -65,17 +65,16 @@ services:
     container_name: message-service
     build: ./message-service
     ports:
-      - "4001:3000"
+      - "3002:3000"
     volumes:
       - "./message-service:/usr/src/app"
       - "./message-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=${NODE_ENV}
-      - DATABASE_URL=mongo://partners-db:27017/message_dev
-      - DATABASE_TEST_URL=mongo://partners-db:27017/message_test
-      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
-      - REDIS_PASSWORD=redis
+      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - DATABASE_URL=mongo://message-db:27017/message_dev
+      - DATABASE_TEST_URL=mongo://message-db:27017/message_test
+      - REDIS_URL=redis://:redis@redis:6379/0
     depends_on:
       - message-db
       - redis
@@ -87,15 +86,14 @@ services:
     container_name: call-service
     build: ./call-service
     ports:
-      - "4002:3000"
+      - "3003:3000"
     volumes:
       - "./call-service:/usr/src/app"
       - "./call-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=${NODE_ENV}
-      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
-      - REDIS_PASSWORD=redis
+      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - REDIS_URL=redis://:redis@redis:6379/0
     depends_on:
       - redis
     links:
@@ -105,30 +103,28 @@ services:
     container_name: file-service
     build: ./file-service
     ports:
-      - "4003:5000"
+      - "3004:5000"
     volumes:
       - "./file-service:/usr/src/app"
       - "./file-service/requirements.txt:/usr/src/requirements.txt"
     environment:
-      - TOKEN_SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-      - TOKEN_SECRET_2=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe'\xab\xa6L6\xdd\x8d[\xccO\xfe
+      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
 
-  # nginx:
-  #   container_name: nginx
-  #   build: ./nginx
-  #   ports:
-  #     - 80:80
-  #   volumes:
-  #     - "./nginx:/etc/nginx/conf.d"
-  #     - "./file-service/app/static:/files"
-  #   depends_on:
-  #     - channel-service
-  #     - message-service
-  #     - call-service
-  #     - assistant-service
-  #     - file-service
-  #   restart: always
-  #   healthcheck:
-  #     test: exit 0
-  #   command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx \
-  #     -s reload; done & nginx -g \"daemon off;\"'"
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 80:80
+    volumes:
+      - "./nginx:/etc/nginx/conf.d"
+      - "./file-service/app/static:/files"
+    depends_on:
+      - channel-service
+      - message-service
+      - call-service
+      - file-service
+    restart: always
+    healthcheck:
+      test: exit 0
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx \
+      -s reload; done & nginx -g \"daemon off;\"'"
