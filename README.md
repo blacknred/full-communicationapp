@@ -74,8 +74,8 @@
    export NODE_ENV=production
    export SECRET=your_secret
    export REDIS_PASSWORD=your_redis_password
-   export POSTGRESQL_USER=your_postgresql_user
-   export POSTGRESQL_PASSWORD=your_postresql_password
+   export POSTGRES_USER=your_postgresql_user
+   export POSTGRES_PASSWORD=your_postresql_password
    export MONGODB_USER=your_mongodb_user
    export MONGODB_PASSWORD=your_mongodb_password
    export SMTP_URL=your_smtp_url_like_smtps://username:password@smtp.gmail.com:465/

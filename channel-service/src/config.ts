@@ -66,7 +66,7 @@ const config: Config = {
       },
     },
     categories: {
-      default: { appenders: ["out", "app"], level: "trace" },
+      default: { appenders: ["server", "auth", "app"], level: "trace" },
     },
   },
   //

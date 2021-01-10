@@ -21,8 +21,8 @@ services:
     volumes:
       - ./channel-db/pg-data:/var/lib/postgresql/data
     environment:
-      - POSTGRESQL_USER=postgres
-      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     healthcheck:
       test: exit 0
 
@@ -34,8 +34,8 @@ services:
     volumes:
       - ./message-db/mongo-data:/data/db
     environment:
-      - MONGODB_USER=mongo
-      - MONGODB_PASSWORD=mongo
+      - MONGO_USERNAME=mongo
+      - MONGO_PASSWORD=mongo
     healthcheck:
       test: exit 0
 
