@@ -17,4 +17,4 @@ RUN pip install -r /requirements.txt
 ENV STATIC_URL /static
 
 # start app
-CMD ["python", "app/app"]
+CMD ["python", "app/src/index.py"]

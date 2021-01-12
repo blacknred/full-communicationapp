@@ -117,7 +117,7 @@ services:
       - 80:80
     volumes:
       - "./nginx:/etc/nginx/conf.d"
-      - "./file-service/app/static:/files"
+      - "./file-service/src/static:/files"
     depends_on:
       - channel-service
       - message-service

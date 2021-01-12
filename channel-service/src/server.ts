@@ -22,7 +22,8 @@ export default async (conf: Config) => {
 
   /** db connection */
 
-  conf.db.logger = logger.info;
+  // conf.db.logger = logger.info;
+  console.log(process.env)
   const orm = await MikroORM.init(conf.db);
 
   /** redis instance */
@@ -36,7 +37,7 @@ export default async (conf: Config) => {
   /** shutdown */
 
   const shutdown = async (err?: Error) => {
-    logger.fatal(err);
+    logger.fatal(err, err?.stack);
     // By default PM2 will wait 1600ms before sending a final SIGKILL signal.
     await orm.close(true);
     smtp.close(); // has also idle event to queue unsent emails in redis

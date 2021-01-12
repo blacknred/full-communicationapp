@@ -2,7 +2,7 @@
 
 [![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://blacknred.github.io/)
 
-Instant messaging and voice cloud platform to communicate and work together.
+IM and voice cloud platform to communicate and work together.
 
 Why?
 

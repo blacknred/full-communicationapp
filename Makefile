@@ -6,3 +6,6 @@ prod: ##
 
 dev: ##
 	docker-compose -f docker-compose.yml up $(c)
+
+stop: ##
+	docker-compose -f docker-compose.yml stop $(c)

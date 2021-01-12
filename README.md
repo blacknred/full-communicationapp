@@ -1,4 +1,4 @@
-# SWOY - Instant messaging and voice communication platform
+# SWOY - IM and voice communication platform
 
 ## Architecture
 

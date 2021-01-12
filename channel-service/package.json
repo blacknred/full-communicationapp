@@ -4,7 +4,7 @@
     "description": "",
     "main": "src/index.ts",
     "scripts": {
-        "watch": "nodemon --exec ts-node app/src",
+        "watch": "nodemon --exec ts-node -- src",
         "start": "pm2 start ./dist",
         "build": "ts-node src -d dist",
         "test": "npm run test:unit && npm run test:integration",
