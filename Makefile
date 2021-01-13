@@ -2,7 +2,7 @@ prod-build: ##
 	docker-compose -f docker-compose.prod.yml build --no-cache $(c)
 
 prod: ##
-	docker-compose -f docker-compose.prod.yml up $(c)
+	./init-letsencrypt.sh
 
 dev: ##
 	docker-compose -f docker-compose.yml up $(c)

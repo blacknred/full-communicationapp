@@ -1,11 +1,11 @@
 {
-    "name": "message-service",
+    "name": "xmpp-service",
     "version": "0.1.0",
     "description": "",
     "main": "src/index.ts",
     "scripts": {
-        "watch": "DEBUG=message-service:* nodemon --exec ts-node app/src",
-        "start": "DEBUG=message-service:* pm2 start ./dist",
+        "watch": "DEBUG=xmpp-service:* nodemon --exec ts-node app/src",
+        "start": "DEBUG=xmpp-service:* pm2 start ./dist",
         "build": "ts-node src -d dist",
         "test": "npm run test:unit && npm run test:integration",
         "test:unit": "jest tests/unit",

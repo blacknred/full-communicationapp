@@ -1,8 +1,8 @@
-# Message service
+# XMPP IM and WebRTC signalling media server
 
 ## Stack
 
-TS, NodeJs, Redis, Mongodb, REST, WS
+TS, NodeJs, Redis, Mongodb, WS
 
 ## Run the project
 
@@ -17,8 +17,8 @@ TS, NodeJs, Redis, Mongodb, REST, WS
 1. Build the image:
   
     ```sh
-    cd message-service
-    $ docker build -t message-service .
+    cd xmpp-service
+    $ docker build -t xmpp-service .
     ```
 
 1. Set the Environment variable
@@ -30,7 +30,7 @@ TS, NodeJs, Redis, Mongodb, REST, WS
 1. Run the container:
 
     ```sh
-    docker run -it -p 3000:3000 message-service
+    docker run -it -p 3000:3000 xmpp-service
     ```
 
 1. curl `http://localhost:3000`

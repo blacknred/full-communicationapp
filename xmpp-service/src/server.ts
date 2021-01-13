@@ -2,7 +2,7 @@ import Debug from 'debug';
 import * as http from 'http';
 import { Config } from './types';
 
-const debug = Debug('call-service:server');
+const debug = Debug('xmpp-service:server');
 
 const requestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
   res.end(`Hello ${req.url}!`);

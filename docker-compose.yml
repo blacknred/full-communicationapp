@@ -50,10 +50,10 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-      - DATABASE_URL=postgres://postgres:postgres@channel-db:5432/channel_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@channel-db:5432/channel_test
+      - DATABASE_URL=postgres://postgres:postgres@channel-db:5432/app
+      - DATABASE_TEST_URL=postgres://postgres:postgres@channel-db:5432/app_test
       - REDIS_URL=redis://:redis@redis:6379/0
-      - SMTP_URL=smtp://marty.barrows92@ethereal.email:hT8tSyK6VUuvBfVDGH@smtp.ethereal.email:587/?pool=true
+      - SMTP_URL=smtp://test@test:587/?pool=true
     depends_on:
       - channel-db
       - redis
@@ -61,49 +61,32 @@ services:
       - channel-db
       - redis
 
-  message-service:
-    container_name: message-service
-    build: ./message-service
-    ports:
-      - "3002:3000"
-    volumes:
-      - "./message-service:/usr/src/app"
-      - "./message-service/package.json:/usr/src/package.json"
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
-      - DATABASE_URL=mongo://message-db:27017/message_dev
-      - DATABASE_TEST_URL=mongo://message-db:27017/message_test
-      - REDIS_URL=redis://:redis@redis:6379/0
-    depends_on:
-      - message-db
-      - redis
-    links:
-      - message-db
-      - redis
-
-  call-service:
-    container_name: call-service
-    build: ./call-service
+  xmpp-service:
+    container_name: xmpp-service
+    build: ./xmpp-service
     ports:
       - "3003:3000"
     volumes:
-      - "./call-service:/usr/src/app"
-      - "./call-service/package.json:/usr/src/package.json"
+      - "./xmpp-service:/usr/src/app"
+      - "./xmpp-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=${NODE_ENV}
       - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - DATABASE_URL=mongo://mongo:mongo@message-db:27017/message
+      - DATABASE_TEST_URL=mongo://mongo:mongo@message-db:27017/message_test
       - REDIS_URL=redis://:redis@redis:6379/0
     depends_on:
+      - message-db
       - redis
     links:
+      - message-db
       - redis
 
   file-service:
     container_name: file-service
     build: ./file-service
     ports:
-      - "3004:5000"
+      - "3002:5000"
     volumes:
       - "./file-service:/usr/src/app"
       - "./file-service/requirements.txt:/usr/src/requirements.txt"
@@ -116,12 +99,12 @@ services:
     ports:
       - 80:80
     volumes:
-      - "./nginx:/etc/nginx/conf.d"
+      - "./nginx/app.conf:/etc/nginx/conf.d/default.conf"
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
       - "./file-service/src/static:/files"
     depends_on:
       - channel-service
-      - message-service
-      - call-service
+      - xmpp-service
       - file-service
     restart: always
     healthcheck:
