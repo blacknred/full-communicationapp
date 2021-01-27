@@ -41,6 +41,7 @@ services:
 
   channel-service:
     container_name: channel-service
+    hostname: channel-service
     build: ./channel-service
     ports:
       - "3001:3000"
@@ -48,7 +49,7 @@ services:
       - "./channel-service:/usr/src/app"
       - "./channel-service/package.json:/usr/src/package.json"
     environment:
-      - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=production
       - SECRET=${SECRET}
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@channel-db:5432/app
       - DATABASE_TEST_URL=postgres://${POSTGRES_USER}:{POSTGRES_PASSWORD}@channel-db:5432/app_test
@@ -63,14 +64,15 @@ services:
 
   xmpp-service:
     container_name: xmpp-service
+    hostname: xmpp-service
     build: ./xmpp-service
     ports:
-      - "3003:3000"
+      - "4000:4000"
     volumes:
       - "./xmpp-service:/usr/src/app"
       - "./xmpp-service/package.json:/usr/src/package.json"
     environment:
-      - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=production
       - SECRET=${SECRET}
       - DATABASE_URL=mongo://${MONGODB_USER}:${MONGODB_PASSWORD}@message-db:27017/message
       - DATABASE_TEST_URL=mongo://${MONGODB_USER}:${MONGODB_PASSWORD}@message-db:27017/message_test
@@ -84,27 +86,34 @@ services:
 
   file-service:
     container_name: file-service
+    hostname: file-service
     build: ./file-service
     ports:
-      - "3002:5000"
+      - "5000:5000"
     volumes:
       - "./file-service:/usr/src/app"
       - "./file-service/requirements.txt:/usr/src/requirements.txt"
     environment:
+      - PYTHON_ENV=production
       - SECRET=${SECRET}
 
-  nginx:
-    container_name: nginx
-    build: ./nginx
+  proxy:
+    container_name: proxy
+    hostname: proxy
+    build: ./proxy
     ports:
       - 80:80
       - 443:443
     volumes:
-      - "./nginx/app.prod.conf:/etc/nginx/conf.d/default.conf"
-      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
-      - "./file-service/app/static:/files"
-      - "./certbot/conf:/etc/letsencrypt"
-      - "./certbot/www:/var/www/certbot"
+      - "./proxy/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "./proxy/nginx.conf:/etc/nginx.conf"
+      - "./file-service/src/static:/files"
+      - "./proxy/ssl:/etc/nginx/ssl"
+    environment:
+      - TZ=UTC
+      - LETSENCRYPT=true
+      - LE_EMAIL=${SSL_EMAIL}
+      - LE_FQDN=${NGINX_HOST}
     depends_on:
       - channel-service
       - xmpp-service
@@ -112,18 +121,4 @@ services:
     restart: always
     healthcheck:
       test: exit 0
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx \
-      -s reload; done & nginx -g \"daemon off;\"'"
 
-  certbot:
-    container_name: certbot
-    build: ./certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    depends_on:
-      - nginx
-    healthcheck:
-      test: exit 0
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; \
-      do certbot renew; sleep 12h & wait $${!}; done;'"

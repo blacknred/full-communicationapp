@@ -2,17 +2,15 @@
 
 ## Architecture
 
-| Services             | Container         | Stack                    | Ports  |
-| -------------------- | ----------------- | ------------------------ | ------ |
-| Channel service      | channel-service   | TS, Nodejs, Koa, GraphQL | 3001   |
-| Message service      | message-service   | TS, NodeJs, REST, WS     | 3002   |
-| Call command Service | call-service      | TS, Nodejs, WS           | 3003   |
-| File storage service | file-service      | Python, Flask, REST      | 3004   |
-| Channel DB           | channel-db        | Postgres                 | 5432   |
-| Message DB           | message-db        | MongoDB                  | 27017  |
-| Redis                | redis             | Redis                    | 6379   |
-| Nginx                | nginx             | Nginx                    | 80/443 |
-| Certbot              | certbot           |                          |        |
+| Services        | Container       | Stack                    | Ports  |
+| --------------- | ----------------| ------------------------ | ------ |
+| Channel service | channel-service | TS, Nodejs, Koa, GraphQL | 3001   |
+| Xmpp service    | xmpp-service    | TS, NodeJs, WS           | 4000   |
+| File service    | file-service    | Python, Flask, REST      | 5000   |
+| Channel DB      | channel-db      | Postgres                 | 5432   |
+| Message DB      | message-db      | MongoDB                  | 27017  |
+| Redis           | redis           | Redis                    | 6379   |
+| Reverse proxy   | proxy           | Nginx                    | 80/443 |
 
 ## Run the project
 
@@ -52,43 +50,20 @@
    docker exec -ti <container-id> psql -U postgres
    ```
 
-### Run tests
-
-1. Set the Environment variable:
-
-   ```sh
-   export NODE_ENV=test
-   ```
-
-1. With the apps up, run:
-
-   ```sh
-   cd server && npm test
-   ```
-
 ### Production
 
-1. Set the Environment variables:
+1. Set the Environment variables one by one or in .env:
 
    ```sh
-   export NODE_ENV=production
    export SECRET=your_secret
+   export NGINX_HOST=your_app_host
+   export SSL_EMAIL=your_lets_encript_email
    export REDIS_PASSWORD=your_redis_password
    export POSTGRES_USER=your_postgresql_user
    export POSTGRES_PASSWORD=your_postresql_password
    export MONGODB_USER=your_mongodb_user
    export MONGODB_PASSWORD=your_mongodb_password
    export SMTP_URL=your_smtp_url_like_smtps://username:password@smtp.gmail.com:465/
-   ```
-
-1. Edit the `nginx/app.conf` to add your domain
-
-1. Edit the `init-letsencrypt.sh` script to add in your domain(s) and your email address
-
-1. Run `init-letsencrypt.sh` script:
-
-   ```sh
-   sudo ./init-letsencrypt.sh
    ```
 
 1. Run the containers:

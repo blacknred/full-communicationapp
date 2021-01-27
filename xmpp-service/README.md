@@ -24,7 +24,7 @@ TS, NodeJs, Redis, Mongodb, WS
 1. Set the Environment variable
 
     ```sh
-    export DEBUG=development
+    export NODE_ENV=development
     ```
 
 1. Run the container:
@@ -40,13 +40,11 @@ TS, NodeJs, Redis, Mongodb, WS
 1. Set the Environment variable
 
     ```sh
-    export DEBUG=test
+    export NODE_ENV=test
     ```
 
 1. With the service up, run:
 
-    ```sh
-    ...
-    ```
-
-### Production
+ ```sh
+   yarn test
+   ```

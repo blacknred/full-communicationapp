@@ -7,7 +7,7 @@ dotenv.config({
 });
 
 const config: Config = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 4000,
   env: process.env.NODE_ENV || "development",
   secret: process.env.SECRET || "secret",
 };

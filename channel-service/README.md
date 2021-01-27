@@ -24,7 +24,7 @@ TS, Nodejs, Koa, Postgres, Redis, GraphQL
 1. Set the Environment variable
 
     ```sh
-    export DEBUG=development
+    export NODE_ENV=development
     ```
 
 1. Run the container:
@@ -37,22 +37,14 @@ TS, Nodejs, Koa, Postgres, Redis, GraphQL
 
 ### Run tests
 
-1. Set the Environment variable
+1. Set the Environment variable:
 
-    ```sh
-    export DEBUG=test
-    ```
+   ```sh
+   export NODE_ENV=test
+   ```
 
 1. With the service up, run:
 
-    ```sh
-    ...
-    ```
-
-### Production
-
-1. Push image:
-
-    ```sh
-    docker push channel-service .
-    ```
+   ```sh
+   yarn test
+   ```

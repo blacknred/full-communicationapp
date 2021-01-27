@@ -48,5 +48,3 @@ Python, Flask, REST
     ```sh
     ...
     ```
-
-### Production
