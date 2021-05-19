@@ -5,7 +5,7 @@ import { Config } from './types';
 const debug = Debug('xmpp-service:server');
 
 const requestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
-  res.end(`Hello ${req.url}!`);
+  res.end(`Hello 6 ${req.url}!`);
 };
 
 export default async(conf: Config) => {

@@ -910,3 +910,10 @@ bot commands(with bot mentions) are not persist
 
  role
  webhook
+
+
+
+
+
+ BOT
+ hearme: random connect with any person

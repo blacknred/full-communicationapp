@@ -1,20 +1,38 @@
 {
 	"folders": [
 		{
+			"name": "swoy-services",
 			"path": "."
 		},
 		{
-			"path": "../swoy-react-web-client"
-		},
-		{
+			"name": "jsbook",
 			"path": "../../jsbook"
 		},
 		{
+			"name": "pybook",
 			"path": "../../pybook"
+		},
+		{
+			"name": "airbnbclone",
+			"path": "../../react-native/airbnbclone"
+		},
+		{
+			"name": "whatsupclone",
+			"path": "../../react-native/whatsupclone"
+		},
+		{
+			"name": "fooddeliveryclone",
+			"path": "../../react-native/fooddeliveryclone"
+		},
+		{
+			"name": "zoomclone",
+			"path": "../../react-native/zoomclone"
 		},
 		{
 			"path": "../../proit/mfc-admin"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "blacknred.github.io"
+	}
 }

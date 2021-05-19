@@ -4,10 +4,11 @@
     "description": "",
     "main": "src/index.ts",
     "scripts": {
-        "watch": "nodemon --exec ts-node -- src",
+        "watch": "nodemon --config nodemon.json app/src/index.ts",
+        "debug": "DEBUG=xmpp-service:* nodemon --config nodemon.json --inspect-brk src/index.ts",
         "start": "pm2 start ./dist",
         "build": "ts-node src -d dist",
-        "test": "npm run test:unit && npm run test:integration",
+        "test": "yarn run test:unit && yarn run test:integration",
         "test:unit": "jest tests/unit",
         "test:integration": "jest --forceExit --detectOpenHandles tests/integration/index_resolvers"
     },
