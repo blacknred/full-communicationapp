@@ -12,8 +12,8 @@
         "test:unit": "jest tests/unit",
         "test:integration": "jest --forceExit --detectOpenHandles tests/integration/index_resolvers"
     },
-    "repository": "https://github.com/blacknred/swoy-services.git",
-    "author": "blcknrd <tretyakov.dmi@gmail.com>",
+    "repository": "https://github.com/blacknred/full-communicationapp.git",
+    "author": "Dmitry Tretyakov <tretyakov.dmi@gmail.com> (https://blacknred.github.io/)",
     "license": "MIT",
     "engines": {
         "node": ">=10.0.0"
